@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
-import { Search, Plus, ArrowLeft, Package, Layers, Shirt } from 'lucide-react';
+import { Search, Plus, ArrowLeft, Package, Layers, Shirt, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 interface Service {
   id: string;
   name: string;
+  active: boolean;
 }
 
 const Services: React.FC = () => {
@@ -36,7 +38,8 @@ const Services: React.FC = () => {
 
     const newService = {
       id: Date.now().toString(),
-      name: newServiceName.trim()
+      name: newServiceName.trim(),
+      active: true
     };
 
     setServices([...services, newService]);
@@ -46,6 +49,31 @@ const Services: React.FC = () => {
     toast({
       title: "Success",
       description: "Service added successfully",
+    });
+  };
+
+  const toggleServiceStatus = (id: string) => {
+    setServices(
+      services.map(service => 
+        service.id === id ? { ...service, active: !service.active } : service
+      )
+    );
+    
+    const service = services.find(s => s.id === id);
+    const newStatus = service ? !service.active : false;
+    
+    toast({
+      title: "Status Updated",
+      description: `Service ${newStatus ? 'activated' : 'deactivated'} successfully`,
+    });
+  };
+
+  const deleteService = (id: string) => {
+    setServices(services.filter(service => service.id !== id));
+    
+    toast({
+      title: "Service Deleted",
+      description: "Service removed successfully",
     });
   };
 
@@ -106,9 +134,38 @@ const Services: React.FC = () => {
               {services.map((service) => (
                 <div 
                   key={service.id}
-                  className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                  className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${
+                    service.active ? 'border-gray-200' : 'border-gray-200 bg-gray-50'
+                  }`}
                 >
-                  <h3 className="font-medium text-gray-800">{service.name}</h3>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className={`font-medium ${service.active ? 'text-gray-800' : 'text-gray-500'}`}>
+                      {service.name}
+                    </h3>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => toggleServiceStatus(service.id)} 
+                        className="text-gray-500 hover:text-laundry-blue transition-colors"
+                        aria-label={service.active ? "Deactivate service" : "Activate service"}
+                      >
+                        {service.active ? 
+                          <ToggleRight className="h-5 w-5 text-laundry-blue" /> : 
+                          <ToggleLeft className="h-5 w-5" />
+                        }
+                      </button>
+                      <button 
+                        onClick={() => deleteService(service.id)} 
+                        className="text-gray-500 hover:text-red-500 transition-colors"
+                        aria-label="Delete service"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-xs font-medium px-2 py-1 rounded-full inline-block mt-1 
+                    ${service.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                    {service.active ? 'Active' : 'Inactive'}
+                  </div>
                 </div>
               ))}
             </div>
