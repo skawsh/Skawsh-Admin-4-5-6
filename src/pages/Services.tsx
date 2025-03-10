@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
-import { Search, Plus, ArrowLeft, Package, Layers, Shirt, Trash2, X } from 'lucide-react';
+import { Search, Plus, ArrowLeft, Package, Layers, Shirt, Trash2, X, Pencil } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,10 +30,14 @@ const Services: React.FC = () => {
   const [isAddServiceOpen, setIsAddServiceOpen] = useState(false);
   const [isAddSubServiceOpen, setIsAddSubServiceOpen] = useState(false);
   const [isAddClothingItemOpen, setIsAddClothingItemOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   
   const [newServiceName, setNewServiceName] = useState('');
   const [newSubServiceName, setNewSubServiceName] = useState('');
   const [newClothingItemName, setNewClothingItemName] = useState('');
+  
+  const [editingItem, setEditingItem] = useState<Service | SubService | ClothingItem | null>(null);
+  const [editItemName, setEditItemName] = useState('');
   
   const [services, setServices] = useState<Service[]>([]);
   const [subServices, setSubServices] = useState<SubService[]>([]);
@@ -43,7 +46,6 @@ const Services: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
-  // Load data from localStorage
   useEffect(() => {
     const storedServices = localStorage.getItem('services');
     if (storedServices) {
@@ -61,7 +63,6 @@ const Services: React.FC = () => {
     }
   }, []);
 
-  // Save data to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('services', JSON.stringify(services));
   }, [services]);
@@ -80,7 +81,6 @@ const Services: React.FC = () => {
     { id: 'clothing-items', label: 'Clothing Items', icon: Shirt }
   ];
 
-  // Get the appropriate title and placeholder based on active tab
   const getTabInfo = () => {
     switch (activeTab) {
       case 'sub-services':
@@ -258,7 +258,6 @@ const Services: React.FC = () => {
     setSearchTerm('');
   };
 
-  // Filter the current active tab items
   const getFilteredItems = () => {
     switch (activeTab) {
       case 'sub-services':
@@ -293,10 +292,52 @@ const Services: React.FC = () => {
     }
   };
 
+  const handleEditClick = (item: Service | SubService | ClothingItem) => {
+    setEditingItem(item);
+    setEditItemName(item.name);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSave = () => {
+    if (!editingItem || !editItemName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Name cannot be empty"
+      });
+      return;
+    }
+
+    const updateList = (list: any[], id: string, newName: string) => {
+      return list.map(item => 
+        item.id === id ? { ...item, name: newName.trim() } : item
+      );
+    };
+
+    switch (activeTab) {
+      case 'sub-services':
+        setSubServices(updateList(subServices, editingItem.id, editItemName));
+        break;
+      case 'clothing-items':
+        setClothingItems(updateList(clothingItems, editingItem.id, editItemName));
+        break;
+      default:
+        setServices(updateList(services, editingItem.id, editItemName));
+    }
+
+    setIsEditDialogOpen(false);
+    setEditingItem(null);
+    setEditItemName('');
+    
+    toast({
+      title: "Success",
+      description: "Item updated successfully"
+    });
+  };
+
   return (
     <Layout activeSection="services">
       <div className="space-y-6">
-        {/* Page Header */}
         <div className="flex items-center gap-2">
           <button className="text-gray-500 hover:text-gray-700 transition-colors">
             <ArrowLeft size={24} />
@@ -307,7 +348,6 @@ const Services: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="bg-white rounded-lg p-2 shadow-sm">
           <div className="flex gap-2">
             {tabs.map(tab => (
@@ -328,7 +368,6 @@ const Services: React.FC = () => {
           </div>
         </div>
         
-        {/* Search and Add Button */}
         <div className="flex justify-between items-center">
           <div className="relative w-full max-w-lg">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -359,21 +398,18 @@ const Services: React.FC = () => {
           </Button>
         </div>
         
-        {/* Items List */}
         <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm">
           {filteredItems.length > 0 ? (
             <div className="space-y-2">
               {filteredItems.map(item => {
-                // Determine which icon to use based on the active tab
                 const IconComponent = activeTab === 'sub-services' ? Layers : 
-                                      activeTab === 'clothing-items' ? Shirt : Package;
+                                    activeTab === 'clothing-items' ? Shirt : Package;
                 
-                // Determine which toggle and delete functions to use based on the active tab
                 const toggleStatus = activeTab === 'sub-services' ? toggleSubServiceStatus : 
-                                    activeTab === 'clothing-items' ? toggleClothingItemStatus : toggleServiceStatus;
+                                   activeTab === 'clothing-items' ? toggleClothingItemStatus : toggleServiceStatus;
                 
                 const deleteItem = activeTab === 'sub-services' ? deleteSubService : 
-                                  activeTab === 'clothing-items' ? deleteClothingItem : deleteService;
+                                 activeTab === 'clothing-items' ? deleteClothingItem : deleteService;
                 
                 return (
                   <div key={item.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
@@ -390,10 +426,16 @@ const Services: React.FC = () => {
                         className="data-[state=checked]:bg-green-500"
                       />
                       <button 
+                        onClick={() => handleEditClick(item)}
+                        className="text-gray-500 hover:text-blue-500 transition-colors"
+                        aria-label="Edit item"
+                      >
+                        <Pencil className="h-5 w-5" />
+                      </button>
+                      <button 
                         onClick={() => deleteItem(item.id)} 
                         className="text-gray-500 hover:text-red-500 transition-colors"
-                        aria-label={`Delete ${activeTab === 'sub-services' ? 'sub-service' : 
-                                           activeTab === 'clothing-items' ? 'clothing item' : 'service'}`}
+                        aria-label="Delete item"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
@@ -418,7 +460,6 @@ const Services: React.FC = () => {
           )}
         </div>
 
-        {/* Add Service Dialog */}
         <Dialog open={isAddServiceOpen} onOpenChange={setIsAddServiceOpen}>
           <DialogContent>
             <DialogHeader>
@@ -448,7 +489,6 @@ const Services: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Add Sub-service Dialog */}
         <Dialog open={isAddSubServiceOpen} onOpenChange={setIsAddSubServiceOpen}>
           <DialogContent>
             <DialogHeader>
@@ -478,7 +518,6 @@ const Services: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Add Clothing Item Dialog */}
         <Dialog open={isAddClothingItemOpen} onOpenChange={setIsAddClothingItemOpen}>
           <DialogContent>
             <DialogHeader>
@@ -502,6 +541,38 @@ const Services: React.FC = () => {
                 Cancel
               </Button>
               <Button onClick={handleAddClothingItem}>
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit {activeTab === 'sub-services' ? 'Sub-service' : 
+                               activeTab === 'clothing-items' ? 'Clothing Item' : 'Service'}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <Input 
+                placeholder={`Enter ${activeTab === 'sub-services' ? 'sub-service' : 
+                            activeTab === 'clothing-items' ? 'clothing item' : 'service'} name`}
+                value={editItemName} 
+                onChange={e => setEditItemName(e.target.value)} 
+              />
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setEditItemName('');
+                  setIsEditDialogOpen(false);
+                  setEditingItem(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleEditSave}>
                 Save
               </Button>
             </DialogFooter>
