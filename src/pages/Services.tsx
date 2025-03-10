@@ -1,20 +1,53 @@
-
 import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { Search, Plus, ArrowLeft, Package, Layers, Shirt } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
+interface Service {
+  id: string;
+  name: string;
+}
 
 const Services: React.FC = () => {
   const [activeTab, setActiveTab] = useState('services');
+  const [isAddServiceOpen, setIsAddServiceOpen] = useState(false);
+  const [newServiceName, setNewServiceName] = useState('');
+  const [services, setServices] = useState<Service[]>([]);
+  const { toast } = useToast();
   
   const tabs = [
     { id: 'services', label: 'Services', icon: Package },
     { id: 'sub-services', label: 'Sub-services', icon: Layers },
     { id: 'clothing-items', label: 'Clothing Items', icon: Shirt }
   ];
-  
-  const services = [
-    // Placeholder for services data
-  ];
+
+  const handleAddService = () => {
+    if (!newServiceName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Service name cannot be empty",
+      });
+      return;
+    }
+
+    const newService = {
+      id: Date.now().toString(),
+      name: newServiceName.trim()
+    };
+
+    setServices([...services, newService]);
+    setNewServiceName('');
+    setIsAddServiceOpen(false);
+    
+    toast({
+      title: "Success",
+      description: "Service added successfully",
+    });
+  };
 
   return (
     <Layout activeSection="services">
@@ -58,17 +91,62 @@ const Services: React.FC = () => {
             />
           </div>
           
-          <button className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white font-medium py-2 px-4 rounded-md transition-colors">
+          <Button 
+            className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white"
+            onClick={() => setIsAddServiceOpen(true)}
+          >
             <Plus size={18} />
             <span>Add Service</span>
-          </button>
+          </Button>
         </div>
         
-        <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 mb-4">No services found. Try adjusting your search.</p>
-          </div>
+        <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm">
+          {services.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {services.map((service) => (
+                <div 
+                  key={service.id}
+                  className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                >
+                  <h3 className="font-medium text-gray-800">{service.name}</h3>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-600">No services found. Try adjusting your search.</p>
+            </div>
+          )}
         </div>
+
+        <Dialog open={isAddServiceOpen} onOpenChange={setIsAddServiceOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Service</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <Input
+                placeholder="Enter service name"
+                value={newServiceName}
+                onChange={(e) => setNewServiceName(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setNewServiceName('');
+                  setIsAddServiceOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleAddService}>
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
