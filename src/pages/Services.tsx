@@ -67,10 +67,6 @@ const Services: React.FC = () => {
         <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600 mb-4">No services found. Try adjusting your search.</p>
-            <button className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white font-medium py-2 px-4 rounded-md transition-colors mx-auto">
-              <Plus size={18} />
-              <span>Add Service</span>
-            </button>
           </div>
         </div>
       </div>
