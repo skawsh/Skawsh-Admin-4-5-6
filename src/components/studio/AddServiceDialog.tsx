@@ -126,19 +126,20 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     }));
   };
 
-  // Improved filtering functions
+  // Improved filtering functions with case-insensitive search
   const getFilteredServices = () => {
-    if (!serviceSearchQuery) return safeServices;
+    if (!serviceSearchQuery.trim()) return safeServices;
+    const query = serviceSearchQuery.toLowerCase();
     return safeServices.filter(service => 
-      service.name.toLowerCase().includes(serviceSearchQuery.toLowerCase())
+      service.name.toLowerCase().includes(query)
     );
   };
 
   const getFilteredSubServices = (id: string) => {
-    const query = subServiceSearchQueries[id] || "";
+    const query = (subServiceSearchQueries[id] || "").toLowerCase().trim();
     if (!query) return safeSubServices;
     return safeSubServices.filter(subService => 
-      subService.name.toLowerCase().includes(query.toLowerCase())
+      subService.name.toLowerCase().includes(query)
     );
   };
 
@@ -166,7 +167,10 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   };
 
   // Get selected service name for display
-  const selectedServiceName = safeServices.find(service => service.id === selectedService)?.name || "Select a service";
+  const getSelectedServiceName = () => {
+    const service = safeServices.find(service => service.id === selectedService);
+    return service ? service.name : "Select a service";
+  };
 
   // Get selected subservice name for display
   const getSelectedSubServiceName = (id: string) => {
@@ -201,7 +205,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   aria-expanded={openServiceCombobox}
                   className="w-full border-2 rounded-lg h-12 justify-between"
                 >
-                  {selectedServiceName}
+                  {getSelectedServiceName()}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -224,6 +228,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           key={service.id}
                           value={service.id}
                           onSelect={(currentValue) => {
+                            console.log("Selected service:", currentValue, service);
                             setSelectedService(currentValue);
                             setOpenServiceCombobox(false);
                           }}
@@ -289,6 +294,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                                   key={subService.id}
                                   value={subService.id}
                                   onSelect={(currentValue) => {
+                                    console.log("Selected sub-service:", currentValue, subService);
                                     handleSubServiceChange(subServiceItem.id, 'name', currentValue);
                                     toggleSubServiceCombobox(subServiceItem.id, false);
                                   }}
