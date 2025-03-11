@@ -214,15 +214,23 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
             </label>
             <Popover open={openServiceCombobox} onOpenChange={setOpenServiceCombobox}>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openServiceCombobox}
-                  className="w-full border-2 rounded-lg h-12 justify-between bg-white"
-                >
-                  {selectedServiceName || "Enter or select service..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
+                <div className="relative w-full rounded-lg border border-gray-200 bg-white">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Search className="h-4 w-4" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter or select service..."
+                    className="h-12 w-full rounded-lg border-none pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={selectedServiceName}
+                    onChange={(e) => setSelectedServiceName(e.target.value)}
+                    onClick={() => setOpenServiceCombobox(true)}
+                    readOnly
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                  </div>
+                </div>
               </PopoverTrigger>
               <PopoverContent 
                 className="w-[calc(100%-2rem)] p-0 bg-white shadow-lg" 
@@ -281,15 +289,28 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                       onOpenChange={(isOpen) => toggleSubServiceCombobox(subServiceItem.id, isOpen)}
                     >
                       <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openSubServiceComboboxes[subServiceItem.id] || false}
-                          className="w-full border rounded-lg justify-between bg-white"
-                        >
-                          {getSelectedSubServiceName(subServiceItem.id) || "Select a subservice..."}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
+                        <div className="relative w-full rounded-lg border border-gray-200 bg-white">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <Search className="h-4 w-4" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Select a subservice..."
+                            className="h-10 w-full rounded-lg border-none pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={getSelectedSubServiceName(subServiceItem.id)}
+                            onChange={(e) => {
+                              setSelectedSubServiceNames(prev => ({
+                                ...prev,
+                                [subServiceItem.id]: e.target.value
+                              }));
+                            }}
+                            onClick={() => toggleSubServiceCombobox(subServiceItem.id, true)}
+                            readOnly
+                          />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                          </div>
+                        </div>
                       </PopoverTrigger>
                       <PopoverContent 
                         className="w-[calc(100%-2rem)] p-0 bg-white shadow-lg" 
