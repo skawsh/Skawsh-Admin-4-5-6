@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Service, SubService, ClothingItem, SharedServiceData } from '../types/services';
@@ -36,23 +35,27 @@ const decodeDataFromUrl = (encodedData: string): SharedServiceData | null => {
   }
 };
 
-// Add default services data
+// Updated default services data
 const DEFAULT_SERVICES: Service[] = [
-  { id: "service-1", name: "Wash & Fold", active: true },
+  { id: "service-1", name: "Core Laundry Services", active: true },
   { id: "service-2", name: "Dry Cleaning", active: true },
-  { id: "service-3", name: "Ironing", active: true },
+  { id: "service-3", name: "Specialized Laundry Services", active: true },
+  { id: "service-4", name: "Shoe and Sneaker Services", active: true },
 ];
 
+// Updated default sub-services data
 const DEFAULT_SUB_SERVICES: SubService[] = [
-  { id: "subservice-1", name: "Express Service", active: true },
-  { id: "subservice-2", name: "Delicate Items", active: true },
-  { id: "subservice-3", name: "Stain Removal", active: true },
+  { id: "subservice-1", name: "Wash&Fold", active: true },
+  { id: "subservice-2", name: "Wash&Iron", active: true },
+  { id: "subservice-3", name: "Steam Ironing", active: true },
 ];
 
+// Updated default clothing items data
 const DEFAULT_CLOTHING_ITEMS: ClothingItem[] = [
   { id: "clothing-1", name: "Shirt", active: true },
-  { id: "clothing-2", name: "Pants", active: true },
-  { id: "clothing-3", name: "Dress", active: true },
+  { id: "clothing-2", name: "Pant", active: true },
+  { id: "clothing-3", name: "T-shirt", active: true },
+  { id: "clothing-4", name: "Short", active: true },
 ];
 
 export const useServicesData = () => {
