@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { Filter, BarChart2, Plus, Star, Search, ChevronDown, MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ interface Studio {
 }
 
 const Studios: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [ratingFilter, setRatingFilter] = useState<string | null>(null);
@@ -193,7 +195,10 @@ const Studios: React.FC = () => {
               <BarChart2 className="mr-2 h-4 w-4" />
               Overall Analytics
             </Button>
-            <Button className="bg-blue-700 hover:bg-blue-800">
+            <Button 
+              className="bg-blue-700 hover:bg-blue-800"
+              onClick={() => navigate('/studios/add')}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add New Studio
             </Button>
