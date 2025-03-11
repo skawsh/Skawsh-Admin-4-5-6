@@ -229,7 +229,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           value={service.id}
                           onSelect={(currentValue) => {
                             console.log("Selected service:", currentValue, service);
-                            setSelectedService(currentValue);
+                            setSelectedService(service.id);
                             setOpenServiceCombobox(false);
                           }}
                         >
@@ -295,7 +295,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                                   value={subService.id}
                                   onSelect={(currentValue) => {
                                     console.log("Selected sub-service:", currentValue, subService);
-                                    handleSubServiceChange(subServiceItem.id, 'name', currentValue);
+                                    handleSubServiceChange(subServiceItem.id, 'name', subService.id);
                                     toggleSubServiceCombobox(subServiceItem.id, false);
                                   }}
                                 >
