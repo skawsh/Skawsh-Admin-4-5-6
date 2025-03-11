@@ -3,13 +3,6 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Trash, FileText, Search, Check, ChevronsUpDown } from "lucide-react";
@@ -144,6 +137,18 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     onOpenChange(false);
   };
 
+  // Get selected service name for display
+  const selectedServiceName = services.find(service => service.id === selectedService)?.name || "Select a service";
+
+  // Get selected subservice name for display
+  const getSelectedSubServiceName = (id: string) => {
+    const subServiceItem = subServiceItems.find(item => item.id === id);
+    if (!subServiceItem || !subServiceItem.name) return "Select a subservice...";
+    
+    const subService = subServices.find(ss => ss.id === subServiceItem.name);
+    return subService?.name || "Select a subservice...";
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -165,9 +170,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   aria-expanded={openServiceCombobox}
                   className="w-full border-2 rounded-lg h-12 justify-between"
                 >
-                  {selectedService ? 
-                    services.find(service => service.id === selectedService)?.name : 
-                    "Select a service"}
+                  {selectedServiceName}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -230,9 +233,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           aria-expanded={openSubServiceComboboxes[subServiceItem.id] || false}
                           className="w-full border rounded-lg justify-between"
                         >
-                          {subServiceItem.name ? 
-                            subServices.find(subService => subService.id === subServiceItem.name)?.name : 
-                            "Select a subservice..."}
+                          {getSelectedSubServiceName(subServiceItem.id)}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
