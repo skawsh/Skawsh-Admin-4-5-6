@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -9,10 +8,15 @@ import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import AddServiceDialog from "@/components/studio/AddServiceDialog";
+import { useServicesData } from '@/hooks/useServicesData';
 
 const AddStudio: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { services, subServices, clothingItems } = useServicesData();
+  const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
+  const [studioServices, setStudioServices] = useState<any[]>([]);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -79,6 +83,14 @@ const AddStudio: React.FC = () => {
     
     // Navigate back to studios page
     navigate('/studios');
+  };
+
+  const handleServiceAdded = (data: any) => {
+    setStudioServices([...studioServices, data]);
+    toast({
+      title: "Service added",
+      description: "The service has been added to the studio.",
+    });
   };
 
   return (
@@ -551,11 +563,27 @@ const AddStudio: React.FC = () => {
             type="button"
             variant="outline"
             className="bg-blue-700 text-white hover:bg-blue-800 transition"
+            onClick={() => setIsAddServiceDialogOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Services
           </Button>
+
+          {studioServices.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-500">{studioServices.length} service(s) added</p>
+            </div>
+          )}
         </Card>
+
+        <AddServiceDialog
+          isOpen={isAddServiceDialogOpen}
+          onOpenChange={setIsAddServiceDialogOpen}
+          services={services}
+          subServices={subServices}
+          clothingItems={clothingItems}
+          onServiceAdded={handleServiceAdded}
+        />
       </form>
     </Layout>
   );
