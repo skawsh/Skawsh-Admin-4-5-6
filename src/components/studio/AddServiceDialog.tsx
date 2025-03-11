@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
@@ -39,7 +39,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   const safeClothingItems = Array.isArray(clothingItems) ? clothingItems : [];
 
   const [selectedService, setSelectedService] = useState<string>("");
-  const [selectedServiceName, setSelectedServiceName] = useState<string>("Select a service");
+  const [selectedServiceName, setSelectedServiceName] = useState<string>("");
   const [openServiceCombobox, setOpenServiceCombobox] = useState(false);
   const [serviceSearchQuery, setServiceSearchQuery] = useState("");
   
@@ -60,7 +60,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   useEffect(() => {
     if (!isOpen) {
       setSelectedService("");
-      setSelectedServiceName("Select a service");
+      setSelectedServiceName("");
       setServiceSearchQuery("");
       setSubServiceItems([{
         id: Date.now().toString(),
@@ -94,7 +94,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     
     setSelectedSubServiceNames(prev => ({
       ...prev,
-      [newItem.id]: "Select a subservice..."
+      [newItem.id]: ""
     }));
   };
 
@@ -177,7 +177,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     onServiceAdded(formData);
     
     setSelectedService("");
-    setSelectedServiceName("Select a service");
+    setSelectedServiceName("");
     setSubServiceItems([{
       id: Date.now().toString(),
       name: "",
@@ -192,7 +192,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   };
 
   const getSelectedSubServiceName = (id: string) => {
-    return selectedSubServiceNames[id] || "Select a subservice...";
+    return selectedSubServiceNames[id] || "";
   };
 
   const filteredServices = getFilteredServices();
@@ -202,6 +202,9 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-center text-xl text-blue-600 font-semibold">Add Service</DialogTitle>
+          <DialogDescription className="text-center text-gray-500">
+            Add a new service with its subservices and items
+          </DialogDescription>
         </DialogHeader>
         
         <div className="py-4 space-y-6">
@@ -215,13 +218,18 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   variant="outline"
                   role="combobox"
                   aria-expanded={openServiceCombobox}
-                  className="w-full border-2 rounded-lg h-12 justify-between"
+                  className="w-full border-2 rounded-lg h-12 justify-between bg-white"
                 >
-                  {selectedServiceName}
+                  {selectedServiceName || "Enter or select service..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[calc(100%-2rem)] p-0 bg-white z-50 shadow-lg" align="start" sideOffset={8}>
+              <PopoverContent 
+                className="w-[calc(100%-2rem)] p-0 bg-white shadow-lg" 
+                align="start" 
+                sideOffset={8}
+                style={{ zIndex: 50 }}
+              >
                 <Command>
                   <div className="flex items-center border-b px-3">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -277,13 +285,18 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           variant="outline"
                           role="combobox"
                           aria-expanded={openSubServiceComboboxes[subServiceItem.id] || false}
-                          className="w-full border rounded-lg justify-between"
+                          className="w-full border rounded-lg justify-between bg-white"
                         >
-                          {getSelectedSubServiceName(subServiceItem.id)}
+                          {getSelectedSubServiceName(subServiceItem.id) || "Select a subservice..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[calc(100%-2rem)] p-0 bg-white z-50 shadow-lg" align="start" sideOffset={8}>
+                      <PopoverContent 
+                        className="w-[calc(100%-2rem)] p-0 bg-white shadow-lg" 
+                        align="start" 
+                        sideOffset={8}
+                        style={{ zIndex: 50 }}
+                      >
                         <Command>
                           <div className="flex items-center border-b px-3">
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
