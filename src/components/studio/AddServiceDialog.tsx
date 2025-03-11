@@ -126,14 +126,17 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     }));
   };
 
-  const filteredServices = safeServices.filter(service => 
-    service.name.toLowerCase().includes((serviceSearchQuery || "").toLowerCase())
-  );
+  // Fixed filter logic for services
+  const filteredServices = safeServices.filter(service => {
+    const query = serviceSearchQuery.toLowerCase();
+    return service.name.toLowerCase().includes(query);
+  });
 
+  // Fixed filter logic for subservices
   const getFilteredSubServices = (id: string) => {
-    const query = subServiceSearchQueries[id] || "";
+    const query = (subServiceSearchQueries[id] || "").toLowerCase();
     return safeSubServices.filter(subService => 
-      subService.name.toLowerCase().includes(query.toLowerCase())
+      subService.name.toLowerCase().includes(query)
     );
   };
 
