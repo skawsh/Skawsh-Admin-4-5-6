@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -158,13 +159,9 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   };
 
   const getSelectedServiceName = () => {
-    console.log("Looking for service with ID:", selectedService);
-    console.log("Available services:", safeServices);
-    
     if (!selectedService) return "Select a service";
     
     const service = safeServices.find(service => service.id === selectedService);
-    console.log("Found service:", service);
     
     return service ? service.name : "Select a service";
   };
@@ -221,12 +218,11 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                         <CommandItem
                           key={service.id}
                           value={service.id}
-                          onSelect={() => {
-                            console.log("Selected service:", service.id, service);
+                          onSelect={(currentValue) => {
                             setSelectedService(service.id);
                             setOpenServiceCombobox(false);
-                            console.log("After selection, selectedService =", service.id);
                           }}
+                          className="cursor-pointer"
                         >
                           <Check
                             className={cn(
@@ -287,12 +283,11 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                                 <CommandItem
                                   key={subService.id}
                                   value={subService.id}
-                                  onSelect={() => {
-                                    console.log("Selected sub-service:", subService.id, subService);
+                                  onSelect={(currentValue) => {
                                     handleSubServiceChange(subServiceItem.id, 'name', subService.id);
                                     toggleSubServiceCombobox(subServiceItem.id, false);
-                                    console.log("After selection, subServiceItem.name =", subService.id);
                                   }}
+                                  className="cursor-pointer"
                                 >
                                   <Check
                                     className={cn(
