@@ -126,12 +126,17 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     }));
   };
 
-  const filteredServices = safeServices.filter(service => 
-    service.name.toLowerCase().includes((serviceSearchQuery || "").toLowerCase())
-  );
+  // Improved filtering functions
+  const getFilteredServices = () => {
+    if (!serviceSearchQuery) return safeServices;
+    return safeServices.filter(service => 
+      service.name.toLowerCase().includes(serviceSearchQuery.toLowerCase())
+    );
+  };
 
   const getFilteredSubServices = (id: string) => {
     const query = subServiceSearchQueries[id] || "";
+    if (!query) return safeSubServices;
     return safeSubServices.filter(subService => 
       subService.name.toLowerCase().includes(query.toLowerCase())
     );
@@ -172,6 +177,9 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     return subService?.name || "Select a subservice...";
   };
 
+  // Get filtered services
+  const filteredServices = getFilteredServices();
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -197,7 +205,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
+              <PopoverContent className="w-full p-0" align="start" sideOffset={8}>
                 <Command>
                   <div className="flex items-center border-b px-3">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -262,7 +270,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-full p-0" align="start">
+                      <PopoverContent className="w-full p-0" align="start" sideOffset={8}>
                         <Command>
                           <div className="flex items-center border-b px-3">
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -270,7 +278,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                               placeholder="Search sub-services..." 
                               className="h-9 flex-1"
                               value={subServiceSearchQueries[subServiceItem.id] || ""}
-                              onValueChange={(value) => updateSubServiceSearchQuery(subServiceItem.id, value)}
+                              onValueChange={(query) => updateSubServiceSearchQuery(subServiceItem.id, query)}
                             />
                           </div>
                           <CommandList>
