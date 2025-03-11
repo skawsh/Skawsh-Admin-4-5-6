@@ -1,13 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Trash, FileText, Search, Check, ChevronsUpDown } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 import { Service, SubService, ClothingItem } from "@/types/services";
-import { cn } from "@/lib/utils";
 import { 
   Select,
   SelectContent,
@@ -47,8 +43,6 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
 
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedServiceName, setSelectedServiceName] = useState<string>("");
-  const [openServiceCombobox, setOpenServiceCombobox] = useState(false);
-  const [serviceSearchQuery, setServiceSearchQuery] = useState("");
   
   const [subServiceItems, setSubServiceItems] = useState<SubServiceItem[]>([
     {
@@ -60,15 +54,13 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     }
   ]);
   
-  const [openSubServiceComboboxes, setOpenSubServiceComboboxes] = useState<Record<string, boolean>>({});
-  const [subServiceSearchQueries, setSubServiceSearchQueries] = useState<Record<string, string>>({});
   const [selectedSubServiceNames, setSelectedSubServiceNames] = useState<Record<string, string>>({});
+  const [selectedClothingItems, setSelectedClothingItems] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedService("");
       setSelectedServiceName("");
-      setServiceSearchQuery("");
       setSubServiceItems([{
         id: Date.now().toString(),
         name: "",
@@ -76,10 +68,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
         pricePerItem: "",
         selectedItems: []
       }]);
-      setSubServiceSearchQueries({});
-      setOpenServiceCombobox(false);
-      setOpenSubServiceComboboxes({});
       setSelectedSubServiceNames({});
+      setSelectedClothingItems({});
     }
   }, [isOpen]);
 
@@ -93,92 +83,94 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     };
     
     setSubServiceItems([...subServiceItems, newItem]);
-    
-    setSubServiceSearchQueries(prev => ({
-      ...prev,
-      [newItem.id]: ""
-    }));
-    
     setSelectedSubServiceNames(prev => ({
       ...prev,
       [newItem.id]: ""
+    }));
+    setSelectedClothingItems(prev => ({
+      ...prev,
+      [newItem.id]: []
     }));
   };
 
   const handleRemoveSubService = (id: string) => {
     setSubServiceItems(subServiceItems.filter(item => item.id !== id));
     
-    const newSearchQueries = { ...subServiceSearchQueries };
-    delete newSearchQueries[id];
-    setSubServiceSearchQueries(newSearchQueries);
-    
-    const newOpenStates = { ...openSubServiceComboboxes };
-    delete newOpenStates[id];
-    setOpenSubServiceComboboxes(newOpenStates);
-    
     const newSubServiceNames = { ...selectedSubServiceNames };
     delete newSubServiceNames[id];
     setSelectedSubServiceNames(newSubServiceNames);
+    
+    const newClothingItems = { ...selectedClothingItems };
+    delete newClothingItems[id];
+    setSelectedClothingItems(newClothingItems);
   };
 
-  const handleSubServiceChange = (id: string, field: keyof SubServiceItem, value: string) => {
+  const handleSubServiceChange = (id: string, field: keyof SubServiceItem, value: string | string[]) => {
     setSubServiceItems(subServiceItems.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
+      item.id === id ? { 
+        ...item, 
+        [field]: field === 'selectedItems' ? value : value 
+      } : item
     ));
   };
 
-  const handleServiceSelect = (serviceId: string, serviceName: string) => {
-    setSelectedService(serviceId);
-    setSelectedServiceName(serviceName);
-    setOpenServiceCombobox(false);
+  const handleServiceSelect = (serviceId: string) => {
+    const service = safeServices.find(s => s.id === serviceId);
+    if (service) {
+      setSelectedService(service.id);
+      setSelectedServiceName(service.name);
+    }
   };
 
-  const handleSubServiceSelect = (subServiceId: string, subServiceItemId: string, subServiceName: string) => {
-    handleSubServiceChange(subServiceItemId, 'name', subServiceId);
-    setSelectedSubServiceNames(prev => ({
+  const handleSubServiceSelect = (subServiceId: string, subServiceItemId: string) => {
+    const subService = safeSubServices.find(s => s.id === subServiceId);
+    if (subService) {
+      handleSubServiceChange(subServiceItemId, 'name', subServiceId);
+      setSelectedSubServiceNames(prev => ({
+        ...prev,
+        [subServiceItemId]: subService.name
+      }));
+    }
+  };
+
+  const handleClothingItemSelect = (subServiceItemId: string, value: string) => {
+    const currentItems = selectedClothingItems[subServiceItemId] || [];
+    let newItems: string[];
+    
+    if (currentItems.includes(value)) {
+      newItems = currentItems.filter(item => item !== value);
+    } else {
+      newItems = [...currentItems, value];
+    }
+    
+    setSelectedClothingItems(prev => ({
       ...prev,
-      [subServiceItemId]: subServiceName
+      [subServiceItemId]: newItems
     }));
-    setOpenSubServiceComboboxes(prev => ({
-      ...prev,
-      [subServiceItemId]: false
-    }));
+    
+    handleSubServiceChange(subServiceItemId, 'selectedItems', newItems);
   };
 
-  const toggleSubServiceCombobox = (id: string, isOpen: boolean) => {
-    setOpenSubServiceComboboxes(prev => ({
-      ...prev,
-      [id]: isOpen
-    }));
+  const getSelectedSubServiceName = (id: string) => {
+    return selectedSubServiceNames[id] || "";
   };
 
-  const updateSubServiceSearchQuery = (id: string, query: string) => {
-    setSubServiceSearchQueries(prev => ({
-      ...prev,
-      [id]: query
-    }));
+  const getSelectedClothingItems = (subServiceItemId: string) => {
+    return selectedClothingItems[subServiceItemId] || [];
   };
 
-  const getFilteredServices = () => {
-    if (!serviceSearchQuery.trim()) return safeServices;
-    const query = serviceSearchQuery.toLowerCase();
-    return safeServices.filter(service => 
-      service.name.toLowerCase().includes(query)
-    );
-  };
-
-  const getFilteredSubServices = (id: string) => {
-    const query = (subServiceSearchQueries[id] || "").toLowerCase().trim();
-    if (!query) return safeSubServices;
-    return safeSubServices.filter(subService => 
-      subService.name.toLowerCase().includes(query)
-    );
+  const isClothingItemSelected = (subServiceItemId: string, itemId: string) => {
+    const items = selectedClothingItems[subServiceItemId] || [];
+    return items.includes(itemId);
   };
 
   const handleSave = () => {
     const formData = {
       serviceId: selectedService,
-      subServices: subServiceItems
+      subServices: subServiceItems.map(item => ({
+        ...item,
+        selectedItems: selectedClothingItems[item.id] || []
+      }))
     };
     
     onServiceAdded(formData);
@@ -192,17 +184,10 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       pricePerItem: "",
       selectedItems: []
     }]);
-    setServiceSearchQuery("");
-    setSubServiceSearchQueries({});
     setSelectedSubServiceNames({});
+    setSelectedClothingItems({});
     onOpenChange(false);
   };
-
-  const getSelectedSubServiceName = (id: string) => {
-    return selectedSubServiceNames[id] || "";
-  };
-
-  const filteredServices = getFilteredServices();
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -220,12 +205,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
               Service Name
             </label>
             
-            <Select value={selectedService} onValueChange={(value) => {
-              const service = safeServices.find(s => s.id === value);
-              if (service) {
-                handleServiceSelect(service.id, service.name);
-              }
-            }}>
+            <Select value={selectedService} onValueChange={handleServiceSelect}>
               <SelectTrigger className="h-12 w-full">
                 <SelectValue placeholder="Select a service">
                   {selectedServiceName || "Select a service"}
@@ -254,12 +234,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                     
                     <Select 
                       value={subServiceItem.name || ""} 
-                      onValueChange={(value) => {
-                        const subService = safeSubServices.find(s => s.id === value);
-                        if (subService) {
-                          handleSubServiceSelect(subService.id, subServiceItem.id, subService.name);
-                        }
-                      }}
+                      onValueChange={(value) => handleSubServiceSelect(value, subServiceItem.id)}
                     >
                       <SelectTrigger className="h-10 w-full">
                         <SelectValue placeholder="Select a subservice">
@@ -299,15 +274,37 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <label className="text-base font-medium">
+                      Clothing Items
+                    </label>
+                    <Select>
+                      <SelectTrigger className="h-10 w-full">
+                        <SelectValue placeholder="Select clothing items">
+                          {getSelectedClothingItems(subServiceItem.id).length > 0 
+                            ? `${getSelectedClothingItems(subServiceItem.id).length} items selected` 
+                            : "Select clothing items"}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {safeClothingItems.map((item) => (
+                          <div key={item.id} className="px-2 py-1.5">
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                className="rounded text-blue-600 focus:ring-blue-500"
+                                checked={isClothingItemSelected(subServiceItem.id, item.id)}
+                                onChange={() => handleClothingItemSelect(subServiceItem.id, item.id)}
+                              />
+                              <span>{item.name}</span>
+                            </label>
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="flex space-x-3">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="bg-blue-50 text-blue-600 border-blue-200"
-                    >
-                      <FileText className="mr-1 h-4 w-4" />
-                      Add Items
-                    </Button>
                     <Button 
                       type="button" 
                       variant="outline" 
