@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -255,16 +256,16 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   ) : (
                     <div>
                       {filteredServices.map((service) => (
-                        <div
+                        <button
                           key={service.id}
                           className={cn(
-                            "px-4 py-3 cursor-pointer hover:bg-blue-50",
+                            "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50",
                             selectedService === service.id ? "bg-blue-50" : ""
                           )}
                           onClick={() => handleServiceSelect(service.id, service.name)}
                         >
                           {service.name}
-                        </div>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -335,16 +336,16 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           ) : (
                             <div>
                               {getFilteredSubServices(subServiceItem.id).map((subService) => (
-                                <div
+                                <button
                                   key={subService.id}
                                   className={cn(
-                                    "px-4 py-3 cursor-pointer hover:bg-blue-50",
+                                    "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50",
                                     subServiceItem.name === subService.id ? "bg-blue-50" : ""
                                   )}
                                   onClick={() => handleSubServiceSelect(subService.id, subServiceItem.id, subService.name)}
                                 >
                                   {subService.name}
-                                </div>
+                                </button>
                               ))}
                             </div>
                           )}
