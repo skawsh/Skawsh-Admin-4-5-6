@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -233,43 +232,43 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                 </div>
               </PopoverTrigger>
               <PopoverContent 
-                className="w-[calc(100%-2rem)] p-0 bg-white shadow-lg" 
+                className="w-[calc(100%-2rem)] p-0 rounded-md shadow-md border border-gray-200 bg-white overflow-hidden" 
                 align="start" 
-                sideOffset={8}
+                sideOffset={4}
                 style={{ zIndex: 50 }}
               >
-                <Command>
-                  <div className="flex items-center border-b px-3">
-                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                    <CommandInput 
-                      placeholder="Search services..." 
-                      className="h-9 flex-1"
+                <div className="p-3 border-b border-gray-100">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search services..."
+                      className="w-full pl-10 py-2 text-sm rounded-md border-0 bg-gray-50 focus:outline-none"
                       value={serviceSearchQuery}
-                      onValueChange={setServiceSearchQuery}
+                      onChange={(e) => setServiceSearchQuery(e.target.value)}
                     />
                   </div>
-                  <CommandList className="max-h-52 overflow-y-auto">
-                    <CommandEmpty>No service found.</CommandEmpty>
-                    <CommandGroup>
+                </div>
+                <div className="max-h-72 overflow-y-auto">
+                  {filteredServices.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">No service found.</div>
+                  ) : (
+                    <div>
                       {filteredServices.map((service) => (
-                        <CommandItem
+                        <div
                           key={service.id}
-                          value={service.id}
-                          onSelect={() => handleServiceSelect(service.id, service.name)}
-                          className="cursor-pointer hover:bg-blue-50"
+                          className={cn(
+                            "px-4 py-3 cursor-pointer hover:bg-blue-50",
+                            selectedService === service.id ? "bg-blue-50" : ""
+                          )}
+                          onClick={() => handleServiceSelect(service.id, service.name)}
                         >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedService === service.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
                           {service.name}
-                        </CommandItem>
+                        </div>
                       ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
+                    </div>
+                  )}
+                </div>
               </PopoverContent>
             </Popover>
           </div>
@@ -313,43 +312,43 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                         </div>
                       </PopoverTrigger>
                       <PopoverContent 
-                        className="w-[calc(100%-2rem)] p-0 bg-white shadow-lg" 
+                        className="w-[calc(100%-2rem)] p-0 rounded-md shadow-md border border-gray-200 bg-white overflow-hidden" 
                         align="start" 
-                        sideOffset={8}
+                        sideOffset={4}
                         style={{ zIndex: 50 }}
                       >
-                        <Command>
-                          <div className="flex items-center border-b px-3">
-                            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                            <CommandInput 
-                              placeholder="Search sub-services..." 
-                              className="h-9 flex-1"
+                        <div className="p-3 border-b border-gray-100">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Search sub-services..."
+                              className="w-full pl-10 py-2 text-sm rounded-md border-0 bg-gray-50 focus:outline-none"
                               value={subServiceSearchQueries[subServiceItem.id] || ""}
-                              onValueChange={(value) => updateSubServiceSearchQuery(subServiceItem.id, value)}
+                              onChange={(e) => updateSubServiceSearchQuery(subServiceItem.id, e.target.value)}
                             />
                           </div>
-                          <CommandList className="max-h-52 overflow-y-auto">
-                            <CommandEmpty>No sub-service found.</CommandEmpty>
-                            <CommandGroup>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto">
+                          {getFilteredSubServices(subServiceItem.id).length === 0 ? (
+                            <div className="p-4 text-center text-gray-500">No sub-service found.</div>
+                          ) : (
+                            <div>
                               {getFilteredSubServices(subServiceItem.id).map((subService) => (
-                                <CommandItem
+                                <div
                                   key={subService.id}
-                                  value={subService.id}
-                                  onSelect={() => handleSubServiceSelect(subService.id, subServiceItem.id, subService.name)}
-                                  className="cursor-pointer hover:bg-blue-50"
+                                  className={cn(
+                                    "px-4 py-3 cursor-pointer hover:bg-blue-50",
+                                    subServiceItem.name === subService.id ? "bg-blue-50" : ""
+                                  )}
+                                  onClick={() => handleSubServiceSelect(subService.id, subServiceItem.id, subService.name)}
                                 >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      subServiceItem.name === subService.id ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
                                   {subService.name}
-                                </CommandItem>
+                                </div>
                               ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
+                            </div>
+                          )}
+                        </div>
                       </PopoverContent>
                     </Popover>
                   </div>
