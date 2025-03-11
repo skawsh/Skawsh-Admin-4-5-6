@@ -8,6 +8,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Plus, Trash, FileText, Search, Check, ChevronsUpDown } from "lucide-react";
 import { Service, SubService, ClothingItem } from "@/types/services";
 import { cn } from "@/lib/utils";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SubServiceItem {
   id: string;
@@ -212,67 +219,26 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
             <label htmlFor="serviceName" className="text-base font-medium">
               Service Name
             </label>
-            <Popover open={openServiceCombobox} onOpenChange={setOpenServiceCombobox}>
-              <PopoverTrigger asChild>
-                <div className="relative w-full rounded-lg border border-gray-200 bg-white">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                    <Search className="h-4 w-4" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Enter or select service..."
-                    className="h-12 w-full rounded-lg border-none pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={selectedServiceName}
-                    onChange={(e) => setSelectedServiceName(e.target.value)}
-                    onClick={() => setOpenServiceCombobox(true)}
-                    readOnly
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                  </div>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent 
-                className="w-[calc(100%-2rem)] p-0 rounded-md shadow-md border border-gray-200 bg-white overflow-hidden" 
-                align="start" 
-                sideOffset={4}
-                style={{ zIndex: 50 }}
-              >
-                <div className="p-3 border-b border-gray-100">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search services..."
-                      className="w-full pl-10 py-2 text-sm rounded-md border-0 bg-gray-50 focus:outline-none"
-                      value={serviceSearchQuery}
-                      onChange={(e) => setServiceSearchQuery(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {filteredServices.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">No service found.</div>
-                  ) : (
-                    <div className="flex flex-col w-full">
-                      {filteredServices.map((service) => (
-                        <button
-                          key={service.id}
-                          type="button"
-                          className={cn(
-                            "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50 border-none bg-transparent",
-                            selectedService === service.id ? "bg-blue-50" : ""
-                          )}
-                          onClick={() => handleServiceSelect(service.id, service.name)}
-                        >
-                          {service.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+            
+            <Select value={selectedService} onValueChange={(value) => {
+              const service = safeServices.find(s => s.id === value);
+              if (service) {
+                handleServiceSelect(service.id, service.name);
+              }
+            }}>
+              <SelectTrigger className="h-12 w-full">
+                <SelectValue placeholder="Select a service">
+                  {selectedServiceName || "Select a service"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {safeServices.map((service) => (
+                  <SelectItem key={service.id} value={service.id}>
+                    {service.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
@@ -285,75 +251,29 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                     <label className="text-base font-medium">
                       Sub Service Name
                     </label>
-                    <Popover
-                      open={openSubServiceComboboxes[subServiceItem.id] || false}
-                      onOpenChange={(isOpen) => toggleSubServiceCombobox(subServiceItem.id, isOpen)}
+                    
+                    <Select 
+                      value={subServiceItem.name || ""} 
+                      onValueChange={(value) => {
+                        const subService = safeSubServices.find(s => s.id === value);
+                        if (subService) {
+                          handleSubServiceSelect(subService.id, subServiceItem.id, subService.name);
+                        }
+                      }}
                     >
-                      <PopoverTrigger asChild>
-                        <div className="relative w-full rounded-lg border border-gray-200 bg-white">
-                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <Search className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Select a subservice..."
-                            className="h-10 w-full rounded-lg border-none pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={getSelectedSubServiceName(subServiceItem.id)}
-                            onChange={(e) => {
-                              setSelectedSubServiceNames(prev => ({
-                                ...prev,
-                                [subServiceItem.id]: e.target.value
-                              }));
-                            }}
-                            onClick={() => toggleSubServiceCombobox(subServiceItem.id, true)}
-                            readOnly
-                          />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                          </div>
-                        </div>
-                      </PopoverTrigger>
-                      <PopoverContent 
-                        className="w-[calc(100%-2rem)] p-0 rounded-md shadow-md border border-gray-200 bg-white overflow-hidden" 
-                        align="start" 
-                        sideOffset={4}
-                        style={{ zIndex: 50 }}
-                      >
-                        <div className="p-3 border-b border-gray-100">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <input
-                              type="text"
-                              placeholder="Search sub-services..."
-                              className="w-full pl-10 py-2 text-sm rounded-md border-0 bg-gray-50 focus:outline-none"
-                              value={subServiceSearchQueries[subServiceItem.id] || ""}
-                              onChange={(e) => updateSubServiceSearchQuery(subServiceItem.id, e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="max-h-72 overflow-y-auto">
-                          {getFilteredSubServices(subServiceItem.id).length === 0 ? (
-                            <div className="p-4 text-center text-gray-500">No sub-service found.</div>
-                          ) : (
-                            <div className="flex flex-col w-full">
-                              {getFilteredSubServices(subServiceItem.id).map((subService) => (
-                                <button
-                                  key={subService.id}
-                                  type="button"
-                                  className={cn(
-                                    "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50 border-none bg-transparent",
-                                    subServiceItem.name === subService.id ? "bg-blue-50" : ""
-                                  )}
-                                  onClick={() => handleSubServiceSelect(subService.id, subServiceItem.id, subService.name)}
-                                >
-                                  {subService.name}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                      <SelectTrigger className="h-10 w-full">
+                        <SelectValue placeholder="Select a subservice">
+                          {getSelectedSubServiceName(subServiceItem.id) || "Select a subservice"}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {safeSubServices.map((subService) => (
+                          <SelectItem key={subService.id} value={subService.id}>
+                            {subService.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
