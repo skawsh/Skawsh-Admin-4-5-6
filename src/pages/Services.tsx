@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import TabNavigation from '../components/services/TabNavigation';
 import ServicesList from '../components/services/ServicesList';
@@ -11,8 +11,11 @@ import EditItemDialog from '../components/services/EditItemDialog';
 import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
+import { useToast } from '@/hooks/use-toast';
 
 const Services: React.FC = () => {
+  const { toast } = useToast();
+  
   // Use custom hooks to separate concerns
   const { 
     activeTab, 
@@ -69,6 +72,14 @@ const Services: React.FC = () => {
     addClothingItem,
     updateServiceItem
   );
+
+  // Show welcome toast on first load
+  useEffect(() => {
+    toast({
+      title: "Services Loaded",
+      description: "Your services data is ready. Any changes will be automatically saved."
+    });
+  }, []);
 
   const tabInfo = getTabInfo();
 

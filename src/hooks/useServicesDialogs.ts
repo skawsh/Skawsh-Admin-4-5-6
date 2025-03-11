@@ -21,6 +21,8 @@ export const useServicesDialogs = (
   const [newServiceName, setNewServiceName] = useState('');
   const [newSubServiceName, setNewSubServiceName] = useState('');
   const [newClothingItemName, setNewClothingItemName] = useState('');
+  
+  const { toast } = useToast();
 
   const handleAddButtonClick = () => {
     switch (activeTab) {
@@ -37,26 +39,65 @@ export const useServicesDialogs = (
   };
 
   const handleAddService = () => {
+    if (!newServiceName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Service name cannot be empty"
+      });
+      return;
+    }
+    
     const success = addService(newServiceName);
     if (success) {
       setNewServiceName('');
       setIsAddServiceOpen(false);
+      toast({
+        title: "Success",
+        description: "Service added successfully"
+      });
     }
   };
 
   const handleAddSubService = () => {
+    if (!newSubServiceName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Sub-service name cannot be empty"
+      });
+      return;
+    }
+    
     const success = addSubService(newSubServiceName);
     if (success) {
       setNewSubServiceName('');
       setIsAddSubServiceOpen(false);
+      toast({
+        title: "Success",
+        description: "Sub-service added successfully"
+      });
     }
   };
 
   const handleAddClothingItem = () => {
+    if (!newClothingItemName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Clothing item name cannot be empty"
+      });
+      return;
+    }
+    
     const success = addClothingItem(newClothingItemName);
     if (success) {
       setNewClothingItemName('');
       setIsAddClothingItemOpen(false);
+      toast({
+        title: "Success",
+        description: "Clothing item added successfully"
+      });
     }
   };
 
@@ -69,11 +110,24 @@ export const useServicesDialogs = (
   const handleEditSave = () => {
     if (!editingItem) return;
     
+    if (!editItemName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Name cannot be empty"
+      });
+      return;
+    }
+    
     const success = updateServiceItem(activeTab, editingItem.id, editItemName);
     if (success) {
       setIsEditDialogOpen(false);
       setEditingItem(null);
       setEditItemName('');
+      toast({
+        title: "Success",
+        description: "Item updated successfully"
+      });
     }
   };
 

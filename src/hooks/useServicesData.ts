@@ -36,6 +36,25 @@ const decodeDataFromUrl = (encodedData: string): SharedServiceData | null => {
   }
 };
 
+// Add default services data
+const DEFAULT_SERVICES: Service[] = [
+  { id: "service-1", name: "Wash & Fold", active: true },
+  { id: "service-2", name: "Dry Cleaning", active: true },
+  { id: "service-3", name: "Ironing", active: true },
+];
+
+const DEFAULT_SUB_SERVICES: SubService[] = [
+  { id: "subservice-1", name: "Express Service", active: true },
+  { id: "subservice-2", name: "Delicate Items", active: true },
+  { id: "subservice-3", name: "Stain Removal", active: true },
+];
+
+const DEFAULT_CLOTHING_ITEMS: ClothingItem[] = [
+  { id: "clothing-1", name: "Shirt", active: true },
+  { id: "clothing-2", name: "Pants", active: true },
+  { id: "clothing-3", name: "Dress", active: true },
+];
+
 export const useServicesData = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [subServices, setSubServices] = useState<SubService[]>([]);
@@ -43,6 +62,7 @@ export const useServicesData = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Update both URL and localStorage when data changes
   const syncStateWithUrl = (data: SharedServiceData) => {
@@ -96,18 +116,18 @@ export const useServicesData = () => {
     }
   };
 
-  // Load data from localStorage and sync to URL
+  // Load data from localStorage or use defaults
   const loadFromLocalStorage = () => {
     try {
       const storedServices = localStorage.getItem('services');
       const storedSubServices = localStorage.getItem('subServices');
       const storedClothingItems = localStorage.getItem('clothingItems');
       
-      const servicesData = storedServices ? JSON.parse(storedServices) : [];
-      const subServicesData = storedSubServices ? JSON.parse(storedSubServices) : [];
-      const clothingItemsData = storedClothingItems ? JSON.parse(storedClothingItems) : [];
+      const servicesData = storedServices ? JSON.parse(storedServices) : DEFAULT_SERVICES;
+      const subServicesData = storedSubServices ? JSON.parse(storedSubServices) : DEFAULT_SUB_SERVICES;
+      const clothingItemsData = storedClothingItems ? JSON.parse(storedClothingItems) : DEFAULT_CLOTHING_ITEMS;
       
-      console.log('Loaded data from localStorage:', { 
+      console.log('Loaded data from localStorage or using defaults:', { 
         services: servicesData.length, 
         subServices: subServicesData.length, 
         clothingItems: clothingItemsData.length 
@@ -127,16 +147,27 @@ export const useServicesData = () => {
       // Also update the URL to match localStorage data
       syncStateWithUrl(sharedData);
     } catch (error) {
-      console.error('Error loading from localStorage:', error);
+      console.error('Error loading from localStorage, using defaults:', error);
+      
+      // Use default values if localStorage fails
+      setServices(DEFAULT_SERVICES);
+      setSubServices(DEFAULT_SUB_SERVICES);
+      setClothingItems(DEFAULT_CLOTHING_ITEMS);
+      
+      // Create shared data object with defaults
+      const sharedData: SharedServiceData = {
+        services: DEFAULT_SERVICES,
+        subServices: DEFAULT_SUB_SERVICES,
+        clothingItems: DEFAULT_CLOTHING_ITEMS
+      };
+      
+      // Update URL with default data
+      syncStateWithUrl(sharedData);
+      
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load saved data"
+        title: "Using Default Data",
+        description: "Could not load saved data, using defaults"
       });
-      // If localStorage fails, set empty arrays
-      setServices([]);
-      setSubServices([]);
-      setClothingItems([]);
     }
   };
 
@@ -183,15 +214,31 @@ export const useServicesData = () => {
       loadFromLocalStorage();
       setIsDataLoaded(true);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading data, using defaults:', error);
+      
+      // Use default values if all else fails
+      setServices(DEFAULT_SERVICES);
+      setSubServices(DEFAULT_SUB_SERVICES);
+      setClothingItems(DEFAULT_CLOTHING_ITEMS);
+      
+      // Save defaults to localStorage and URL
+      const sharedData: SharedServiceData = {
+        services: DEFAULT_SERVICES,
+        subServices: DEFAULT_SUB_SERVICES,
+        clothingItems: DEFAULT_CLOTHING_ITEMS
+      };
+      
+      localStorage.setItem('services', JSON.stringify(DEFAULT_SERVICES));
+      localStorage.setItem('subServices', JSON.stringify(DEFAULT_SUB_SERVICES));
+      localStorage.setItem('clothingItems', JSON.stringify(DEFAULT_CLOTHING_ITEMS));
+      
+      syncStateWithUrl(sharedData);
+      
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load saved data"
+        title: "Using Default Data",
+        description: "Could not load saved data, using defaults"
       });
       
-      // Always attempt to load from localStorage as a last resort
-      loadFromLocalStorage();
       setIsDataLoaded(true);
     }
   }, [location.search]);
