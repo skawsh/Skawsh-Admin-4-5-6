@@ -171,9 +171,33 @@ const Studios: React.FC = () => {
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Laundry Studios</h1>
-          <p className="text-gray-600 mt-1">Manage all laundry studios on your platform</p>
+        {/* Header Section - Updated to match design */}
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Laundry Studios</h1>
+            <p className="text-gray-600 mt-1">Manage all laundry studios on your platform</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button 
+              variant="outline" 
+              className="bg-white" 
+              onClick={resetFilters}
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Reset Filters
+            </Button>
+            <Button 
+              variant="outline" 
+              className="bg-white"
+            >
+              <BarChart2 className="mr-2 h-4 w-4" />
+              Overall Analytics
+            </Button>
+            <Button className="bg-blue-700 hover:bg-blue-800">
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Studio
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -269,28 +293,7 @@ const Studios: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-between gap-4">
-          <div className="flex gap-3">
-            <Button variant="outline" className="bg-white" onClick={resetFilters}>
-              <span className="flex items-center gap-2">
-                <Filter size={18} />
-                <span>Reset Filters</span>
-              </span>
-            </Button>
-            <Button variant="outline" className="bg-white">
-              <span className="flex items-center gap-2">
-                <BarChart2 size={18} />
-                <span>Overall Analytics</span>
-              </span>
-            </Button>
-          </div>
-          <Button className="bg-blue-700 hover:bg-blue-800">
-            <span className="flex items-center gap-2">
-              <Plus size={18} />
-              <span>Add New Studio</span>
-            </span>
-          </Button>
-        </div>
+        {/* Removed the duplicate action buttons section */}
 
         {/* Studios Table */}
         <div className="rounded-md border">
