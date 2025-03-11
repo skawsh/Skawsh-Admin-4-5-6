@@ -13,7 +13,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const encodeDataForUrl = (data: SharedServiceData): string => {
   try {
-    return btoa(encodeURIComponent(JSON.stringify(data)));
+    const jsonString = JSON.stringify(data);
+    return btoa(encodeURIComponent(jsonString));
   } catch (error) {
     console.error('Error encoding data:', error);
     return '';
@@ -21,8 +22,11 @@ const encodeDataForUrl = (data: SharedServiceData): string => {
 };
 
 const decodeDataFromUrl = (encodedData: string): SharedServiceData | null => {
+  if (!encodedData) return null;
+  
   try {
-    return JSON.parse(decodeURIComponent(atob(encodedData)));
+    const jsonString = decodeURIComponent(atob(encodedData));
+    return JSON.parse(jsonString);
   } catch (error) {
     console.error('Error decoding data:', error);
     return null;
@@ -54,7 +58,14 @@ const Services: React.FC = () => {
 
   const syncStateWithUrl = (data: SharedServiceData) => {
     const encodedData = encodeDataForUrl(data);
-    navigate(`/services?data=${encodedData}`, { replace: true });
+    if (encodedData) {
+      window.history.replaceState(
+        null, 
+        '', 
+        `${window.location.pathname}?data=${encodedData}`
+      );
+      navigate(`/services?data=${encodedData}`, { replace: true });
+    }
   };
 
   const saveAllData = (
@@ -72,7 +83,10 @@ const Services: React.FC = () => {
         subServices: updatedSubServices,
         clothingItems: updatedClothingItems
       };
+      
       syncStateWithUrl(sharedData);
+      
+      console.log('Data saved successfully:', sharedData);
     } catch (error) {
       console.error('Error saving data:', error);
       toast({
@@ -91,6 +105,8 @@ const Services: React.FC = () => {
       if (dataParam) {
         const decodedData = decodeDataFromUrl(dataParam);
         if (decodedData) {
+          console.log('Loaded data from URL:', decodedData);
+          
           setServices(decodedData.services || []);
           setSubServices(decodedData.subServices || []);
           setClothingItems(decodedData.clothingItems || []);
@@ -98,12 +114,12 @@ const Services: React.FC = () => {
           localStorage.setItem('services', JSON.stringify(decodedData.services || []));
           localStorage.setItem('subServices', JSON.stringify(decodedData.subServices || []));
           localStorage.setItem('clothingItems', JSON.stringify(decodedData.clothingItems || []));
-        } else {
-          loadFromLocalStorage();
+          
+          return;
         }
-      } else {
-        loadFromLocalStorage();
       }
+      
+      loadFromLocalStorage();
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
@@ -113,27 +129,43 @@ const Services: React.FC = () => {
       });
       loadFromLocalStorage();
     }
-  }, []);
+  }, [location.search]);
 
   const loadFromLocalStorage = () => {
-    const storedServices = localStorage.getItem('services');
-    const storedSubServices = localStorage.getItem('subServices');
-    const storedClothingItems = localStorage.getItem('clothingItems');
-    
-    const servicesData = storedServices ? JSON.parse(storedServices) : [];
-    const subServicesData = storedSubServices ? JSON.parse(storedSubServices) : [];
-    const clothingItemsData = storedClothingItems ? JSON.parse(storedClothingItems) : [];
-    
-    setServices(servicesData);
-    setSubServices(subServicesData);
-    setClothingItems(clothingItemsData);
-    
-    const sharedData: SharedServiceData = {
-      services: servicesData,
-      subServices: subServicesData,
-      clothingItems: clothingItemsData
-    };
-    syncStateWithUrl(sharedData);
+    try {
+      const storedServices = localStorage.getItem('services');
+      const storedSubServices = localStorage.getItem('subServices');
+      const storedClothingItems = localStorage.getItem('clothingItems');
+      
+      const servicesData = storedServices ? JSON.parse(storedServices) : [];
+      const subServicesData = storedSubServices ? JSON.parse(storedSubServices) : [];
+      const clothingItemsData = storedClothingItems ? JSON.parse(storedClothingItems) : [];
+      
+      console.log('Loaded data from localStorage:', { 
+        services: servicesData, 
+        subServices: subServicesData, 
+        clothingItems: clothingItemsData 
+      });
+      
+      setServices(servicesData);
+      setSubServices(subServicesData);
+      setClothingItems(clothingItemsData);
+      
+      const sharedData: SharedServiceData = {
+        services: servicesData,
+        subServices: subServicesData,
+        clothingItems: clothingItemsData
+      };
+      
+      syncStateWithUrl(sharedData);
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load saved data"
+      });
+    }
   };
 
   const getTabInfo = () => {
