@@ -18,3 +18,10 @@ export interface ClothingItem {
 }
 
 export type ItemType = Service | SubService | ClothingItem;
+
+// Serializable data structure for sharing
+export interface SharedServiceData {
+  services: Service[];
+  subServices: SubService[];
+  clothingItems: ClothingItem[];
+}

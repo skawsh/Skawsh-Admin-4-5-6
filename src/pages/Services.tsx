@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { useToast } from "@/hooks/use-toast";
-import { Service, SubService, ClothingItem, ItemType } from '../types/services';
+import { Service, SubService, ClothingItem, ItemType, SharedServiceData } from '../types/services';
 import TabNavigation from '../components/services/TabNavigation';
 import ServicesList from '../components/services/ServicesList';
 import SubServicesList from '../components/services/SubServicesList';
@@ -10,11 +10,14 @@ import ClothingItemsList from '../components/services/ClothingItemsList';
 import ServicesHeader from '../components/services/ServicesHeader';
 import AddItemDialog from '../components/services/AddItemDialog';
 import EditItemDialog from '../components/services/EditItemDialog';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Services: React.FC = () => {
   const [activeTab, setActiveTab] = useState('services');
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // State for services, sub-services, and clothing items
   const [services, setServices] = useState<Service[]>([]);
@@ -36,32 +39,84 @@ const Services: React.FC = () => {
   const [newSubServiceName, setNewSubServiceName] = useState('');
   const [newClothingItemName, setNewClothingItemName] = useState('');
 
-  // Load data from localStorage
+  // Function to sync services state with URL query params
+  const syncStateWithUrl = (data: SharedServiceData) => {
+    const encodedData = encodeURIComponent(JSON.stringify(data));
+    navigate(`/services?data=${encodedData}`, { replace: true });
+  };
+
+  // Function to save all data to localStorage and update URL
+  const saveAllData = (
+    updatedServices: Service[], 
+    updatedSubServices: SubService[], 
+    updatedClothingItems: ClothingItem[]
+  ) => {
+    try {
+      // Save to localStorage
+      localStorage.setItem('services', JSON.stringify(updatedServices));
+      localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
+      localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
+      
+      // Update URL for sharing
+      const sharedData: SharedServiceData = {
+        services: updatedServices,
+        subServices: updatedSubServices,
+        clothingItems: updatedClothingItems
+      };
+      syncStateWithUrl(sharedData);
+    } catch (error) {
+      console.error('Error saving data:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save data"
+      });
+    }
+  };
+
+  // Load data from URL or localStorage
   useEffect(() => {
     try {
-      const storedServices = localStorage.getItem('services');
-      if (storedServices) {
-        setServices(JSON.parse(storedServices));
-      }
+      const searchParams = new URLSearchParams(location.search);
+      const dataParam = searchParams.get('data');
       
-      const storedSubServices = localStorage.getItem('subServices');
-      if (storedSubServices) {
-        setSubServices(JSON.parse(storedSubServices));
-      }
-      
-      const storedClothingItems = localStorage.getItem('clothingItems');
-      if (storedClothingItems) {
-        setClothingItems(JSON.parse(storedClothingItems));
+      if (dataParam) {
+        // Data is available in URL, use it
+        const decodedData = JSON.parse(decodeURIComponent(dataParam)) as SharedServiceData;
+        setServices(decodedData.services || []);
+        setSubServices(decodedData.subServices || []);
+        setClothingItems(decodedData.clothingItems || []);
+      } else {
+        // No URL data, try localStorage
+        const storedServices = localStorage.getItem('services');
+        const storedSubServices = localStorage.getItem('subServices');
+        const storedClothingItems = localStorage.getItem('clothingItems');
+        
+        const servicesData = storedServices ? JSON.parse(storedServices) : [];
+        const subServicesData = storedSubServices ? JSON.parse(storedSubServices) : [];
+        const clothingItemsData = storedClothingItems ? JSON.parse(storedClothingItems) : [];
+        
+        setServices(servicesData);
+        setSubServices(subServicesData);
+        setClothingItems(clothingItemsData);
+        
+        // Initialize URL with data from localStorage
+        const sharedData: SharedServiceData = {
+          services: servicesData,
+          subServices: subServicesData,
+          clothingItems: clothingItemsData
+        };
+        syncStateWithUrl(sharedData);
       }
     } catch (error) {
-      console.error('Error loading data from localStorage:', error);
+      console.error('Error loading data:', error);
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to load saved data"
       });
     }
-  }, []);
+  }, [location.search]);
 
   // Function to get tab information based on active tab
   const getTabInfo = () => {
@@ -135,12 +190,7 @@ const Services: React.FC = () => {
 
     const updatedServices = [...services, newService];
     setServices(updatedServices);
-    
-    try {
-      localStorage.setItem('services', JSON.stringify(updatedServices));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
+    saveAllData(updatedServices, subServices, clothingItems);
     
     setNewServiceName('');
     setIsAddServiceOpen(false);
@@ -170,12 +220,7 @@ const Services: React.FC = () => {
 
     const updatedSubServices = [...subServices, newSubService];
     setSubServices(updatedSubServices);
-    
-    try {
-      localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
+    saveAllData(services, updatedSubServices, clothingItems);
     
     setNewSubServiceName('');
     setIsAddSubServiceOpen(false);
@@ -205,12 +250,7 @@ const Services: React.FC = () => {
 
     const updatedClothingItems = [...clothingItems, newClothingItem];
     setClothingItems(updatedClothingItems);
-    
-    try {
-      localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
-    }
+    saveAllData(services, subServices, updatedClothingItems);
     
     setNewClothingItemName('');
     setIsAddClothingItemOpen(false);
@@ -239,41 +279,29 @@ const Services: React.FC = () => {
       return;
     }
 
+    let updatedServices = [...services];
+    let updatedSubServices = [...subServices];
+    let updatedClothingItems = [...clothingItems];
+
     if (activeTab === 'sub-services') {
-      const updatedSubServices = subServices.map(item => 
+      updatedSubServices = subServices.map(item => 
         item.id === editingItem.id ? { ...item, name: editItemName.trim() } : item
       );
       setSubServices(updatedSubServices);
-      
-      try {
-        localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
-      } catch (error) {
-        console.error('Error saving to localStorage:', error);
-      }
     } else if (activeTab === 'clothing-items') {
-      const updatedClothingItems = clothingItems.map(item => 
+      updatedClothingItems = clothingItems.map(item => 
         item.id === editingItem.id ? { ...item, name: editItemName.trim() } : item
       );
       setClothingItems(updatedClothingItems);
-      
-      try {
-        localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
-      } catch (error) {
-        console.error('Error saving to localStorage:', error);
-      }
     } else {
-      const updatedServices = services.map(item => 
+      updatedServices = services.map(item => 
         item.id === editingItem.id ? { ...item, name: editItemName.trim() } : item
       );
       setServices(updatedServices);
-      
-      try {
-        localStorage.setItem('services', JSON.stringify(updatedServices));
-      } catch (error) {
-        console.error('Error saving to localStorage:', error);
-      }
     }
 
+    saveAllData(updatedServices, updatedSubServices, updatedClothingItems);
+    
     setIsEditDialogOpen(false);
     setEditingItem(null);
     setEditItemName('');
@@ -281,6 +309,84 @@ const Services: React.FC = () => {
     toast({
       title: "Success",
       description: "Item updated successfully"
+    });
+  };
+
+  // Update service status
+  const handleServiceStatusChange = (id: string, newStatus: boolean) => {
+    const updatedServices = services.map(service => 
+      service.id === id ? { ...service, active: newStatus } : service
+    );
+    setServices(updatedServices);
+    saveAllData(updatedServices, subServices, clothingItems);
+    
+    toast({
+      title: "Status Updated",
+      description: `Service ${newStatus ? 'activated' : 'deactivated'} successfully`
+    });
+  };
+
+  // Delete service
+  const handleServiceDelete = (id: string) => {
+    const updatedServices = services.filter(service => service.id !== id);
+    setServices(updatedServices);
+    saveAllData(updatedServices, subServices, clothingItems);
+    
+    toast({
+      title: "Service Deleted",
+      description: "Service removed successfully"
+    });
+  };
+
+  // Update sub-service status
+  const handleSubServiceStatusChange = (id: string, newStatus: boolean) => {
+    const updatedSubServices = subServices.map(subService => 
+      subService.id === id ? { ...subService, active: newStatus } : subService
+    );
+    setSubServices(updatedSubServices);
+    saveAllData(services, updatedSubServices, clothingItems);
+    
+    toast({
+      title: "Status Updated",
+      description: `Sub-service ${newStatus ? 'activated' : 'deactivated'} successfully`
+    });
+  };
+
+  // Delete sub-service
+  const handleSubServiceDelete = (id: string) => {
+    const updatedSubServices = subServices.filter(subService => subService.id !== id);
+    setSubServices(updatedSubServices);
+    saveAllData(services, updatedSubServices, clothingItems);
+    
+    toast({
+      title: "Sub-service Deleted",
+      description: "Sub-service removed successfully"
+    });
+  };
+
+  // Update clothing item status
+  const handleClothingItemStatusChange = (id: string, newStatus: boolean) => {
+    const updatedClothingItems = clothingItems.map(item => 
+      item.id === id ? { ...item, active: newStatus } : item
+    );
+    setClothingItems(updatedClothingItems);
+    saveAllData(services, subServices, updatedClothingItems);
+    
+    toast({
+      title: "Status Updated",
+      description: `Clothing item ${newStatus ? 'activated' : 'deactivated'} successfully`
+    });
+  };
+
+  // Delete clothing item
+  const handleClothingItemDelete = (id: string) => {
+    const updatedClothingItems = clothingItems.filter(item => item.id !== id);
+    setClothingItems(updatedClothingItems);
+    saveAllData(services, subServices, updatedClothingItems);
+    
+    toast({
+      title: "Clothing Item Deleted",
+      description: "Clothing item removed successfully"
     });
   };
 
@@ -311,6 +417,8 @@ const Services: React.FC = () => {
             <ServicesList 
               services={services} 
               onEdit={handleEditClick}
+              onStatusChange={handleServiceStatusChange}
+              onDelete={handleServiceDelete}
               searchTerm={searchTerm} 
             />
           )}
@@ -319,6 +427,8 @@ const Services: React.FC = () => {
             <SubServicesList 
               subServices={subServices} 
               onEdit={handleEditClick}
+              onStatusChange={handleSubServiceStatusChange}
+              onDelete={handleSubServiceDelete}
               searchTerm={searchTerm} 
             />
           )}
@@ -327,6 +437,8 @@ const Services: React.FC = () => {
             <ClothingItemsList 
               clothingItems={clothingItems} 
               onEdit={handleEditClick}
+              onStatusChange={handleClothingItemStatusChange}
+              onDelete={handleClothingItemDelete}
               searchTerm={searchTerm} 
             />
           )}
