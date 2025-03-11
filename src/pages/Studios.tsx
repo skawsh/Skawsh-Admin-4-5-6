@@ -1,166 +1,346 @@
 
 import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
-import { MapPin, Phone, Users, Clock, Search, Plus } from 'lucide-react';
+import { Filter, BarChart2, Plus, Star, Search, ChevronDown, MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+
+interface Studio {
+  id: number;
+  studioId: string;
+  studioName: string;
+  ownerName: string;
+  contact: string;
+  services: number;
+  rating: number;
+  status: boolean;
+}
 
 const Studios: React.FC = () => {
-  const [activeStudio, setActiveStudio] = useState<number | null>(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [ratingFilter, setRatingFilter] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const studios = [
+  // Sample data
+  const studiosData: Studio[] = [
     {
       id: 1,
-      name: 'Downtown Studio',
-      address: '123 Main St, Downtown',
-      phone: '(555) 123-4567',
-      staff: 8,
-      hours: '7AM - 10PM',
-      status: 'Active'
+      studioId: 'STU10001',
+      studioName: 'Saiteja Laundry',
+      ownerName: 'Saiteja',
+      contact: '8099830308',
+      services: 56,
+      rating: 4.5,
+      status: true
     },
     {
       id: 2,
-      name: 'Westside Studio',
-      address: '456 Elm St, Westside',
-      phone: '(555) 234-5678',
-      staff: 6,
-      hours: '8AM - 9PM',
-      status: 'Active'
+      studioId: 'STU10002',
+      studioName: 'Sparkle Clean Laundry',
+      ownerName: 'Ravi Kumar',
+      contact: '9876543210',
+      services: 48,
+      rating: 4.7,
+      status: true
     },
     {
       id: 3,
-      name: 'Northside Studio',
-      address: '789 Oak St, Northside',
-      phone: '(555) 345-6789',
-      staff: 7,
-      hours: '7AM - 9PM',
-      status: 'Active'
+      studioId: 'STU10003',
+      studioName: 'Fresh & Clean',
+      ownerName: 'Priya Sharma',
+      contact: '7654321098',
+      services: 42,
+      rating: 4.3,
+      status: true
     },
     {
       id: 4,
-      name: 'Eastside Studio',
-      address: '321 Pine St, Eastside',
-      phone: '(555) 456-7890',
-      staff: 5,
-      hours: '8AM - 8PM',
-      status: 'Maintenance'
+      studioId: 'STU10004',
+      studioName: 'Express Wash',
+      ownerName: 'Ajay Patel',
+      contact: '9988776655',
+      services: 38,
+      rating: 4.1,
+      status: true
+    },
+    {
+      id: 5,
+      studioId: 'STU10005',
+      studioName: 'Royal Laundry',
+      ownerName: 'Sneha Reddy',
+      contact: '8765432109',
+      services: 52,
+      rating: 4.6,
+      status: true
+    },
+    {
+      id: 6,
+      studioId: 'STU10006',
+      studioName: 'Quick Clean',
+      ownerName: 'Vikram Singh',
+      contact: '9876123450',
+      services: 35,
+      rating: 3.9,
+      status: false
+    },
+    {
+      id: 7,
+      studioId: 'STU10007',
+      studioName: 'Urban Laundry',
+      ownerName: 'Meera Desai',
+      contact: '8123456789',
+      services: 44,
+      rating: 4.2,
+      status: false
+    },
+    {
+      id: 8,
+      studioId: 'STU10008',
+      studioName: 'Elite Washing',
+      ownerName: 'Rahul Gupta',
+      contact: '7890123456',
+      services: 39,
+      rating: 3.8,
+      status: false
     }
   ];
+
+  // Filtering and sorting logic
+  const filteredStudios = studiosData.filter((studio) => {
+    // Search filter
+    const matchesSearch = searchTerm === '' || 
+      studio.studioName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      studio.studioId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      studio.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      studio.contact.includes(searchTerm);
+    
+    // Status filter
+    const matchesStatus = statusFilter === null || 
+      (statusFilter === 'active' && studio.status) ||
+      (statusFilter === 'inactive' && !studio.status);
+    
+    // Rating filter
+    const matchesRating = ratingFilter === null ||
+      (ratingFilter === 'above4.5' && studio.rating >= 4.5) ||
+      (ratingFilter === '4to4.5' && studio.rating >= 4 && studio.rating < 4.5) ||
+      (ratingFilter === 'below4' && studio.rating < 4);
+    
+    return matchesSearch && matchesStatus && matchesRating;
+  }).sort((a, b) => {
+    return sortDirection === 'asc' ? a.id - b.id : b.id - a.id;
+  });
+
+  // Calculate stats
+  const totalStudios = studiosData.length;
+  const activeStudios = studiosData.filter(s => s.status).length;
+  const inactiveStudios = studiosData.filter(s => !s.status).length;
+  const avgSackValue = 396; // Example value from the image
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setStatusFilter(null);
+    setRatingFilter(null);
+    setSortDirection('asc');
+  };
+
+  const toggleSort = () => {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  };
 
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Studios</h1>
-            <p className="text-gray-600 mt-1">Manage your laundry locations</p>
-          </div>
-          <button className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white font-medium py-2 px-4 rounded-md transition-colors">
-            <Plus size={18} />
-            <span>Add Studio</span>
-          </button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Laundry Studios</h1>
+          <p className="text-gray-600 mt-1">Manage all laundry studios on your platform</p>
         </div>
 
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search studios..."
-            className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-laundry-blue focus:border-transparent"
-          />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Total Studios</p>
+                <p className="text-3xl font-bold">{totalStudios}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Active Studios</p>
+                <p className="text-3xl font-bold text-green-500">{activeStudios}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Inactive Studios</p>
+                <p className="text-3xl font-bold">{inactiveStudios}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-1">
+                <p className="text-gray-500 text-sm">Avg. Sack Value</p>
+                <p className="text-3xl font-bold">₹{avgSackValue}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
-            {studios.map((studio) => (
-              <div
-                key={studio.id}
-                className={`glass-card p-5 cursor-pointer transition-all ${
-                  activeStudio === studio.id 
-                    ? 'ring-2 ring-laundry-blue shadow-md' 
-                    : 'hover:shadow-md'
-                }`}
-                onClick={() => setActiveStudio(studio.id)}
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-semibold text-lg">{studio.name}</h3>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    studio.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {studio.status}
-                  </span>
-                </div>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} />
-                    <span>{studio.address}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone size={16} />
-                    <span>{studio.phone}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+
+        {/* Action Buttons and Filters */}
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <p className="text-gray-500">Filter by:</p>
+            <Select value={statusFilter || ""} onValueChange={(value) => setStatusFilter(value || null)}>
+              <SelectTrigger className="w-[120px]">
+                <span className="flex items-center gap-2">
+                  <span>Status</span>
+                  <ChevronDown size={16} />
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={ratingFilter || ""} onValueChange={(value) => setRatingFilter(value || null)}>
+              <SelectTrigger className="w-[120px]">
+                <span className="flex items-center gap-2">
+                  <span>Rating</span>
+                  <ChevronDown size={16} />
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                <SelectItem value="above4.5">Above 4.5</SelectItem>
+                <SelectItem value="4to4.5">4.0 - 4.5</SelectItem>
+                <SelectItem value="below4">Below 4.0</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              className="bg-white"
+              onClick={toggleSort}
+            >
+              <span className="flex items-center gap-2">
+                <span>Sort</span>
+                <ArrowUpDown size={16} />
+              </span>
+            </Button>
           </div>
-          
-          {activeStudio && (
-            <div className="lg:col-span-2 glass-card p-6 animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6">
-                {studios.find(s => s.id === activeStudio)?.name}
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <Users size={16} />
-                    <span className="text-sm">Staff Members</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {studios.find(s => s.id === activeStudio)?.staff}
-                  </p>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <Clock size={16} />
-                    <span className="text-sm">Hours</span>
-                  </div>
-                  <p className="text-2xl font-bold">
-                    {studios.find(s => s.id === activeStudio)?.hours}
-                  </p>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-gray-500 mb-1">
-                    <Phone size={16} />
-                    <span className="text-sm">Contact</span>
-                  </div>
-                  <p className="text-lg font-medium">
-                    {studios.find(s => s.id === activeStudio)?.phone}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Performance</h3>
-                <div className="space-y-2">
-                  {['Orders Processed', 'Customer Satisfaction', 'Average Processing Time'].map((metric) => (
-                    <div key={metric} className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>{metric}</span>
-                        <span className="font-medium">{Math.floor(Math.random() * 30) + 70}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-laundry-blue h-2 rounded-full"
-                          style={{ width: `${Math.floor(Math.random() * 30) + 70}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Input
+                type="text"
+                placeholder="Search by studio ID, name, etc."
+                className="pl-10 w-[300px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-          )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex gap-3">
+            <Button variant="outline" className="bg-white" onClick={resetFilters}>
+              <span className="flex items-center gap-2">
+                <Filter size={18} />
+                <span>Reset Filters</span>
+              </span>
+            </Button>
+            <Button variant="outline" className="bg-white">
+              <span className="flex items-center gap-2">
+                <BarChart2 size={18} />
+                <span>Overall Analytics</span>
+              </span>
+            </Button>
+          </div>
+          <Button className="bg-blue-700 hover:bg-blue-800">
+            <span className="flex items-center gap-2">
+              <Plus size={18} />
+              <span>Add New Studio</span>
+            </span>
+          </Button>
+        </div>
+
+        {/* Studios Table */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[80px]">S.NO</TableHead>
+                <TableHead>STUDIO ID</TableHead>
+                <TableHead>STUDIO NAME</TableHead>
+                <TableHead>OWNER NAME</TableHead>
+                <TableHead>PRIMARY CONTACT</TableHead>
+                <TableHead>SERVICES</TableHead>
+                <TableHead>RATING</TableHead>
+                <TableHead>STATUS</TableHead>
+                <TableHead className="text-right">ACTIONS</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredStudios.map((studio) => (
+                <TableRow key={studio.id}>
+                  <TableCell>{studio.id}</TableCell>
+                  <TableCell>{studio.studioId}</TableCell>
+                  <TableCell>{studio.studioName}</TableCell>
+                  <TableCell>{studio.ownerName}</TableCell>
+                  <TableCell>{studio.contact}</TableCell>
+                  <TableCell>{studio.services}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      {studio.rating.toFixed(1)}
+                      <Star className="ml-1 text-yellow-500 fill-yellow-500" size={16} />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={studio.status}
+                      onCheckedChange={() => {
+                        // This would update the status in a real app
+                        console.log(`Toggled status for ${studio.studioName}`);
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal size={20} />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </Layout>
