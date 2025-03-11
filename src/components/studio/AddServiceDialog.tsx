@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +57,24 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   const [openSubServiceComboboxes, setOpenSubServiceComboboxes] = useState<Record<string, boolean>>({});
   const [subServiceSearchQueries, setSubServiceSearchQueries] = useState<Record<string, string>>({});
 
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedService("");
+      setServiceSearchQuery("");
+      setSubServiceItems([{
+        id: Date.now().toString(),
+        name: "",
+        pricePerKg: "",
+        pricePerItem: "",
+        selectedItems: []
+      }]);
+      setSubServiceSearchQueries({});
+      setOpenServiceCombobox(false);
+      setOpenSubServiceComboboxes({});
+    }
+  }, [isOpen]);
+
   const handleAddSubService = () => {
     const newItem = {
       id: Date.now().toString(),
@@ -109,7 +127,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   };
 
   const filteredServices = safeServices.filter(service => 
-    service.name.toLowerCase().includes(serviceSearchQuery.toLowerCase())
+    service.name.toLowerCase().includes((serviceSearchQuery || "").toLowerCase())
   );
 
   const getFilteredSubServices = (id: string) => {
@@ -179,7 +197,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-white">
+              <PopoverContent className="w-full p-0" align="start">
                 <Command>
                   <div className="flex items-center border-b px-3">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -244,7 +262,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-full p-0 bg-white">
+                      <PopoverContent className="w-full p-0" align="start">
                         <Command>
                           <div className="flex items-center border-b px-3">
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
