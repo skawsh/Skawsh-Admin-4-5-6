@@ -47,32 +47,53 @@ const Services: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const storedServices = localStorage.getItem('services');
-    if (storedServices) {
-      setServices(JSON.parse(storedServices));
-    }
-    
-    const storedSubServices = localStorage.getItem('subServices');
-    if (storedSubServices) {
-      setSubServices(JSON.parse(storedSubServices));
-    }
-    
-    const storedClothingItems = localStorage.getItem('clothingItems');
-    if (storedClothingItems) {
-      setClothingItems(JSON.parse(storedClothingItems));
+    try {
+      const storedServices = localStorage.getItem('services');
+      if (storedServices) {
+        setServices(JSON.parse(storedServices));
+      }
+      
+      const storedSubServices = localStorage.getItem('subServices');
+      if (storedSubServices) {
+        setSubServices(JSON.parse(storedSubServices));
+      }
+      
+      const storedClothingItems = localStorage.getItem('clothingItems');
+      if (storedClothingItems) {
+        setClothingItems(JSON.parse(storedClothingItems));
+      }
+    } catch (error) {
+      console.error('Error loading data from localStorage:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load saved data"
+      });
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('services', JSON.stringify(services));
+    try {
+      localStorage.setItem('services', JSON.stringify(services));
+    } catch (error) {
+      console.error('Error saving services to localStorage:', error);
+    }
   }, [services]);
   
   useEffect(() => {
-    localStorage.setItem('subServices', JSON.stringify(subServices));
+    try {
+      localStorage.setItem('subServices', JSON.stringify(subServices));
+    } catch (error) {
+      console.error('Error saving subServices to localStorage:', error);
+    }
   }, [subServices]);
   
   useEffect(() => {
-    localStorage.setItem('clothingItems', JSON.stringify(clothingItems));
+    try {
+      localStorage.setItem('clothingItems', JSON.stringify(clothingItems));
+    } catch (error) {
+      console.error('Error saving clothingItems to localStorage:', error);
+    }
   }, [clothingItems]);
 
   const tabs = [
@@ -123,7 +144,15 @@ const Services: React.FC = () => {
       active: true
     };
 
-    setServices([...services, newService]);
+    const updatedServices = [...services, newService];
+    setServices(updatedServices);
+    
+    try {
+      localStorage.setItem('services', JSON.stringify(updatedServices));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+    
     setNewServiceName('');
     setIsAddServiceOpen(false);
     
@@ -149,7 +178,15 @@ const Services: React.FC = () => {
       active: true
     };
 
-    setSubServices([...subServices, newSubService]);
+    const updatedSubServices = [...subServices, newSubService];
+    setSubServices(updatedSubServices);
+    
+    try {
+      localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+    
     setNewSubServiceName('');
     setIsAddSubServiceOpen(false);
     
@@ -175,7 +212,15 @@ const Services: React.FC = () => {
       active: true
     };
 
-    setClothingItems([...clothingItems, newClothingItem]);
+    const updatedClothingItems = [...clothingItems, newClothingItem];
+    setClothingItems(updatedClothingItems);
+    
+    try {
+      localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+    
     setNewClothingItemName('');
     setIsAddClothingItemOpen(false);
     
@@ -186,9 +231,17 @@ const Services: React.FC = () => {
   };
 
   const toggleServiceStatus = (id: string) => {
-    setServices(services.map(service => 
+    const updatedServices = services.map(service => 
       service.id === id ? { ...service, active: !service.active } : service
-    ));
+    );
+    
+    setServices(updatedServices);
+    
+    try {
+      localStorage.setItem('services', JSON.stringify(updatedServices));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
     
     const service = services.find(s => s.id === id);
     const newStatus = service ? !service.active : false;
@@ -200,9 +253,17 @@ const Services: React.FC = () => {
   };
 
   const toggleSubServiceStatus = (id: string) => {
-    setSubServices(subServices.map(subService => 
+    const updatedSubServices = subServices.map(subService => 
       subService.id === id ? { ...subService, active: !subService.active } : subService
-    ));
+    );
+    
+    setSubServices(updatedSubServices);
+    
+    try {
+      localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
     
     const subService = subServices.find(s => s.id === id);
     const newStatus = subService ? !subService.active : false;
@@ -214,9 +275,17 @@ const Services: React.FC = () => {
   };
 
   const toggleClothingItemStatus = (id: string) => {
-    setClothingItems(clothingItems.map(item => 
+    const updatedClothingItems = clothingItems.map(item => 
       item.id === id ? { ...item, active: !item.active } : item
-    ));
+    );
+    
+    setClothingItems(updatedClothingItems);
+    
+    try {
+      localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
     
     const item = clothingItems.find(i => i.id === id);
     const newStatus = item ? !item.active : false;
@@ -228,7 +297,14 @@ const Services: React.FC = () => {
   };
 
   const deleteService = (id: string) => {
-    setServices(services.filter(service => service.id !== id));
+    const updatedServices = services.filter(service => service.id !== id);
+    setServices(updatedServices);
+    
+    try {
+      localStorage.setItem('services', JSON.stringify(updatedServices));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
     
     toast({
       title: "Service Deleted",
@@ -237,7 +313,14 @@ const Services: React.FC = () => {
   };
 
   const deleteSubService = (id: string) => {
-    setSubServices(subServices.filter(subService => subService.id !== id));
+    const updatedSubServices = subServices.filter(subService => subService.id !== id);
+    setSubServices(updatedSubServices);
+    
+    try {
+      localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
     
     toast({
       title: "Sub-service Deleted",
@@ -246,7 +329,14 @@ const Services: React.FC = () => {
   };
 
   const deleteClothingItem = (id: string) => {
-    setClothingItems(clothingItems.filter(item => item.id !== id));
+    const updatedClothingItems = clothingItems.filter(item => item.id !== id);
+    setClothingItems(updatedClothingItems);
+    
+    try {
+      localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
     
     toast({
       title: "Clothing Item Deleted",
@@ -308,21 +398,39 @@ const Services: React.FC = () => {
       return;
     }
 
-    const updateList = (list: any[], id: string, newName: string) => {
-      return list.map(item => 
-        item.id === id ? { ...item, name: newName.trim() } : item
+    if (activeTab === 'sub-services') {
+      const updatedSubServices = subServices.map(item => 
+        item.id === editingItem.id ? { ...item, name: editItemName.trim() } : item
       );
-    };
-
-    switch (activeTab) {
-      case 'sub-services':
-        setSubServices(updateList(subServices, editingItem.id, editItemName));
-        break;
-      case 'clothing-items':
-        setClothingItems(updateList(clothingItems, editingItem.id, editItemName));
-        break;
-      default:
-        setServices(updateList(services, editingItem.id, editItemName));
+      setSubServices(updatedSubServices);
+      
+      try {
+        localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
+    } else if (activeTab === 'clothing-items') {
+      const updatedClothingItems = clothingItems.map(item => 
+        item.id === editingItem.id ? { ...item, name: editItemName.trim() } : item
+      );
+      setClothingItems(updatedClothingItems);
+      
+      try {
+        localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
+    } else {
+      const updatedServices = services.map(item => 
+        item.id === editingItem.id ? { ...item, name: editItemName.trim() } : item
+      );
+      setServices(updatedServices);
+      
+      try {
+        localStorage.setItem('services', JSON.stringify(updatedServices));
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
     }
 
     setIsEditDialogOpen(false);
