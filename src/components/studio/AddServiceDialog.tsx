@@ -254,12 +254,13 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   {filteredServices.length === 0 ? (
                     <div className="p-4 text-center text-gray-500">No service found.</div>
                   ) : (
-                    <div>
+                    <div className="flex flex-col w-full">
                       {filteredServices.map((service) => (
                         <button
                           key={service.id}
+                          type="button"
                           className={cn(
-                            "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50",
+                            "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50 border-none bg-transparent",
                             selectedService === service.id ? "bg-blue-50" : ""
                           )}
                           onClick={() => handleServiceSelect(service.id, service.name)}
@@ -334,12 +335,13 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           {getFilteredSubServices(subServiceItem.id).length === 0 ? (
                             <div className="p-4 text-center text-gray-500">No sub-service found.</div>
                           ) : (
-                            <div>
+                            <div className="flex flex-col w-full">
                               {getFilteredSubServices(subServiceItem.id).map((subService) => (
                                 <button
                                   key={subService.id}
+                                  type="button"
                                   className={cn(
-                                    "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50",
+                                    "w-full text-left px-4 py-3 cursor-pointer hover:bg-blue-50 border-none bg-transparent",
                                     subServiceItem.name === subService.id ? "bg-blue-50" : ""
                                   )}
                                   onClick={() => handleSubServiceSelect(subService.id, subServiceItem.id, subService.name)}
