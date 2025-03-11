@@ -118,17 +118,24 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     setSubServiceItems(subServiceItems.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
-    
-    // If changing the name field, also update the display name
-    if (field === 'name' && value) {
-      const subService = safeSubServices.find(ss => ss.id === value);
-      if (subService) {
-        setSelectedSubServiceNames(prev => ({
-          ...prev,
-          [id]: subService.name
-        }));
-      }
-    }
+  };
+
+  const handleServiceSelect = (serviceId: string, serviceName: string) => {
+    setSelectedService(serviceId);
+    setSelectedServiceName(serviceName);
+    setOpenServiceCombobox(false);
+  };
+
+  const handleSubServiceSelect = (subServiceId: string, subServiceItemId: string, subServiceName: string) => {
+    handleSubServiceChange(subServiceItemId, 'name', subServiceId);
+    setSelectedSubServiceNames(prev => ({
+      ...prev,
+      [subServiceItemId]: subServiceName
+    }));
+    setOpenSubServiceComboboxes(prev => ({
+      ...prev,
+      [subServiceItemId]: false
+    }));
   };
 
   const toggleSubServiceCombobox = (id: string, isOpen: boolean) => {
@@ -214,7 +221,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-white z-50" align="start" sideOffset={8}>
+              <PopoverContent className="w-[calc(100%-2rem)] p-0 bg-white z-50 shadow-lg" align="start" sideOffset={8}>
                 <Command>
                   <div className="flex items-center border-b px-3">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -225,19 +232,15 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                       onValueChange={setServiceSearchQuery}
                     />
                   </div>
-                  <CommandList>
+                  <CommandList className="max-h-52 overflow-y-auto">
                     <CommandEmpty>No service found.</CommandEmpty>
                     <CommandGroup>
                       {filteredServices.map((service) => (
                         <CommandItem
                           key={service.id}
                           value={service.id}
-                          onSelect={() => {
-                            setSelectedService(service.id);
-                            setSelectedServiceName(service.name);
-                            setOpenServiceCombobox(false);
-                          }}
-                          className="cursor-pointer"
+                          onSelect={() => handleServiceSelect(service.id, service.name)}
+                          className="cursor-pointer hover:bg-blue-50"
                         >
                           <Check
                             className={cn(
@@ -280,7 +283,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-full p-0 bg-white z-50" align="start" sideOffset={8}>
+                      <PopoverContent className="w-[calc(100%-2rem)] p-0 bg-white z-50 shadow-lg" align="start" sideOffset={8}>
                         <Command>
                           <div className="flex items-center border-b px-3">
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -288,25 +291,18 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                               placeholder="Search sub-services..." 
                               className="h-9 flex-1"
                               value={subServiceSearchQueries[subServiceItem.id] || ""}
-                              onValueChange={(query) => updateSubServiceSearchQuery(subServiceItem.id, query)}
+                              onValueChange={(value) => updateSubServiceSearchQuery(subServiceItem.id, value)}
                             />
                           </div>
-                          <CommandList>
+                          <CommandList className="max-h-52 overflow-y-auto">
                             <CommandEmpty>No sub-service found.</CommandEmpty>
                             <CommandGroup>
                               {getFilteredSubServices(subServiceItem.id).map((subService) => (
                                 <CommandItem
                                   key={subService.id}
                                   value={subService.id}
-                                  onSelect={() => {
-                                    handleSubServiceChange(subServiceItem.id, 'name', subService.id);
-                                    setSelectedSubServiceNames(prev => ({
-                                      ...prev,
-                                      [subServiceItem.id]: subService.name
-                                    }));
-                                    toggleSubServiceCombobox(subServiceItem.id, false);
-                                  }}
-                                  className="cursor-pointer"
+                                  onSelect={() => handleSubServiceSelect(subService.id, subServiceItem.id, subService.name)}
+                                  className="cursor-pointer hover:bg-blue-50"
                                 >
                                   <Check
                                     className={cn(
