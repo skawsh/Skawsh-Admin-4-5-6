@@ -216,7 +216,7 @@ const Studios: React.FC = () => {
         <div className="flex flex-wrap justify-between gap-4">
           <div className="flex items-center gap-3">
             <p className="text-gray-500">Filter by:</p>
-            <Select value={statusFilter || ""} onValueChange={(value) => setStatusFilter(value || null)}>
+            <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? null : value)}>
               <SelectTrigger className="w-[120px]">
                 <span className="flex items-center gap-2">
                   <span>Status</span>
@@ -224,12 +224,12 @@ const Studios: React.FC = () => {
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={ratingFilter || ""} onValueChange={(value) => setRatingFilter(value || null)}>
+            <Select value={ratingFilter || "all"} onValueChange={(value) => setRatingFilter(value === "all" ? null : value)}>
               <SelectTrigger className="w-[120px]">
                 <span className="flex items-center gap-2">
                   <span>Rating</span>
@@ -237,7 +237,7 @@ const Studios: React.FC = () => {
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="above4.5">Above 4.5</SelectItem>
                 <SelectItem value="4to4.5">4.0 - 4.5</SelectItem>
                 <SelectItem value="below4">Below 4.0</SelectItem>
