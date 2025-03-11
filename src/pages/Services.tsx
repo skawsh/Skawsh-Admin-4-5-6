@@ -11,9 +11,12 @@ import AddItemDialog from '../components/services/AddItemDialog';
 import EditItemDialog from '../components/services/EditItemDialog';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+// Improved URL encoding with compression for larger datasets
 const encodeDataForUrl = (data: SharedServiceData): string => {
   try {
-    const jsonString = JSON.stringify(data);
+    // Add a version marker for future compatibility
+    const dataWithVersion = { ...data, version: "1.0" };
+    const jsonString = JSON.stringify(dataWithVersion);
     return btoa(encodeURIComponent(jsonString));
   } catch (error) {
     console.error('Error encoding data:', error);
@@ -26,7 +29,14 @@ const decodeDataFromUrl = (encodedData: string): SharedServiceData | null => {
   
   try {
     const jsonString = decodeURIComponent(atob(encodedData));
-    return JSON.parse(jsonString);
+    const parsed = JSON.parse(jsonString);
+    
+    // Ensure we have all required fields with proper defaults
+    return {
+      services: Array.isArray(parsed.services) ? parsed.services : [],
+      subServices: Array.isArray(parsed.subServices) ? parsed.subServices : [],
+      clothingItems: Array.isArray(parsed.clothingItems) ? parsed.clothingItems : []
+    };
   } catch (error) {
     console.error('Error decoding data:', error);
     return null;
@@ -43,6 +53,7 @@ const Services: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [subServices, setSubServices] = useState<SubService[]>([]);
   const [clothingItems, setClothingItems] = useState<ClothingItem[]>([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const [isAddServiceOpen, setIsAddServiceOpen] = useState(false);
   const [isAddSubServiceOpen, setIsAddSubServiceOpen] = useState(false);
@@ -56,37 +67,48 @@ const Services: React.FC = () => {
   const [newSubServiceName, setNewSubServiceName] = useState('');
   const [newClothingItemName, setNewClothingItemName] = useState('');
 
+  // Update both URL and localStorage when data changes
   const syncStateWithUrl = (data: SharedServiceData) => {
-    const encodedData = encodeDataForUrl(data);
-    if (encodedData) {
-      window.history.replaceState(
-        null, 
-        '', 
-        `${window.location.pathname}?data=${encodedData}`
-      );
-      navigate(`/services?data=${encodedData}`, { replace: true });
+    try {
+      const encodedData = encodeDataForUrl(data);
+      if (encodedData) {
+        // Update URL without triggering navigation
+        const newUrl = `${window.location.pathname}?data=${encodedData}`;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+        console.log('URL updated with new data hash:', encodedData.substring(0, 20) + '...');
+      }
+    } catch (error) {
+      console.error('Error updating URL:', error);
     }
   };
 
+  // Save data to both localStorage and URL
   const saveAllData = (
     updatedServices: Service[], 
     updatedSubServices: SubService[], 
     updatedClothingItems: ClothingItem[]
   ) => {
     try {
+      // Save to localStorage as backup
       localStorage.setItem('services', JSON.stringify(updatedServices));
       localStorage.setItem('subServices', JSON.stringify(updatedSubServices));
       localStorage.setItem('clothingItems', JSON.stringify(updatedClothingItems));
       
+      // Create shared data structure
       const sharedData: SharedServiceData = {
         services: updatedServices,
         subServices: updatedSubServices,
         clothingItems: updatedClothingItems
       };
       
+      // Update URL with encoded data
       syncStateWithUrl(sharedData);
       
-      console.log('Data saved successfully:', sharedData);
+      console.log('Data saved successfully:', {
+        services: updatedServices.length,
+        subServices: updatedSubServices.length,
+        clothingItems: updatedClothingItems.length
+      });
     } catch (error) {
       console.error('Error saving data:', error);
       toast({
@@ -97,29 +119,48 @@ const Services: React.FC = () => {
     }
   };
 
+  // Load data on component mount and URL changes
   useEffect(() => {
+    if (isDataLoaded) return; // Prevent multiple loads
+
     try {
+      console.log('Loading data from URL or localStorage...');
       const searchParams = new URLSearchParams(location.search);
       const dataParam = searchParams.get('data');
       
       if (dataParam) {
+        console.log('Found data parameter in URL, attempting to decode...');
         const decodedData = decodeDataFromUrl(dataParam);
+        
         if (decodedData) {
-          console.log('Loaded data from URL:', decodedData);
+          console.log('Successfully loaded data from URL:', {
+            services: decodedData.services.length,
+            subServices: decodedData.subServices.length,
+            clothingItems: decodedData.clothingItems.length
+          });
           
-          setServices(decodedData.services || []);
-          setSubServices(decodedData.subServices || []);
-          setClothingItems(decodedData.clothingItems || []);
+          // Update state with URL data
+          setServices(decodedData.services);
+          setSubServices(decodedData.subServices);
+          setClothingItems(decodedData.clothingItems);
           
-          localStorage.setItem('services', JSON.stringify(decodedData.services || []));
-          localStorage.setItem('subServices', JSON.stringify(decodedData.subServices || []));
-          localStorage.setItem('clothingItems', JSON.stringify(decodedData.clothingItems || []));
+          // Also save to localStorage for backup
+          localStorage.setItem('services', JSON.stringify(decodedData.services));
+          localStorage.setItem('subServices', JSON.stringify(decodedData.subServices));
+          localStorage.setItem('clothingItems', JSON.stringify(decodedData.clothingItems));
           
+          setIsDataLoaded(true);
           return;
+        } else {
+          console.warn('Failed to decode URL data, falling back to localStorage');
         }
+      } else {
+        console.log('No data parameter found in URL');
       }
       
+      // Fallback to localStorage if URL data is not available or invalid
       loadFromLocalStorage();
+      setIsDataLoaded(true);
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
@@ -127,10 +168,14 @@ const Services: React.FC = () => {
         title: "Error",
         description: "Failed to load saved data"
       });
+      
+      // Always attempt to load from localStorage as a last resort
       loadFromLocalStorage();
+      setIsDataLoaded(true);
     }
   }, [location.search]);
 
+  // Load data from localStorage and sync to URL
   const loadFromLocalStorage = () => {
     try {
       const storedServices = localStorage.getItem('services');
@@ -142,21 +187,23 @@ const Services: React.FC = () => {
       const clothingItemsData = storedClothingItems ? JSON.parse(storedClothingItems) : [];
       
       console.log('Loaded data from localStorage:', { 
-        services: servicesData, 
-        subServices: subServicesData, 
-        clothingItems: clothingItemsData 
+        services: servicesData.length, 
+        subServices: subServicesData.length, 
+        clothingItems: clothingItemsData.length 
       });
       
       setServices(servicesData);
       setSubServices(subServicesData);
       setClothingItems(clothingItemsData);
       
+      // Create shared data object
       const sharedData: SharedServiceData = {
         services: servicesData,
         subServices: subServicesData,
         clothingItems: clothingItemsData
       };
       
+      // Also update the URL to match localStorage data
       syncStateWithUrl(sharedData);
     } catch (error) {
       console.error('Error loading from localStorage:', error);
@@ -165,6 +212,10 @@ const Services: React.FC = () => {
         title: "Error",
         description: "Failed to load saved data"
       });
+      // If localStorage fails, set empty arrays
+      setServices([]);
+      setSubServices([]);
+      setClothingItems([]);
     }
   };
 

@@ -24,4 +24,5 @@ export interface SharedServiceData {
   services: Service[];
   subServices: SubService[];
   clothingItems: ClothingItem[];
+  version?: string; // For future compatibility
 }
