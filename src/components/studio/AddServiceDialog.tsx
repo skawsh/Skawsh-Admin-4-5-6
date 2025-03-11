@@ -39,6 +39,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   const safeClothingItems = Array.isArray(clothingItems) ? clothingItems : [];
 
   const [selectedService, setSelectedService] = useState<string>("");
+  const [selectedServiceName, setSelectedServiceName] = useState<string>("Select a service");
   const [openServiceCombobox, setOpenServiceCombobox] = useState(false);
   const [serviceSearchQuery, setServiceSearchQuery] = useState("");
   
@@ -54,10 +55,12 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   
   const [openSubServiceComboboxes, setOpenSubServiceComboboxes] = useState<Record<string, boolean>>({});
   const [subServiceSearchQueries, setSubServiceSearchQueries] = useState<Record<string, string>>({});
+  const [selectedSubServiceNames, setSelectedSubServiceNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedService("");
+      setSelectedServiceName("Select a service");
       setServiceSearchQuery("");
       setSubServiceItems([{
         id: Date.now().toString(),
@@ -69,6 +72,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       setSubServiceSearchQueries({});
       setOpenServiceCombobox(false);
       setOpenSubServiceComboboxes({});
+      setSelectedSubServiceNames({});
     }
   }, [isOpen]);
 
@@ -87,6 +91,11 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       ...prev,
       [newItem.id]: ""
     }));
+    
+    setSelectedSubServiceNames(prev => ({
+      ...prev,
+      [newItem.id]: "Select a subservice..."
+    }));
   };
 
   const handleRemoveSubService = (id: string) => {
@@ -99,12 +108,27 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     const newOpenStates = { ...openSubServiceComboboxes };
     delete newOpenStates[id];
     setOpenSubServiceComboboxes(newOpenStates);
+    
+    const newSubServiceNames = { ...selectedSubServiceNames };
+    delete newSubServiceNames[id];
+    setSelectedSubServiceNames(newSubServiceNames);
   };
 
   const handleSubServiceChange = (id: string, field: keyof SubServiceItem, value: string) => {
     setSubServiceItems(subServiceItems.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
+    
+    // If changing the name field, also update the display name
+    if (field === 'name' && value) {
+      const subService = safeSubServices.find(ss => ss.id === value);
+      if (subService) {
+        setSelectedSubServiceNames(prev => ({
+          ...prev,
+          [id]: subService.name
+        }));
+      }
+    }
   };
 
   const toggleSubServiceCombobox = (id: string, isOpen: boolean) => {
@@ -146,6 +170,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     onServiceAdded(formData);
     
     setSelectedService("");
+    setSelectedServiceName("Select a service");
     setSubServiceItems([{
       id: Date.now().toString(),
       name: "",
@@ -155,23 +180,12 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     }]);
     setServiceSearchQuery("");
     setSubServiceSearchQueries({});
+    setSelectedSubServiceNames({});
     onOpenChange(false);
   };
 
-  const getSelectedServiceName = () => {
-    if (!selectedService) return "Select a service";
-    
-    const service = safeServices.find(service => service.id === selectedService);
-    
-    return service ? service.name : "Select a service";
-  };
-
   const getSelectedSubServiceName = (id: string) => {
-    const subServiceItem = subServiceItems.find(item => item.id === id);
-    if (!subServiceItem || !subServiceItem.name) return "Select a subservice...";
-    
-    const subService = safeSubServices.find(ss => ss.id === subServiceItem.name);
-    return subService?.name || "Select a subservice...";
+    return selectedSubServiceNames[id] || "Select a subservice...";
   };
 
   const filteredServices = getFilteredServices();
@@ -196,11 +210,11 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                   aria-expanded={openServiceCombobox}
                   className="w-full border-2 rounded-lg h-12 justify-between"
                 >
-                  {getSelectedServiceName()}
+                  {selectedServiceName}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-white" align="start" sideOffset={8}>
+              <PopoverContent className="w-full p-0 bg-white z-50" align="start" sideOffset={8}>
                 <Command>
                   <div className="flex items-center border-b px-3">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -218,8 +232,9 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                         <CommandItem
                           key={service.id}
                           value={service.id}
-                          onSelect={(currentValue) => {
+                          onSelect={() => {
                             setSelectedService(service.id);
+                            setSelectedServiceName(service.name);
                             setOpenServiceCombobox(false);
                           }}
                           className="cursor-pointer"
@@ -265,7 +280,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-full p-0 bg-white" align="start" sideOffset={8}>
+                      <PopoverContent className="w-full p-0 bg-white z-50" align="start" sideOffset={8}>
                         <Command>
                           <div className="flex items-center border-b px-3">
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
@@ -283,8 +298,12 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                                 <CommandItem
                                   key={subService.id}
                                   value={subService.id}
-                                  onSelect={(currentValue) => {
+                                  onSelect={() => {
                                     handleSubServiceChange(subServiceItem.id, 'name', subService.id);
+                                    setSelectedSubServiceNames(prev => ({
+                                      ...prev,
+                                      [subServiceItem.id]: subService.name
+                                    }));
                                     toggleSubServiceCombobox(subServiceItem.id, false);
                                   }}
                                   className="cursor-pointer"
