@@ -19,6 +19,7 @@ interface AddServiceDialogProps {
     serviceId: string;
     subServices: any[];
   } | null;
+  washCategory: string; // Add wash category prop
 }
 
 const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
@@ -28,7 +29,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   subServices,
   clothingItems,
   onServiceAdded,
-  editingService = null
+  editingService = null,
+  washCategory
 }) => {
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [selectedSubServiceNames, setSelectedSubServiceNames] = useState<string[]>([]);
@@ -37,6 +39,10 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   const [selectedItems, setSelectedItems] = useState<Record<string, string[]>>({});
   const [itemPrices, setItemPrices] = useState<Record<string, Record<string, string>>>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  
+  // New state for wash category pricing
+  const [standardPrices, setStandardPrices] = useState<Record<string, Record<string, string>>>({});
+  const [expressPrices, setExpressPrices] = useState<Record<string, Record<string, string>>>({});
 
   // Reset the form when the dialog opens
   useEffect(() => {
@@ -58,6 +64,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     setPricePerItem({});
     setSelectedItems({});
     setItemPrices({});
+    setStandardPrices({});
+    setExpressPrices({});
     setFormErrors([]);
   };
 
@@ -76,6 +84,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     const newPricePerItem: Record<string, string> = {};
     const newSelectedItems: Record<string, string[]> = {};
     const newItemPrices: Record<string, Record<string, string>> = {};
+    const newStandardPrices: Record<string, Record<string, string>> = {};
+    const newExpressPrices: Record<string, Record<string, string>> = {};
 
     // Populate data for each sub-service
     editingService.subServices.forEach(subService => {
@@ -97,6 +107,15 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
         if (subService.itemPrices) {
           newItemPrices[subServiceName] = { ...subService.itemPrices };
         }
+        
+        // Set wash category prices if they exist
+        if (subService.standardPrices) {
+          newStandardPrices[subServiceName] = { ...subService.standardPrices };
+        }
+        
+        if (subService.expressPrices) {
+          newExpressPrices[subServiceName] = { ...subService.expressPrices };
+        }
       }
     });
 
@@ -105,6 +124,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     setPricePerItem(newPricePerItem);
     setSelectedItems(newSelectedItems);
     setItemPrices(newItemPrices);
+    setStandardPrices(newStandardPrices);
+    setExpressPrices(newExpressPrices);
   };
 
   const handleServiceChange = (value: string) => {
@@ -169,6 +190,33 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       };
     });
   };
+  
+  // New handlers for wash category pricing
+  const handleStandardPriceChange = (subServiceName: string, itemId: string, price: string) => {
+    setStandardPrices(prev => {
+      const currentPrices = prev[subServiceName] || {};
+      return {
+        ...prev,
+        [subServiceName]: {
+          ...currentPrices,
+          [itemId]: price
+        }
+      };
+    });
+  };
+  
+  const handleExpressPriceChange = (subServiceName: string, itemId: string, price: string) => {
+    setExpressPrices(prev => {
+      const currentPrices = prev[subServiceName] || {};
+      return {
+        ...prev,
+        [subServiceName]: {
+          ...currentPrices,
+          [itemId]: price
+        }
+      };
+    });
+  };
 
   const getSelectedSubServiceName = (id: string) => {
     const subService = subServices.find(s => s.id === id);
@@ -199,16 +247,47 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       // If items are selected, check if prices are provided
       if (hasItems) {
         const itemIds = selectedItems[subServiceName] || [];
-        const itemPricesForService = itemPrices[subServiceName] || {};
         
-        itemIds.forEach(itemId => {
-          if (!itemPricesForService[itemId] || itemPricesForService[itemId] === '0') {
-            const item = clothingItems.find(i => i.id === itemId);
-            if (item) {
-              errors.push(`Please add price for ${item.name} in ${getSelectedSubServiceName(subServiceName)}`);
+        // Check based on wash category
+        if (washCategory === 'standard' || washCategory === 'both') {
+          const standardPricesForService = standardPrices[subServiceName] || {};
+          itemIds.forEach(itemId => {
+            if (!standardPricesForService[itemId] && (!itemPrices[subServiceName] || !itemPrices[subServiceName][itemId])) {
+              const item = clothingItems.find(i => i.id === itemId);
+              if (item) {
+                errors.push(`Please add standard price for ${item.name} in ${getSelectedSubServiceName(subServiceName)}`);
+              }
             }
-          }
-        });
+          });
+        }
+        
+        if (washCategory === 'express' || washCategory === 'both') {
+          const expressPricesForService = expressPrices[subServiceName] || {};
+          itemIds.forEach(itemId => {
+            if (!expressPricesForService[itemId] && (!itemPrices[subServiceName] || !itemPrices[subServiceName][itemId])) {
+              const item = clothingItems.find(i => i.id === itemId);
+              if (item) {
+                errors.push(`Please add express price for ${item.name} in ${getSelectedSubServiceName(subServiceName)}`);
+              }
+            }
+          });
+        }
+        
+        // If neither wash category specific prices exist, check for general price
+        if (washCategory === 'both') {
+          const itemPricesForService = itemPrices[subServiceName] || {};
+          itemIds.forEach(itemId => {
+            const standardPrice = (standardPrices[subServiceName] || {})[itemId];
+            const expressPrice = (expressPrices[subServiceName] || {})[itemId];
+            
+            if (!standardPrice && !expressPrice && !itemPricesForService[itemId]) {
+              const item = clothingItems.find(i => i.id === itemId);
+              if (item) {
+                errors.push(`Please add at least one price type for ${item.name} in ${getSelectedSubServiceName(subServiceName)}`);
+              }
+            }
+          });
+        }
       }
     });
     
@@ -223,13 +302,24 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     
     // Prepare data for saving
     const subServicesData = selectedSubServiceNames.map(subServiceName => {
-      return {
+      const data: any = {
         name: subServiceName,
         pricePerKg: pricePerKg[subServiceName] || '0',
         pricePerItem: pricePerItem[subServiceName] || '0',
         selectedItems: selectedItems[subServiceName] || [],
         itemPrices: itemPrices[subServiceName] || {}
       };
+      
+      // Add wash category pricing if applicable
+      if (washCategory === 'standard' || washCategory === 'both') {
+        data.standardPrices = standardPrices[subServiceName] || {};
+      }
+      
+      if (washCategory === 'express' || washCategory === 'both') {
+        data.expressPrices = expressPrices[subServiceName] || {};
+      }
+      
+      return data;
     });
     
     const serviceData = {
@@ -239,6 +329,12 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     
     onServiceAdded(serviceData);
   };
+
+  // Helper function to determine if we need to show standard pricing
+  const showStandardPricing = () => washCategory === 'standard' || washCategory === 'both';
+  
+  // Helper function to determine if we need to show express pricing
+  const showExpressPricing = () => washCategory === 'express' || washCategory === 'both';
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -330,9 +426,9 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                         
                         <div className="space-y-2">
                           <Label className="text-sm">Clothing Items with Prices:</Label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded-md p-3 bg-gray-50">
+                          <div className="grid grid-cols-1 gap-3 border rounded-md p-3 bg-gray-50">
                             {clothingItems.filter(item => item.active).map((item) => (
-                              <div key={item.id} className="flex items-center gap-2">
+                              <div key={item.id} className="flex flex-wrap items-center gap-2 border-b pb-3 last:border-0 last:pb-0">
                                 <Checkbox 
                                   id={`item-${subService.id}-${item.id}`}
                                   checked={(selectedItems[subService.id] || []).includes(item.id)}
@@ -342,17 +438,77 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                                     }
                                   }}
                                 />
-                                <Label htmlFor={`item-${subService.id}-${item.id}`} className="text-sm flex-1">
+                                <Label htmlFor={`item-${subService.id}-${item.id}`} className="text-sm flex-1 min-w-[120px]">
                                   {item.name}
                                 </Label>
+                                
                                 {(selectedItems[subService.id] || []).includes(item.id) && (
-                                  <Input 
-                                    type="number" 
-                                    value={((itemPrices[subService.id] || {})[item.id]) || ''}
-                                    onChange={(e) => handleItemPriceChange(subService.id, item.id, e.target.value)}
-                                    placeholder="Price" 
-                                    className="w-20"
-                                  />
+                                  <>
+                                    {/* Regular price (displayed when no specific wash category is needed) */}
+                                    {washCategory !== 'both' && (
+                                      <div className="flex items-center space-x-2">
+                                        <Label htmlFor={`price-${subService.id}-${item.id}`} className="text-xs whitespace-nowrap">
+                                          {washCategory === 'standard' ? 'Standard' : washCategory === 'express' ? 'Express' : ''} Price:
+                                        </Label>
+                                        <Input 
+                                          id={`price-${subService.id}-${item.id}`}
+                                          type="number" 
+                                          value={
+                                            washCategory === 'standard' 
+                                              ? (standardPrices[subService.id]?.[item.id] || itemPrices[subService.id]?.[item.id] || '')
+                                              : washCategory === 'express'
+                                                ? (expressPrices[subService.id]?.[item.id] || itemPrices[subService.id]?.[item.id] || '')
+                                                : (itemPrices[subService.id]?.[item.id] || '')
+                                          }
+                                          onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (washCategory === 'standard') {
+                                              handleStandardPriceChange(subService.id, item.id, value);
+                                            } else if (washCategory === 'express') {
+                                              handleExpressPriceChange(subService.id, item.id, value);
+                                            } else {
+                                              handleItemPriceChange(subService.id, item.id, value);
+                                            }
+                                          }}
+                                          placeholder="Price" 
+                                          className="w-20"
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    {/* Both wash categories (standard and express) */}
+                                    {washCategory === 'both' && (
+                                      <div className="flex flex-wrap gap-2 items-center mt-1 w-full pl-6">
+                                        <div className="flex items-center space-x-2">
+                                          <Label htmlFor={`standard-price-${subService.id}-${item.id}`} className="text-xs whitespace-nowrap">
+                                            Standard Price:
+                                          </Label>
+                                          <Input 
+                                            id={`standard-price-${subService.id}-${item.id}`}
+                                            type="number" 
+                                            value={standardPrices[subService.id]?.[item.id] || ''}
+                                            onChange={(e) => handleStandardPriceChange(subService.id, item.id, e.target.value)}
+                                            placeholder="Price" 
+                                            className="w-20"
+                                          />
+                                        </div>
+                                        
+                                        <div className="flex items-center space-x-2">
+                                          <Label htmlFor={`express-price-${subService.id}-${item.id}`} className="text-xs whitespace-nowrap">
+                                            Express Price:
+                                          </Label>
+                                          <Input 
+                                            id={`express-price-${subService.id}-${item.id}`}
+                                            type="number" 
+                                            value={expressPrices[subService.id]?.[item.id] || ''}
+                                            onChange={(e) => handleExpressPriceChange(subService.id, item.id, e.target.value)}
+                                            placeholder="Price" 
+                                            className="w-20"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                               </div>
                             ))}

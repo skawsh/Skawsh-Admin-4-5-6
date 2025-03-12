@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 interface AddItemDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  title: string;  // Added title prop
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
+  title: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
   onSave: () => void;
+  children?: ReactNode;
 }
 
 const AddItemDialog: React.FC<AddItemDialogProps> = ({
@@ -21,7 +22,8 @@ const AddItemDialog: React.FC<AddItemDialogProps> = ({
   placeholder,
   value,
   onChange,
-  onSave
+  onSave,
+  children
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -30,17 +32,21 @@ const AddItemDialog: React.FC<AddItemDialogProps> = ({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <Input 
-            placeholder={placeholder} 
-            value={value} 
-            onChange={(e) => onChange(e.target.value)} 
-          />
+          {children ? (
+            children
+          ) : (
+            <Input 
+              placeholder={placeholder} 
+              value={value} 
+              onChange={(e) => onChange && onChange(e.target.value)} 
+            />
+          )}
         </div>
         <DialogFooter>
           <Button 
             variant="outline" 
             onClick={() => {
-              onChange('');
+              onChange && onChange('');
               onOpenChange(false);
             }}
           >

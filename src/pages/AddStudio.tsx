@@ -26,9 +26,7 @@ const AddStudio: React.FC = () => {
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [editingService, setEditingService] = useState<StudioService | null>(null);
   
-  // Form state
   const [formData, setFormData] = useState({
-    // Basic Information
     ownerFirstName: '',
     ownerLastName: '',
     studioName: '',
@@ -36,7 +34,6 @@ const AddStudio: React.FC = () => {
     primaryNumber: '',
     secondaryNumber: '',
     
-    // Address Details
     street: '',
     city: '',
     state: '',
@@ -44,7 +41,6 @@ const AddStudio: React.FC = () => {
     latitude: '',
     longitude: '',
     
-    // Business Details
     businessRegNumber: '',
     gstNumber: '',
     panNumber: '',
@@ -52,13 +48,11 @@ const AddStudio: React.FC = () => {
     closingTime: '09:00 PM',
     priceAdjustment: '0',
     
-    // Studio Setup
     employeeCount: '0',
     dailyCapacity: '0',
     specialEquipment: '',
     washCategory: 'both',
     
-    // Payment Details
     accountHolderName: '',
     bankName: '',
     accountNumber: '',
@@ -80,24 +74,19 @@ const AddStudio: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Here you would typically send the data to an API
     console.log('Studio data to submit:', formData);
     console.log('Studio services to submit:', studioServices);
     
-    // Show success toast
     toast({
       title: "Studio saved",
       description: "The studio has been successfully created.",
     });
     
-    // Navigate back to studios page
     navigate('/studios');
   };
 
   const handleServiceAdded = (data: any) => {
-    // If we're editing an existing service
     if (editingService) {
-      // Replace the entire service with the new data
       const updatedServices = studioServices.map(service => 
         service.serviceId === editingService.serviceId ? {
           serviceId: data.serviceId,
@@ -113,28 +102,22 @@ const AddStudio: React.FC = () => {
         description: "The service has been updated successfully.",
       });
     } else {
-      // Check if service already exists
       const existingServiceIndex = studioServices.findIndex(
         service => service.serviceId === data.serviceId
       );
       
       if (existingServiceIndex >= 0) {
-        // Service exists, check for sub-services
         const updatedServices = [...studioServices];
         const existingService = updatedServices[existingServiceIndex];
         
-        // Process each sub-service in the new data
         data.subServices.forEach((newSubService: any) => {
-          // Check if this sub-service already exists in this service
           const existingSubServiceIndex = existingService.subServices.findIndex(
             (subSrv: any) => subSrv.name === newSubService.name
           );
           
           if (existingSubServiceIndex >= 0) {
-            // Sub-service exists, merge clothing items
             const existingSubService = existingService.subServices[existingSubServiceIndex];
             
-            // Update price per kg/item if provided
             if (newSubService.pricePerKg) {
               existingSubService.pricePerKg = newSubService.pricePerKg;
             }
@@ -143,7 +126,6 @@ const AddStudio: React.FC = () => {
               existingSubService.pricePerItem = newSubService.pricePerItem;
             }
             
-            // Merge clothing items
             const updatedSelectedItems = [...existingSubService.selectedItems];
             const updatedItemPrices = {...existingSubService.itemPrices};
             
@@ -151,14 +133,12 @@ const AddStudio: React.FC = () => {
               if (!updatedSelectedItems.includes(itemId)) {
                 updatedSelectedItems.push(itemId);
               }
-              // Always update the price with the latest value
               updatedItemPrices[itemId] = newSubService.itemPrices[itemId];
             });
             
             existingSubService.selectedItems = updatedSelectedItems;
             existingSubService.itemPrices = updatedItemPrices;
           } else {
-            // Sub-service doesn't exist, add it
             existingService.subServices.push(newSubService);
           }
         });
@@ -169,7 +149,6 @@ const AddStudio: React.FC = () => {
           description: "The service has been updated with new information.",
         });
       } else {
-        // Service doesn't exist, add it
         const newService = {
           serviceId: data.serviceId,
           subServices: data.subServices
@@ -183,13 +162,11 @@ const AddStudio: React.FC = () => {
       }
     }
     
-    // Expand the service that was just added or updated
     setExpandedServices(prev => ({
       ...prev,
       [data.serviceId]: true
     }));
     
-    // Close the dialog
     setIsAddServiceDialogOpen(false);
   };
 
@@ -201,11 +178,9 @@ const AddStudio: React.FC = () => {
   };
 
   const handleEditService = (serviceIndex: number) => {
-    // Set the current service for editing
     const serviceToEdit = studioServices[serviceIndex];
     setEditingService(serviceToEdit);
     
-    // Open the dialog for editing
     setIsAddServiceDialogOpen(true);
     
     toast({
@@ -240,10 +215,29 @@ const AddStudio: React.FC = () => {
     return item ? item.name : 'Unknown Item';
   };
 
+  const renderPriceWithWashCategory = (subService: any, itemId: string) => {
+    const itemPrices = subService.itemPrices || {};
+    const standardPrices = subService.standardPrices || {};
+    const expressPrices = subService.expressPrices || {};
+    
+    if (formData.washCategory === 'both' && (standardPrices[itemId] || expressPrices[itemId])) {
+      return (
+        <>
+          {standardPrices[itemId] && `Std: ₹${standardPrices[itemId]}`}
+          {standardPrices[itemId] && expressPrices[itemId] && ' / '}
+          {expressPrices[itemId] && `Exp: ₹${expressPrices[itemId]}`}
+        </>
+      );
+    } else {
+      return `₹${itemPrices[itemId] || 
+        (formData.washCategory === 'standard' ? standardPrices[itemId] : expressPrices[itemId]) || 
+        '0'}`;
+    }
+  };
+
   return (
     <Layout activeSection="studios">
       <form onSubmit={handleSubmit}>
-        {/* Header with back button and save button */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
           <div className="flex items-center gap-3">
             <Button 
@@ -268,7 +262,6 @@ const AddStudio: React.FC = () => {
           </Button>
         </div>
 
-        {/* Basic Information */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Basic Information</h2>
           
@@ -357,7 +350,6 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        {/* Address Details */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Address Details</h2>
           
@@ -442,7 +434,6 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        {/* Business Details */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Business Details</h2>
           
@@ -527,7 +518,6 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        {/* Studio Setup */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Studio Setup</h2>
           
@@ -597,7 +587,6 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        {/* Payment Details */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Payment Details</h2>
           
@@ -702,7 +691,6 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        {/* Services Section */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Services</h2>
           
@@ -791,7 +779,7 @@ const AddStudio: React.FC = () => {
                                           variant="outline" 
                                           className="bg-blue-50 text-blue-700 border-blue-200"
                                         >
-                                          {getClothingItemNameById(itemId)}: ₹{subService.itemPrices[itemId] || '0'}
+                                          {getClothingItemNameById(itemId)}: {renderPriceWithWashCategory(subService, itemId)}
                                         </Badge>
                                       ))}
                                     </div>
@@ -822,10 +810,6 @@ const AddStudio: React.FC = () => {
           clothingItems={clothingItems}
           onServiceAdded={handleServiceAdded}
           editingService={editingService}
-        />
-      </form>
-    </Layout>
-  );
-};
+          washCategory={formData.washCategory}
 
-export default AddStudio;
+
