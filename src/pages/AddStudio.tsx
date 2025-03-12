@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -811,5 +812,10 @@ const AddStudio: React.FC = () => {
           onServiceAdded={handleServiceAdded}
           editingService={editingService}
           washCategory={formData.washCategory}
+        />
+      </form>
+    </Layout>
+  );
+};
 
-
+export default AddStudio;
