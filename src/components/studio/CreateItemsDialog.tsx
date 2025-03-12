@@ -48,20 +48,16 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
       return;
     }
 
-    const newService: Service = {
-      id: generateId('service'),
-      name: serviceName.trim(),
-      active: true
-    };
-
-    addService(newService);
+    // Pass the service name string instead of the whole object
+    const success = addService(serviceName.trim());
     
-    toast({
-      title: "Success",
-      description: `Service "${serviceName}" has been created`
-    });
-
-    setServiceName("");
+    if (success) {
+      toast({
+        title: "Success",
+        description: `Service "${serviceName}" has been created`
+      });
+      setServiceName("");
+    }
   };
 
   const handleCreateSubService = () => {
@@ -74,20 +70,16 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
       return;
     }
 
-    const newSubService: SubService = {
-      id: generateId('subservice'),
-      name: subServiceName.trim(),
-      active: true
-    };
-
-    addSubService(newSubService);
+    // Pass the sub-service name string instead of the whole object
+    const success = addSubService(subServiceName.trim());
     
-    toast({
-      title: "Success",
-      description: `Sub-service "${subServiceName}" has been created`
-    });
-
-    setSubServiceName("");
+    if (success) {
+      toast({
+        title: "Success",
+        description: `Sub-service "${subServiceName}" has been created`
+      });
+      setSubServiceName("");
+    }
   };
 
   const handleCreateClothingItem = () => {
@@ -100,20 +92,16 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
       return;
     }
 
-    const newClothingItem: ClothingItem = {
-      id: generateId('clothing'),
-      name: clothingItemName.trim(),
-      active: true
-    };
-
-    addClothingItem(newClothingItem);
+    // Pass the clothing item name string instead of the whole object
+    const success = addClothingItem(clothingItemName.trim());
     
-    toast({
-      title: "Success",
-      description: `Clothing item "${clothingItemName}" has been created`
-    });
-
-    setClothingItemName("");
+    if (success) {
+      toast({
+        title: "Success",
+        description: `Clothing item "${clothingItemName}" has been created`
+      });
+      setClothingItemName("");
+    }
   };
 
   const handleClose = () => {
