@@ -7,15 +7,12 @@ import ClothingItemsList from '../components/services/ClothingItemsList';
 import ServicesHeader from '../components/services/ServicesHeader';
 import AddItemDialog from '../components/services/AddItemDialog';
 import EditItemDialog from '../components/services/EditItemDialog';
+import ServicesCard from '@/components/studio/details/ServicesCard';
 import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
 import { useToast } from '@/hooks/use-toast';
-import ServicesCard from '@/components/studio/details/ServicesCard';
-import MultiSelect from '@/components/ui/multi-select';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { StudioService } from '@/types/services';
 
 const Services: React.FC = () => {
   const { toast } = useToast();
@@ -100,30 +97,7 @@ const Services: React.FC = () => {
     loadStudioServices();
   }, []);
 
-  const tabInfo = getTabInfo();
-
-  const subServiceOptions = subServices
-    .filter(subService => subService.active)
-    .map(subService => ({
-      value: subService.id,
-      label: subService.name
-    }));
-
-  const clothingItemOptions = clothingItems
-    .filter(item => item.active)
-    .map(item => ({
-      value: item.id,
-      label: item.name
-    }));
-
-  useEffect(() => {
-    toast({
-      title: "Services Loaded",
-      description: "Your services data is ready. Any changes will be automatically saved."
-    });
-  }, []);
-
-  const handleServiceStatusChange = (serviceIndex: number) => {
+  const handleStudioServiceStatusChange = (serviceIndex: number) => {
     if (studioServices) {
       const updatedServices = [...studioServices];
       updatedServices[serviceIndex].active = !updatedServices[serviceIndex].active;
@@ -134,7 +108,7 @@ const Services: React.FC = () => {
         const studios = JSON.parse(savedStudios);
         studios.forEach((studio: any) => {
           if (studio.studioServices) {
-            studio.studioServices = studio.studioServices.map((service: any) => {
+            studio.studioServices = studio.studioServices.map((service: StudioService) => {
               if (service.id === updatedServices[serviceIndex].id) {
                 return updatedServices[serviceIndex];
               }
@@ -177,7 +151,7 @@ const Services: React.FC = () => {
                   <h2 className="text-xl font-bold mb-6">Studio Services</h2>
                   <ServicesCard
                     services={studioServices}
-                    onServiceStatusChange={handleServiceStatusChange}
+                    onServiceStatusChange={handleStudioServiceStatusChange}
                   />
                 </div>
               )}

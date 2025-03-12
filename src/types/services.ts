@@ -1,4 +1,3 @@
-
 export interface Service {
   id: string;
   name: string;
@@ -19,7 +18,24 @@ export interface ClothingItem {
 
 export type ItemType = Service | SubService | ClothingItem;
 
-// Serializable data structure for sharing
+export interface StudioService {
+  id: string;
+  name: string;
+  active: boolean;
+  serviceId: string;
+  subServices: Array<{
+    name: string;
+    standardPricePerKg?: number;
+    expressPricePerKg?: number;
+    standardPricePerItem?: number;
+    expressPricePerItem?: number;
+    selectedItems?: string[];
+    standardItemPrices?: { [key: string]: number };
+    expressItemPrices?: { [key: string]: number };
+    itemPrices?: { [key: string]: number };
+  }>;
+}
+
 export interface SharedServiceData {
   services: Service[];
   subServices: SubService[];
