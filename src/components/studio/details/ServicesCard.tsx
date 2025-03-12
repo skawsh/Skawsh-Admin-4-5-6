@@ -6,23 +6,26 @@ import { Badge } from "@/components/ui/badge";
 import { Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
+interface SubService {
+  name: string;
+  standardPricePerKg?: number;
+  expressPricePerKg?: number;
+  standardPricePerItem?: number;
+  expressPricePerItem?: number;
+  selectedItems?: string[];
+  standardItemPrices?: { [key: string]: number };
+  expressItemPrices?: { [key: string]: number };
+  itemPrices?: { [key: string]: number };
+  active?: boolean;
+}
+
 interface StudioService {
   id: string;
   name: string;
   active: boolean;
   price?: number;
   serviceId: string;
-  subServices: Array<{
-    name: string;
-    standardPricePerKg?: number;
-    expressPricePerKg?: number;
-    standardPricePerItem?: number;
-    expressPricePerItem?: number;
-    selectedItems?: string[];
-    standardItemPrices?: { [key: string]: number };
-    expressItemPrices?: { [key: string]: number };
-    itemPrices?: { [key: string]: number };
-  }>;
+  subServices: SubService[];
 }
 
 interface ServicesCardProps {
@@ -100,7 +103,12 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
                       <div className="space-y-4">
                         {service.subServices.map((subService, subIndex) => (
                           <div key={`${service.id}-${subIndex}`} className="border rounded p-4">
-                            <h4 className="font-medium mb-3">{subService.name}</h4>
+                            <div className="flex justify-between items-center mb-3">
+                              <h4 className="font-medium">{subService.name}</h4>
+                              <Badge variant={subService.active !== false ? "default" : "outline"}>
+                                {subService.active !== false ? "Active" : "Inactive"}
+                              </Badge>
+                            </div>
                             
                             <div className="space-y-3">
                               <div className="grid grid-cols-2 gap-4">

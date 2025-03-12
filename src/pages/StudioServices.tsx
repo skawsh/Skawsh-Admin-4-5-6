@@ -8,6 +8,19 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 
+interface SubService {
+  name: string;
+  standardPricePerKg?: number;
+  expressPricePerKg?: number;
+  standardPricePerItem?: number;
+  expressPricePerItem?: number;
+  selectedItems?: string[];
+  standardItemPrices?: { [key: string]: number };
+  expressItemPrices?: { [key: string]: number };
+  itemPrices?: { [key: string]: number };
+  active?: boolean;
+}
+
 const StudioServices: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -38,7 +51,7 @@ const StudioServices: React.FC = () => {
               // Ensure each subservice has an active property
               const updatedStudioServices = studio.studioServices.map((service: any) => ({
                 ...service,
-                subServices: service.subServices.map((subService: any) => ({
+                subServices: service.subServices.map((subService: SubService) => ({
                   ...subService,
                   active: subService.active !== false // Default to true if not explicitly false
                 }))

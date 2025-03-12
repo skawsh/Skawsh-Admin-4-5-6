@@ -21,7 +21,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
     <div className="space-y-6">
       <h2 className="text-xl font-bold">Studio Services</h2>
       {studioServices.map((service, serviceIndex) => (
-        <Card key={service.id} className="p-6">
+        <Card key={service.id} className="p-6 mb-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -36,80 +36,100 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
               />
             </div>
             
-            <div className="pl-4 space-y-4">
+            <div className="pl-4 space-y-6 mt-4">
               {service.subServices.map((subService, subIndex) => (
-                <div key={subIndex} className="border-l-2 border-gray-200 pl-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">{subService.name}</h4>
-                    {onSubServiceStatusChange && (
-                      <div className="flex items-center">
-                        <Switch
-                          checked={subService.active !== false}
-                          onCheckedChange={(checked) => 
-                            onSubServiceStatusChange(serviceIndex, subIndex, checked)
-                          }
-                          className="mr-2"
-                        />
+                <div key={subIndex} className="border p-4 rounded-lg bg-gray-50">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-lg">{subService.name}</h4>
+                      {onSubServiceStatusChange && (
                         <Badge variant={subService.active !== false ? "success" : "secondary"}>
                           {subService.active !== false ? 'Active' : 'Inactive'}
                         </Badge>
-                      </div>
+                      )}
+                    </div>
+                    {onSubServiceStatusChange && (
+                      <Switch
+                        checked={subService.active !== false}
+                        onCheckedChange={(checked) => 
+                          onSubServiceStatusChange(serviceIndex, subIndex, checked)
+                        }
+                      />
                     )}
                   </div>
                   
-                  {/* Pricing Information */}
-                  <div className="mt-2 text-sm text-gray-600 space-y-1">
-                    {(subService.standardPricePerKg || subService.expressPricePerKg) && (
-                      <div className="space-y-1">
-                        {subService.standardPricePerKg && (
-                          <p>Standard Price: ₹{subService.standardPricePerKg}/kg</p>
+                  {/* Pricing Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {/* Per KG Pricing */}
+                    <div className="border rounded-md p-3 bg-white">
+                      <h5 className="font-medium mb-2 text-gray-700">Per KG Pricing</h5>
+                      <div className="grid grid-cols-2 gap-3">
+                        {subService.standardPricePerKg !== undefined && (
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Standard:</span>
+                            <span className="font-medium">₹{subService.standardPricePerKg}</span>
+                          </div>
                         )}
-                        {subService.expressPricePerKg && (
-                          <p>Express Price: ₹{subService.expressPricePerKg}/kg</p>
+                        {subService.expressPricePerKg !== undefined && (
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Express:</span>
+                            <span className="font-medium">₹{subService.expressPricePerKg}</span>
+                          </div>
                         )}
                       </div>
-                    )}
+                    </div>
                     
-                    {(subService.standardPricePerItem || subService.expressPricePerItem) && (
-                      <div className="space-y-1">
-                        {subService.standardPricePerItem && (
-                          <p>Standard Price per Item: ₹{subService.standardPricePerItem}</p>
+                    {/* Per Item Pricing */}
+                    <div className="border rounded-md p-3 bg-white">
+                      <h5 className="font-medium mb-2 text-gray-700">Per Item Pricing</h5>
+                      <div className="grid grid-cols-2 gap-3">
+                        {subService.standardPricePerItem !== undefined && (
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Standard:</span>
+                            <span className="font-medium">₹{subService.standardPricePerItem}</span>
+                          </div>
                         )}
-                        {subService.expressPricePerItem && (
-                          <p>Express Price per Item: ₹{subService.expressPricePerItem}</p>
+                        {subService.expressPricePerItem !== undefined && (
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Express:</span>
+                            <span className="font-medium">₹{subService.expressPricePerItem}</span>
+                          </div>
                         )}
                       </div>
-                    )}
+                    </div>
                   </div>
                   
                   {/* Clothing Items Section */}
                   {subService.selectedItems && subService.selectedItems.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-sm text-gray-600 font-medium mb-2">Clothing Items:</p>
-                      <ul className="list-disc pl-5 space-y-2">
+                    <div>
+                      <h5 className="font-medium mb-3 text-gray-700">Clothing Items</h5>
+                      <div className="space-y-3">
                         {subService.selectedItems.map((item, itemIndex) => (
-                          <li key={itemIndex} className="text-sm">
-                            {item}
-                            <div className="ml-2 space-y-1 text-gray-600">
-                              {subService.standardItemPrices && subService.standardItemPrices[item] && (
-                                <span className="block">
-                                  Standard: ₹{subService.standardItemPrices[item]}
-                                </span>
+                          <div key={itemIndex} className="flex flex-col border rounded-md p-3 bg-white">
+                            <div className="font-medium mb-2">{item}</div>
+                            <div className="grid grid-cols-2 gap-4">
+                              {subService.standardItemPrices && subService.standardItemPrices[item] !== undefined && (
+                                <div className="flex flex-col">
+                                  <span className="text-sm text-gray-500">Standard Price:</span>
+                                  <span className="font-medium">₹{subService.standardItemPrices[item]}</span>
+                                </div>
                               )}
-                              {subService.expressItemPrices && subService.expressItemPrices[item] && (
-                                <span className="block">
-                                  Express: ₹{subService.expressItemPrices[item]}
-                                </span>
+                              {subService.expressItemPrices && subService.expressItemPrices[item] !== undefined && (
+                                <div className="flex flex-col">
+                                  <span className="text-sm text-gray-500">Express Price:</span>
+                                  <span className="font-medium">₹{subService.expressItemPrices[item]}</span>
+                                </div>
                               )}
-                              {subService.itemPrices && subService.itemPrices[item] && (
-                                <span className="block">
-                                  Price: ₹{subService.itemPrices[item]}
-                                </span>
+                              {subService.itemPrices && subService.itemPrices[item] !== undefined && (
+                                <div className="flex flex-col">
+                                  <span className="text-sm text-gray-500">Price:</span>
+                                  <span className="font-medium">₹{subService.itemPrices[item]}</span>
+                                </div>
                               )}
                             </div>
-                          </li>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
                 </div>
