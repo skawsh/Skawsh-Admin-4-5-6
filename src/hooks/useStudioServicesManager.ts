@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { StudioService } from '@/types/services';
@@ -27,9 +26,12 @@ export const useStudioServicesManager = (
   const [deleteType, setDeleteType] = useState<'service' | 'subservice' | 'clothingitem'>('service');
   const [deleteIndices, setDeleteIndices] = useState<{ serviceIndex: number, subServiceIndex?: number, itemId?: string }>({ serviceIndex: 0 });
 
+  // Utility function to save updated services to localStorage
   const saveUpdatedServicesToLocalStorage = (updatedServices: StudioService[]) => {
+    if (!studioId) return;
+    
     const savedStudios = localStorage.getItem('laundryStudios');
-    if (savedStudios && studioId) {
+    if (savedStudios) {
       try {
         const studios = JSON.parse(savedStudios);
         const studioIndex = studios.findIndex((s: any) => s.id.toString() === studioId.toString());
@@ -37,106 +39,96 @@ export const useStudioServicesManager = (
         if (studioIndex !== -1) {
           studios[studioIndex].studioServices = updatedServices;
           localStorage.setItem('laundryStudios', JSON.stringify(studios));
+          console.log("Saved updated services to localStorage:", updatedServices);
         }
       } catch (error) {
-        console.error("Error updating service status:", error);
+        console.error("Error updating services in localStorage:", error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to update service status"
+          description: "Failed to save changes"
         });
       }
     }
   };
 
   const handleServiceStatusChange = (serviceIndex: number) => {
-    if (studioData && studioData.studioServices) {
-      const updatedServices = [...studioData.studioServices];
-      const newStatus = !updatedServices[serviceIndex].active;
-      updatedServices[serviceIndex].active = newStatus;
-      
-      // Update all subservices to match the service status
-      updatedServices[serviceIndex].subServices = updatedServices[serviceIndex].subServices.map(
-        subService => ({
-          ...subService,
-          active: newStatus,
-          // Also update all clothing items to match the service status
-          clothingItemsStatus: subService.selectedItems?.reduce((acc, itemId) => {
-            acc[itemId] = newStatus;
-            return acc;
-          }, {} as {[key: string]: boolean}) || subService.clothingItemsStatus
-        })
-      );
-      
-      setStudioData({
-        ...studioData,
-        studioServices: updatedServices
-      });
-      
-      saveUpdatedServicesToLocalStorage(updatedServices);
-      
-      toast({
-        title: "Service Status Updated",
-        description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'} along with all its sub-services and clothing items.`
-      });
-    }
+    if (!studioData || !studioData.studioServices) return;
+    
+    const updatedServices = [...studioData.studioServices];
+    const newStatus = !updatedServices[serviceIndex].active;
+    updatedServices[serviceIndex].active = newStatus;
+    
+    // Update all subservices to match the service status
+    updatedServices[serviceIndex].subServices = updatedServices[serviceIndex].subServices.map(
+      subService => ({
+        ...subService,
+        active: newStatus,
+        // Also update all clothing items to match the service status
+        clothingItemsStatus: subService.selectedItems?.reduce((acc, itemId) => {
+          acc[itemId] = newStatus;
+          return acc;
+        }, { ...(subService.clothingItemsStatus || {}) })
+      })
+    );
+    
+    setStudioData({
+      ...studioData,
+      studioServices: updatedServices
+    });
+    
+    saveUpdatedServicesToLocalStorage(updatedServices);
+    
+    toast({
+      title: "Service Status Updated",
+      description: `${updatedServices[serviceIndex].name} has been ${newStatus ? 'activated' : 'deactivated'} along with all its sub-services and clothing items.`
+    });
   };
 
   const handleSubServiceStatusChange = (serviceIndex: number, subServiceIndex: number, active: boolean) => {
-    if (studioData && studioData.studioServices) {
-      const updatedServices = [...studioData.studioServices];
-      // Ensure subServices array exists and has the specified index
-      if (updatedServices[serviceIndex] && 
-          updatedServices[serviceIndex].subServices && 
-          updatedServices[serviceIndex].subServices[subServiceIndex]) {
-        
-        const subService = updatedServices[serviceIndex].subServices[subServiceIndex];
-        subService.active = active;
-        
-        // Update all clothing items to match the subservice status
-        if (subService.selectedItems && subService.selectedItems.length > 0) {
-          if (!subService.clothingItemsStatus) {
-            subService.clothingItemsStatus = {};
-          }
-          
-          subService.selectedItems.forEach(itemId => {
-            subService.clothingItemsStatus![itemId] = active;
-          });
-        }
-        
-        // Check if this is the only sub-service and auto-update service status
-        if (updatedServices[serviceIndex].subServices.length === 1) {
-          updatedServices[serviceIndex].active = active;
-        } else {
-          // Check if all sub-services are inactive, then service should be inactive
-          const allSubServicesInactive = updatedServices[serviceIndex].subServices.every(
-            sub => sub.active === false
-          );
-          
-          // If all sub-services are inactive, set service to inactive
-          if (allSubServicesInactive) {
-            updatedServices[serviceIndex].active = false;
-          }
-        }
-        
-        setStudioData({
-          ...studioData,
-          studioServices: updatedServices
-        });
-        
-        saveUpdatedServicesToLocalStorage(updatedServices);
-        
-        const subServiceName = updatedServices[serviceIndex].subServices[subServiceIndex].name;
-        const message = active 
-          ? `${subServiceName} has been activated along with all its clothing items.`
-          : `${subServiceName} has been deactivated along with all its clothing items.${updatedServices[serviceIndex].subServices.length === 1 ? ' Service was also deactivated.' : ''}`;
-        
-        toast({
-          title: "Sub-Service Status Updated",
-          description: message
-        });
+    if (!studioData || !studioData.studioServices) return;
+    
+    const updatedServices = [...studioData.studioServices];
+    const service = updatedServices[serviceIndex];
+    
+    if (!service || !service.subServices || !service.subServices[subServiceIndex]) return;
+    
+    const subService = service.subServices[subServiceIndex];
+    subService.active = active;
+    
+    // Update all clothing items to match the subservice status
+    if (subService.selectedItems && subService.selectedItems.length > 0) {
+      if (!subService.clothingItemsStatus) {
+        subService.clothingItemsStatus = {};
       }
+      
+      subService.selectedItems.forEach(itemId => {
+        subService.clothingItemsStatus![itemId] = active;
+      });
     }
+    
+    // If all sub-services are inactive, deactivate the service
+    const allSubServicesInactive = service.subServices.every(sub => sub.active === false);
+    if (allSubServicesInactive) {
+      service.active = false;
+    } else if (active && !service.active) {
+      // If at least one sub-service is active, activate the service
+      service.active = true;
+    }
+    
+    setStudioData({
+      ...studioData,
+      studioServices: updatedServices
+    });
+    
+    saveUpdatedServicesToLocalStorage(updatedServices);
+    
+    const subServiceName = allSubServices.find(s => s.id === subService.name)?.name || subService.name;
+    
+    toast({
+      title: "Sub-Service Status Updated",
+      description: `${subServiceName} has been ${active ? 'activated' : 'deactivated'} along with its clothing items.`
+    });
   };
 
   const handleClothingItemStatusChange = (
@@ -145,60 +137,60 @@ export const useStudioServicesManager = (
     itemId: string, 
     active: boolean
   ) => {
-    if (studioData && studioData.studioServices) {
-      const updatedServices = [...studioData.studioServices];
-      // Ensure all required objects exist
-      if (updatedServices[serviceIndex] && 
-          updatedServices[serviceIndex].subServices && 
-          updatedServices[serviceIndex].subServices[subServiceIndex]) {
+    if (!studioData || !studioData.studioServices) return;
+    
+    const updatedServices = [...studioData.studioServices];
+    const service = updatedServices[serviceIndex];
+    
+    if (!service || !service.subServices || !service.subServices[subServiceIndex]) return;
+    
+    const subService = service.subServices[subServiceIndex];
+    
+    // Initialize clothingItemsStatus if it doesn't exist
+    if (!subService.clothingItemsStatus) {
+      subService.clothingItemsStatus = {};
+    }
+    
+    // Update status
+    subService.clothingItemsStatus[itemId] = active;
+    
+    // Check if all clothing items are inactive, then update subservice status
+    if (subService.selectedItems && subService.selectedItems.length > 0) {
+      const allClothingItemsInactive = subService.selectedItems.every(
+        item => subService.clothingItemsStatus![item] === false
+      );
+      
+      if (allClothingItemsInactive) {
+        subService.active = false;
         
-        const subService = updatedServices[serviceIndex].subServices[subServiceIndex];
-        
-        // Initialize clothingItemsStatus if it doesn't exist
-        if (!subService.clothingItemsStatus) {
-          subService.clothingItemsStatus = {};
+        // Check if all sub-services are inactive, then service should be inactive
+        const allSubServicesInactive = service.subServices.every(sub => sub.active === false);
+        if (allSubServicesInactive) {
+          service.active = false;
         }
-        
-        // Update status
-        subService.clothingItemsStatus[itemId] = active;
-        
-        // Check if all clothing items are inactive, then update subservice status
-        const allClothingItemsInactive = subService.selectedItems && 
-          subService.selectedItems.every(item => subService.clothingItemsStatus![item] === false);
-        
-        // If all clothing items are inactive and there are items, set subservice to inactive
-        if (allClothingItemsInactive && subService.selectedItems && subService.selectedItems.length > 0) {
-          subService.active = false;
-          
-          // Check if this is the only sub-service and auto-update service status
-          if (updatedServices[serviceIndex].subServices.length === 1) {
-            updatedServices[serviceIndex].active = false;
-          } else {
-            // Check if all sub-services are inactive, then service should be inactive
-            const allSubServicesInactive = updatedServices[serviceIndex].subServices.every(
-              sub => sub.active === false
-            );
-            
-            // If all sub-services are inactive, set service to inactive
-            if (allSubServicesInactive) {
-              updatedServices[serviceIndex].active = false;
-            }
-          }
+      } else if (active && !subService.active) {
+        // If at least one clothing item is active, activate the subservice
+        subService.active = true;
+        // Also activate the service if it's inactive
+        if (!service.active) {
+          service.active = true;
         }
-        
-        setStudioData({
-          ...studioData,
-          studioServices: updatedServices
-        });
-        
-        saveUpdatedServicesToLocalStorage(updatedServices);
-        
-        toast({
-          title: "Clothing Item Status Updated",
-          description: `Item has been ${active ? 'activated' : 'deactivated'}.`
-        });
       }
     }
+    
+    setStudioData({
+      ...studioData,
+      studioServices: updatedServices
+    });
+    
+    saveUpdatedServicesToLocalStorage(updatedServices);
+    
+    const itemName = allClothingItems.find(item => item.id === itemId)?.name || itemId;
+    
+    toast({
+      title: "Clothing Item Status Updated",
+      description: `${itemName} has been ${active ? 'activated' : 'deactivated'}.`
+    });
   };
 
   // Handle edit dialog open

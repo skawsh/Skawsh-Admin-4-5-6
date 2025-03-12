@@ -86,7 +86,10 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                       variant="ghost" 
                       size="icon" 
                       className="text-blue-600 hover:text-blue-800"
-                      onClick={() => onServiceEdit(serviceIndex)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onServiceEdit(serviceIndex);
+                      }}
                     >
                       <Edit size={18} />
                     </Button>
@@ -96,7 +99,10 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                       variant="ghost" 
                       size="icon" 
                       className="text-red-600 hover:text-red-800"
-                      onClick={() => onServiceDelete(serviceIndex)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onServiceDelete(serviceIndex);
+                      }}
                     >
                       <Trash2 size={18} />
                     </Button>

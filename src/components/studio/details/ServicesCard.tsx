@@ -41,7 +41,8 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const { services: allServices, subServices: allSubServices, clothingItems } = useServicesData();
 
-  const toggleServiceExpansion = (serviceId: string) => {
+  const toggleServiceExpansion = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setExpandedServices(prev => ({
       ...prev,
       [serviceId]: !prev[serviceId]
@@ -62,6 +63,11 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
     return item ? item.name : id;
   };
 
+  const handleSwitchChange = (serviceIndex: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onServiceStatusChange(serviceIndex);
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -79,7 +85,10 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
               
               return (
                 <div key={service.id} className="border rounded-lg">
-                  <div className="p-4 bg-gray-50 cursor-pointer" onClick={() => toggleServiceExpansion(service.id)}>
+                  <div 
+                    className="p-4 bg-gray-50 cursor-pointer" 
+                    onClick={(e) => toggleServiceExpansion(service.id, e)}
+                  >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         {isExpanded ? 
@@ -90,10 +99,11 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
                           <h3 className="text-lg font-semibold">{service.name}</h3>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-3">
                         <Switch
                           checked={service.active}
-                          onCheckedChange={() => onServiceStatusChange(index)}
+                          onCheckedChange={() => null} // Controlled component
+                          onClick={(e: any) => handleSwitchChange(index, e)}
                         />
                         <Badge variant={service.active ? "default" : "outline"}>
                           {service.active ? "Active" : "Inactive"}
