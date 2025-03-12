@@ -218,10 +218,7 @@ const Studios: React.FC = () => {
   };
 
   const handleViewEditServicesClick = (studio: Studio) => {
-    toast({
-      title: "Edit Services",
-      description: `Editing services for ${studio.studioName}`,
-    });
+    navigate(`/studios/${studio.id}/services`);
   };
 
   const handleViewAnalyticsClick = (studio: Studio) => {

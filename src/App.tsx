@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Studios from "./pages/Studios";
 import AddStudio from "./pages/AddStudio";
 import StudioDetails from "./pages/StudioDetails";
+import StudioServices from "./pages/StudioServices";
 import Services from "./pages/Services";
 import Drivers from "./pages/Drivers";
 import Orders from "./pages/Orders";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/studios" element={<Studios />} />
           <Route path="/studios/add" element={<AddStudio />} />
           <Route path="/studios/:id" element={<StudioDetails />} />
+          <Route path="/studios/:id/services" element={<StudioServices />} />
           <Route path="/services" element={<Services />} />
           <Route path="/drivers" element={<Drivers />} />
           <Route path="/orders" element={<Orders />} />

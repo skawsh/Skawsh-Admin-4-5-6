@@ -3,6 +3,7 @@ import React from 'react';
 import { StudioService } from '@/types/services';
 import { Card } from '../ui/card';
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 
 interface StudioServicesDetailsProps {
   studioServices: StudioService[];
@@ -20,7 +21,12 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
         <Card key={service.id} className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{service.name}</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold">{service.name}</h3>
+                <Badge variant={service.active ? "success" : "secondary"}>
+                  {service.active ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
               <Switch
                 checked={service.active}
                 onCheckedChange={() => onServiceStatusChange(serviceIndex)}
