@@ -9,7 +9,6 @@ import BasicInfoCard from '@/components/studio/details/BasicInfoCard';
 import AddressCard from '@/components/studio/details/AddressCard';
 import BusinessCard from '@/components/studio/details/BusinessCard';
 import StudioSetupCard from '@/components/studio/details/StudioSetupCard';
-import ServicesCard from '@/components/studio/details/ServicesCard';
 import PaymentCard from '@/components/studio/details/PaymentCard';
 
 interface StudioDetails {
@@ -128,69 +127,7 @@ const StudioDetails: React.FC = () => {
                 branchName: "Gachibowli Phase-2",
                 upiId: `${studio.ownerName.toLowerCase().replace(/\s+/g, '')}@upi`,
                 paymentSchedule: "Daily Payment"
-              },
-              studioServices: [
-                {
-                  id: '1',
-                  name: 'Core Laundry Services',
-                  active: true,
-                  serviceId: 'service-1',
-                  subServices: [
-                    {
-                      name: 'Wash&Fold',
-                      standardPricePerKg: 50,
-                      expressPricePerKg: 80,
-                      selectedItems: ['Shirt', 'Pant', 'T-shirt'],
-                      standardItemPrices: {
-                        'Shirt': 30,
-                        'Pant': 40,
-                        'T-shirt': 25
-                      },
-                      expressItemPrices: {
-                        'Shirt': 45,
-                        'Pant': 60,
-                        'T-shirt': 35
-                      }
-                    },
-                    {
-                      name: 'Wash&Iron',
-                      standardPricePerKg: 60,
-                      expressPricePerKg: 90,
-                      selectedItems: ['Shirt', 'Pant'],
-                      standardItemPrices: {
-                        'Shirt': 35,
-                        'Pant': 45
-                      },
-                      expressItemPrices: {
-                        'Shirt': 50,
-                        'Pant': 65
-                      }
-                    }
-                  ]
-                },
-                {
-                  id: '2',
-                  name: 'Dry Cleaning',
-                  active: true,
-                  serviceId: 'service-2',
-                  subServices: [
-                    {
-                      name: 'Premium Dry Clean',
-                      standardPricePerItem: 200,
-                      expressPricePerItem: 300,
-                      selectedItems: ['Suit', 'Coat'],
-                      standardItemPrices: {
-                        'Suit': 500,
-                        'Coat': 400
-                      },
-                      expressItemPrices: {
-                        'Suit': 700,
-                        'Coat': 600
-                      }
-                    }
-                  ]
-                }
-              ]
+              }
             };
             
             setStudioDetails(studioFullDetails);
@@ -224,17 +161,6 @@ const StudioDetails: React.FC = () => {
 
     fetchStudioDetails();
   }, [id, navigate, toast]);
-
-  const handleServiceStatusChange = (serviceIndex: number) => {
-    if (studioDetails?.studioServices) {
-      const updatedServices = [...studioDetails.studioServices];
-      updatedServices[serviceIndex].active = !updatedServices[serviceIndex].active;
-      setStudioDetails({
-        ...studioDetails,
-        studioServices: updatedServices,
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -304,11 +230,6 @@ const StudioDetails: React.FC = () => {
         <BusinessCard {...studioDetails.business} />
 
         <StudioSetupCard {...studioDetails.studio} />
-
-        <ServicesCard
-          services={studioDetails.studioServices || []}
-          onServiceStatusChange={handleServiceStatusChange}
-        />
 
         <PaymentCard {...studioDetails.payment} />
       </div>

@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import TabNavigation from '../components/services/TabNavigation';
 import ServicesList from '../components/services/ServicesList';
@@ -12,6 +11,7 @@ import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
 import { useToast } from '@/hooks/use-toast';
+import ServicesCard from '@/components/studio/details/ServicesCard';
 import MultiSelect from '@/components/ui/multi-select';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,6 @@ import { Card } from '@/components/ui/card';
 const Services: React.FC = () => {
   const { toast } = useToast();
   
-  // Use custom hooks to separate concerns
   const { 
     activeTab, 
     searchTerm, 
@@ -69,7 +68,6 @@ const Services: React.FC = () => {
     handleAddClothingItem,
     handleEditClick,
     handleEditSave,
-    // Multi-select related imports
     selectedSubServices,
     handleSelectSubService,
     selectedClothingItems,
@@ -85,17 +83,25 @@ const Services: React.FC = () => {
     updateServiceItem
   );
 
-  // Show welcome toast on first load
+  const [studioServices, setStudioServices] = useState<StudioService[]>([]);
+
   useEffect(() => {
-    toast({
-      title: "Services Loaded",
-      description: "Your services data is ready. Any changes will be automatically saved."
-    });
+    const loadStudioServices = () => {
+      const savedStudios = localStorage.getItem('laundryStudios');
+      if (savedStudios) {
+        const studios = JSON.parse(savedStudios);
+        const allStudioServices = studios
+          .filter((studio: any) => studio.studioServices)
+          .flatMap((studio: any) => studio.studioServices);
+        setStudioServices(allStudioServices);
+      }
+    };
+
+    loadStudioServices();
   }, []);
 
   const tabInfo = getTabInfo();
 
-  // Convert services, subServices, and clothingItems to options format for MultiSelect
   const subServiceOptions = subServices
     .filter(subService => subService.active)
     .map(subService => ({
@@ -109,6 +115,37 @@ const Services: React.FC = () => {
       value: item.id,
       label: item.name
     }));
+
+  useEffect(() => {
+    toast({
+      title: "Services Loaded",
+      description: "Your services data is ready. Any changes will be automatically saved."
+    });
+  }, []);
+
+  const handleServiceStatusChange = (serviceIndex: number) => {
+    if (studioServices) {
+      const updatedServices = [...studioServices];
+      updatedServices[serviceIndex].active = !updatedServices[serviceIndex].active;
+      setStudioServices(updatedServices);
+      
+      const savedStudios = localStorage.getItem('laundryStudios');
+      if (savedStudios) {
+        const studios = JSON.parse(savedStudios);
+        studios.forEach((studio: any) => {
+          if (studio.studioServices) {
+            studio.studioServices = studio.studioServices.map((service: any) => {
+              if (service.id === updatedServices[serviceIndex].id) {
+                return updatedServices[serviceIndex];
+              }
+              return service;
+            });
+          }
+        });
+        localStorage.setItem('laundryStudios', JSON.stringify(studios));
+      }
+    }
+  };
 
   return (
     <Layout activeSection="services">
@@ -127,13 +164,24 @@ const Services: React.FC = () => {
         />
         <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm">
           {activeTab === 'services' && (
-            <ServicesList 
-              services={services} 
-              onEdit={handleEditClick}
-              onStatusChange={handleServiceStatusChange}
-              onDelete={handleServiceDelete}
-              searchTerm={searchTerm} 
-            />
+            <>
+              <ServicesList 
+                services={services} 
+                onEdit={handleEditClick}
+                onStatusChange={handleServiceStatusChange}
+                onDelete={handleServiceDelete}
+                searchTerm={searchTerm} 
+              />
+              {studioServices.length > 0 && (
+                <div className="mt-8 pt-8 border-t">
+                  <h2 className="text-xl font-bold mb-6">Studio Services</h2>
+                  <ServicesCard
+                    services={studioServices}
+                    onServiceStatusChange={handleServiceStatusChange}
+                  />
+                </div>
+              )}
+            </>
           )}
           {activeTab === 'sub-services' && (
             <SubServicesList 
