@@ -1,15 +1,28 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Package } from 'lucide-react';
+import { Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 interface StudioService {
   id: string;
   name: string;
   active: boolean;
   price?: number;
+  serviceId: string;
+  subServices: Array<{
+    name: string;
+    standardPricePerKg?: number;
+    expressPricePerKg?: number;
+    standardPricePerItem?: number;
+    expressPricePerItem?: number;
+    selectedItems?: string[];
+    standardItemPrices?: { [key: string]: number };
+    expressItemPrices?: { [key: string]: number };
+    itemPrices?: { [key: string]: number };
+  }>;
 }
 
 interface ServicesCardProps {
@@ -21,6 +34,19 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
   services,
   onServiceStatusChange
 }) => {
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+
+  const toggleServiceExpansion = (serviceId: string) => {
+    setExpandedServices(prev => ({
+      ...prev,
+      [serviceId]: !prev[serviceId]
+    }));
+  };
+
+  const formatPrice = (price?: number) => {
+    return price !== undefined ? `₹${price}` : 'N/A';
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -33,25 +59,121 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
 
         {services && services.length > 0 ? (
           <div className="space-y-4">
-            {services.map((service, index) => (
-              <div key={service.id} className="border rounded-lg p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">{service.name}</h3>
-                    <p className="text-sm text-gray-500">Price: ₹{service.price}</p>
+            {services.map((service, index) => {
+              const isExpanded = expandedServices[service.id] || false;
+              
+              return (
+                <div key={service.id} className="border rounded-lg">
+                  <div className="p-4 bg-gray-50">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-0 h-8 w-8"
+                          onClick={() => toggleServiceExpansion(service.id)}
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <div>
+                          <h3 className="text-lg font-semibold">{service.name}</h3>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          checked={service.active}
+                          onCheckedChange={() => onServiceStatusChange(index)}
+                        />
+                        <Badge variant={service.active ? "default" : "outline"}>
+                          {service.active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={service.active}
-                      onCheckedChange={() => onServiceStatusChange(index)}
-                    />
-                    <Badge variant={service.active ? "default" : "outline"}>
-                      {service.active ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
+
+                  {isExpanded && service.subServices && (
+                    <div className="p-4 border-t">
+                      <div className="space-y-4">
+                        {service.subServices.map((subService, subIndex) => (
+                          <div key={`${service.id}-${subIndex}`} className="border rounded p-4">
+                            <h4 className="font-medium mb-3">{subService.name}</h4>
+                            
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-4">
+                                {subService.standardPricePerKg !== undefined && (
+                                  <div>
+                                    <span className="text-sm text-gray-500">Standard Price per KG:</span>
+                                    <span className="ml-2 font-medium">₹{subService.standardPricePerKg}</span>
+                                  </div>
+                                )}
+                                {subService.expressPricePerKg !== undefined && (
+                                  <div>
+                                    <span className="text-sm text-gray-500">Express Price per KG:</span>
+                                    <span className="ml-2 font-medium">₹{subService.expressPricePerKg}</span>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-4">
+                                {subService.standardPricePerItem !== undefined && (
+                                  <div>
+                                    <span className="text-sm text-gray-500">Standard Price per Item:</span>
+                                    <span className="ml-2 font-medium">₹{subService.standardPricePerItem}</span>
+                                  </div>
+                                )}
+                                {subService.expressPricePerItem !== undefined && (
+                                  <div>
+                                    <span className="text-sm text-gray-500">Express Price per Item:</span>
+                                    <span className="ml-2 font-medium">₹{subService.expressPricePerItem}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {subService.selectedItems && subService.selectedItems.length > 0 && (
+                                <div className="mt-4">
+                                  <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {subService.selectedItems.map((itemId) => (
+                                      <div key={itemId} className="border rounded p-3 bg-gray-50">
+                                        <p className="font-medium mb-2">{itemId}</p>
+                                        <div className="grid grid-cols-2 gap-2 text-sm">
+                                          {subService.standardItemPrices && (
+                                            <div>
+                                              <span className="text-gray-500">Standard: </span>
+                                              <span>₹{subService.standardItemPrices[itemId] || 'N/A'}</span>
+                                            </div>
+                                          )}
+                                          {subService.expressItemPrices && (
+                                            <div>
+                                              <span className="text-gray-500">Express: </span>
+                                              <span>₹{subService.expressItemPrices[itemId] || 'N/A'}</span>
+                                            </div>
+                                          )}
+                                          {subService.itemPrices && (
+                                            <div>
+                                              <span className="text-gray-500">Price: </span>
+                                              <span>₹{subService.itemPrices[itemId] || 'N/A'}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-8 text-gray-500">

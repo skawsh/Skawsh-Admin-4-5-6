@@ -61,7 +61,18 @@ interface StudioService {
   id: string;
   name: string;
   active: boolean;
-  price?: number;
+  serviceId: string;
+  subServices: Array<{
+    name: string;
+    standardPricePerKg?: number;
+    expressPricePerKg?: number;
+    standardPricePerItem?: number;
+    expressPricePerItem?: number;
+    selectedItems?: string[];
+    standardItemPrices?: { [key: string]: number };
+    expressItemPrices?: { [key: string]: number };
+    itemPrices?: { [key: string]: number };
+  }>;
 }
 
 const StudioDetails: React.FC = () => {
@@ -119,10 +130,66 @@ const StudioDetails: React.FC = () => {
                 paymentSchedule: "Daily Payment"
               },
               studioServices: [
-                { id: '1', name: 'Dry Cleaning', active: true, price: 150 },
-                { id: '2', name: 'Express Wash', active: true, price: 200 },
-                { id: '3', name: 'Steam Iron', active: false, price: 100 },
-                { id: '4', name: 'Stain Removal', active: true, price: 180 }
+                {
+                  id: '1',
+                  name: 'Core Laundry Services',
+                  active: true,
+                  serviceId: 'service-1',
+                  subServices: [
+                    {
+                      name: 'Wash&Fold',
+                      standardPricePerKg: 50,
+                      expressPricePerKg: 80,
+                      selectedItems: ['Shirt', 'Pant', 'T-shirt'],
+                      standardItemPrices: {
+                        'Shirt': 30,
+                        'Pant': 40,
+                        'T-shirt': 25
+                      },
+                      expressItemPrices: {
+                        'Shirt': 45,
+                        'Pant': 60,
+                        'T-shirt': 35
+                      }
+                    },
+                    {
+                      name: 'Wash&Iron',
+                      standardPricePerKg: 60,
+                      expressPricePerKg: 90,
+                      selectedItems: ['Shirt', 'Pant'],
+                      standardItemPrices: {
+                        'Shirt': 35,
+                        'Pant': 45
+                      },
+                      expressItemPrices: {
+                        'Shirt': 50,
+                        'Pant': 65
+                      }
+                    }
+                  ]
+                },
+                {
+                  id: '2',
+                  name: 'Dry Cleaning',
+                  active: true,
+                  serviceId: 'service-2',
+                  subServices: [
+                    {
+                      name: 'Premium Dry Clean',
+                      standardPricePerItem: 200,
+                      expressPricePerItem: 300,
+                      selectedItems: ['Suit', 'Coat'],
+                      standardItemPrices: {
+                        'Suit': 500,
+                        'Coat': 400
+                      },
+                      expressItemPrices: {
+                        'Suit': 700,
+                        'Coat': 600
+                      }
+                    }
+                  ]
+                }
               ]
             };
             
