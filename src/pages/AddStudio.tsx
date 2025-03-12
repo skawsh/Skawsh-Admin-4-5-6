@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -922,16 +923,35 @@ const AddStudio: React.FC = () => {
                                 {subService.selectedItems && subService.selectedItems.length > 0 && (
                                   <div>
                                     <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                      {subService.selectedItems.map((itemId: string) => (
-                                        <Badge 
-                                          key={itemId} 
-                                          variant="outline" 
-                                          className="bg-blue-50 text-blue-700 border-blue-200"
-                                        >
-                                          {getClothingItemNameById(itemId)}: {renderPriceWithWashCategory(subService, itemId)}
-                                        </Badge>
-                                      ))}
+                                    <div className="space-y-3">
+                                      {subService.selectedItems.map((itemId: string) => {
+                                        const itemName = getClothingItemNameById(itemId);
+                                        return (
+                                          <div key={itemId} className="border border-gray-100 rounded p-3 bg-gray-50">
+                                            <div className="font-medium text-gray-700 mb-2">{itemName}</div>
+                                            {formData.washCategory === 'standard' && (
+                                              <div className="text-sm text-gray-600">
+                                                Standard Price: ₹{subService.standardItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
+                                              </div>
+                                            )}
+                                            {formData.washCategory === 'express' && (
+                                              <div className="text-sm text-gray-600">
+                                                Express Price: ₹{subService.expressItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
+                                              </div>
+                                            )}
+                                            {formData.washCategory === 'both' && (
+                                              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                                                <div>
+                                                  Standard Price: ₹{subService.standardItemPrices?.[itemId] || '0'}
+                                                </div>
+                                                <div>
+                                                  Express Price: ₹{subService.expressItemPrices?.[itemId] || '0'}
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 )}
