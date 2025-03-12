@@ -264,6 +264,10 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     onOpenChange(false);
   };
 
+  const getSelectedSubServiceName = (subServiceItemId: string) => {
+    return selectedSubServiceNames[subServiceItemId] || '';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
