@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -177,14 +178,14 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   // Handle price per kg change
   const handlePricePerKgChange = (
     subServiceId: string, 
+    type: 'standard' | 'express',
     value: string
   ) => {
     setPricePerKg(prev => ({
       ...prev,
       [subServiceId]: {
         ...prev[subServiceId],
-        standard: value,
-        express: value // For simplicity in the new UI, set both to the same value
+        [type]: value
       }
     }));
   };
@@ -192,14 +193,14 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   // Handle price per item change
   const handlePricePerItemChange = (
     subServiceId: string, 
+    type: 'standard' | 'express',
     value: string
   ) => {
     setPricePerItem(prev => ({
       ...prev,
       [subServiceId]: {
         ...prev[subServiceId],
-        standard: value,
-        express: value // For simplicity in the new UI, set both to the same value
+        [type]: value
       }
     }));
   };
@@ -227,19 +228,44 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       return prev;
     });
     
-    // Set the price for the item
+    // Set the price for the item based on the wash category
     setClothingItemPrices(prev => {
       const subServicePrices = prev[activeSubServiceId] || {};
-      return {
-        ...prev,
-        [activeSubServiceId]: {
-          ...subServicePrices,
-          [itemId]: {
-            standard: price,
-            express: price // For simplicity in the new UI, set both to the same value
+      
+      if (washCategory === 'standard') {
+        return {
+          ...prev,
+          [activeSubServiceId]: {
+            ...subServicePrices,
+            [itemId]: {
+              standard: price,
+              express: ''
+            }
           }
-        }
-      };
+        };
+      } else if (washCategory === 'express') {
+        return {
+          ...prev,
+          [activeSubServiceId]: {
+            ...subServicePrices,
+            [itemId]: {
+              standard: '',
+              express: price
+            }
+          }
+        };
+      } else {
+        return {
+          ...prev,
+          [activeSubServiceId]: {
+            ...subServicePrices,
+            [itemId]: {
+              standard: price,
+              express: price
+            }
+          }
+        };
+      }
     });
   };
 
@@ -268,6 +294,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const handleClothingItemPriceChange = (
     subServiceId: string, 
     itemId: string, 
+    type: 'standard' | 'express',
     value: string
   ) => {
     setClothingItemPrices(prev => {
@@ -279,8 +306,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         [subServiceId]: {
           ...subServicePrices,
           [itemId]: {
-            standard: value,
-            express: value // For simplicity in the new UI, set both to the same value
+            ...itemPrices,
+            [type]: value
           }
         }
       };
@@ -310,25 +337,46 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       errors.push('Please select at least one sub-service');
     }
     
-    // Simplified validation for the new UI
+    // Validation based on wash category
     let hasPricing = false;
     
     selectedSubServices.forEach(subServiceId => {
-      const kgPrice = pricePerKg[subServiceId]?.standard;
-      const itemPrice = pricePerItem[subServiceId]?.standard;
-      
-      if ((kgPrice && kgPrice !== '0') || (itemPrice && itemPrice !== '0')) {
-        hasPricing = true;
+      if (washCategory === 'standard' || washCategory === 'both') {
+        const standardKgPrice = pricePerKg[subServiceId]?.standard;
+        const standardItemPrice = pricePerItem[subServiceId]?.standard;
+        
+        if ((standardKgPrice && standardKgPrice !== '0') || (standardItemPrice && standardItemPrice !== '0')) {
+          hasPricing = true;
+        }
+        
+        // Check standard clothing item prices
+        const hasStandardItemPrices = (selectedClothingItems[subServiceId] || []).some(itemId => {
+          const price = clothingItemPrices[subServiceId]?.[itemId]?.standard;
+          return price && price !== '0';
+        });
+        
+        if (hasStandardItemPrices) {
+          hasPricing = true;
+        }
       }
       
-      // Check clothing item prices
-      const hasItemsWithPrices = (selectedClothingItems[subServiceId] || []).some(itemId => {
-        const price = clothingItemPrices[subServiceId]?.[itemId]?.standard;
-        return price && price !== '0';
-      });
-      
-      if (hasItemsWithPrices) {
-        hasPricing = true;
+      if (washCategory === 'express' || washCategory === 'both') {
+        const expressKgPrice = pricePerKg[subServiceId]?.express;
+        const expressItemPrice = pricePerItem[subServiceId]?.express;
+        
+        if ((expressKgPrice && expressKgPrice !== '0') || (expressItemPrice && expressItemPrice !== '0')) {
+          hasPricing = true;
+        }
+        
+        // Check express clothing item prices
+        const hasExpressItemPrices = (selectedClothingItems[subServiceId] || []).some(itemId => {
+          const price = clothingItemPrices[subServiceId]?.[itemId]?.express;
+          return price && price !== '0';
+        });
+        
+        if (hasExpressItemPrices) {
+          hasPricing = true;
+        }
       }
     });
     
@@ -353,46 +401,76 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         selectedItems: selectedClothingItems[subServiceId] || []
       };
       
-      // Add pricing
-      const kgPrice = pricePerKg[subServiceId]?.standard || '0';
-      const itemPrice = pricePerItem[subServiceId]?.standard || '0';
-      
+      // Add pricing based on wash category
       if (washCategory === 'standard' || washCategory === 'both') {
-        data.pricePerKg = kgPrice;
-        data.pricePerItem = itemPrice;
-        data.standardPricePerKg = kgPrice;
-        data.standardPricePerItem = itemPrice;
+        const standardKgPrice = pricePerKg[subServiceId]?.standard || '0';
+        const standardItemPrice = pricePerItem[subServiceId]?.standard || '0';
         
-        // Add item prices
-        data.itemPrices = {};
+        data.standardPricePerKg = standardKgPrice;
+        data.standardPricePerItem = standardItemPrice;
+        
+        // Add standard item prices
         data.standardItemPrices = {};
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
           const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
-          data.itemPrices[itemId] = price;
           data.standardItemPrices[itemId] = price;
         });
+        
+        if (washCategory === 'standard') {
+          data.pricePerKg = standardKgPrice;
+          data.pricePerItem = standardItemPrice;
+          
+          // Add default item prices
+          data.itemPrices = {};
+          
+          (selectedClothingItems[subServiceId] || []).forEach(itemId => {
+            const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
+            data.itemPrices[itemId] = price;
+          });
+        }
       }
       
       if (washCategory === 'express' || washCategory === 'both') {
-        data.expressPricePerKg = kgPrice; // Use same price for express in this UI
-        data.expressPricePerItem = itemPrice; // Use same price for express in this UI
+        const expressKgPrice = pricePerKg[subServiceId]?.express || '0';
+        const expressItemPrice = pricePerItem[subServiceId]?.express || '0';
         
-        if (washCategory === 'express' || washCategory === 'both') {
-          data.pricePerKg = kgPrice;
-          data.pricePerItem = itemPrice;
-        }
+        data.expressPricePerKg = expressKgPrice;
+        data.expressPricePerItem = expressItemPrice;
         
-        // Add item prices for express
+        // Add express item prices
         data.expressItemPrices = {};
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
-          const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
-          if (washCategory === 'express' || washCategory === 'both') {
-            data.itemPrices = data.itemPrices || {};
-            data.itemPrices[itemId] = price;
-          }
+          const price = clothingItemPrices[subServiceId]?.[itemId]?.express || '0';
           data.expressItemPrices[itemId] = price;
+        });
+        
+        if (washCategory === 'express') {
+          data.pricePerKg = expressKgPrice;
+          data.pricePerItem = expressItemPrice;
+          
+          // Add default item prices
+          data.itemPrices = {};
+          
+          (selectedClothingItems[subServiceId] || []).forEach(itemId => {
+            const price = clothingItemPrices[subServiceId]?.[itemId]?.express || '0';
+            data.itemPrices[itemId] = price;
+          });
+        }
+      }
+      
+      // For "both" category, use standard prices as default
+      if (washCategory === 'both') {
+        data.pricePerKg = pricePerKg[subServiceId]?.standard || '0';
+        data.pricePerItem = pricePerItem[subServiceId]?.standard || '0';
+        
+        // Add default item prices
+        data.itemPrices = {};
+        
+        (selectedClothingItems[subServiceId] || []).forEach(itemId => {
+          const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
+          data.itemPrices[itemId] = price;
         });
       }
       
@@ -406,6 +484,196 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     
     onSave(serviceData);
     onOpenChange(false);
+  };
+
+  // Render price fields based on wash category
+  const renderPriceFields = (subServiceId: string) => {
+    if (washCategory === 'standard') {
+      return (
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="space-y-2">
+            <Label>Standard Price per KG</Label>
+            <Input 
+              type="number" 
+              value={pricePerKg[subServiceId]?.standard || ''}
+              onChange={(e) => handlePricePerKgChange(subServiceId, 'standard', e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Standard Price per Item</Label>
+            <Input 
+              type="number" 
+              value={pricePerItem[subServiceId]?.standard || ''}
+              onChange={(e) => handlePricePerItemChange(subServiceId, 'standard', e.target.value)}
+              placeholder="0"
+            />
+          </div>
+        </div>
+      );
+    } else if (washCategory === 'express') {
+      return (
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="space-y-2">
+            <Label>Express Price per KG</Label>
+            <Input 
+              type="number" 
+              value={pricePerKg[subServiceId]?.express || ''}
+              onChange={(e) => handlePricePerKgChange(subServiceId, 'express', e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Express Price per Item</Label>
+            <Input 
+              type="number" 
+              value={pricePerItem[subServiceId]?.express || ''}
+              onChange={(e) => handlePricePerItemChange(subServiceId, 'express', e.target.value)}
+              placeholder="0"
+            />
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="space-y-4 mt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Standard Price per KG</Label>
+              <Input 
+                type="number" 
+                value={pricePerKg[subServiceId]?.standard || ''}
+                onChange={(e) => handlePricePerKgChange(subServiceId, 'standard', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Standard Price per Item</Label>
+              <Input 
+                type="number" 
+                value={pricePerItem[subServiceId]?.standard || ''}
+                onChange={(e) => handlePricePerItemChange(subServiceId, 'standard', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Express Price per KG</Label>
+              <Input 
+                type="number" 
+                value={pricePerKg[subServiceId]?.express || ''}
+                onChange={(e) => handlePricePerKgChange(subServiceId, 'express', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Express Price per Item</Label>
+              <Input 
+                type="number" 
+                value={pricePerItem[subServiceId]?.express || ''}
+                onChange={(e) => handlePricePerItemChange(subServiceId, 'express', e.target.value)}
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  // Render clothing item row with prices based on wash category
+  const renderClothingItemPriceRow = (subServiceId: string, itemId: string) => {
+    if (washCategory === 'standard') {
+      return (
+        <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
+          <span>{getClothingItemName(itemId)}</span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
+              onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
+              placeholder="Price"
+              className="w-24 h-8"
+            />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
+              className="h-8 w-8 p-0 text-red-500"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      );
+    } else if (washCategory === 'express') {
+      return (
+        <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
+          <span>{getClothingItemName(itemId)}</span>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
+              onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
+              placeholder="Price"
+              className="w-24 h-8"
+            />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
+              className="h-8 w-8 p-0 text-red-500"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div key={itemId} className="space-y-2 bg-gray-50 rounded-md p-3">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{getClothingItemName(itemId)}</span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
+              className="h-8 w-8 p-0 text-red-500"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center space-x-2">
+              <Label className="w-16 text-xs whitespace-nowrap">Standard:</Label>
+              <Input
+                type="number"
+                value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
+                onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
+                placeholder="Price"
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Label className="w-16 text-xs whitespace-nowrap">Express:</Label>
+              <Input
+                type="number"
+                value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
+                onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
+                placeholder="Price"
+                className="h-8 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -480,29 +748,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                         </SelectTrigger>
                       </Select>
                       
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        {/* Price per KG */}
-                        <div className="space-y-2">
-                          <Label>Price per KG</Label>
-                          <Input 
-                            type="number" 
-                            value={pricePerKg[subServiceId]?.standard || ''}
-                            onChange={(e) => handlePricePerKgChange(subServiceId, e.target.value)}
-                            placeholder="0"
-                          />
-                        </div>
-                        
-                        {/* Price per Item */}
-                        <div className="space-y-2">
-                          <Label>Price per Item</Label>
-                          <Input 
-                            type="number" 
-                            value={pricePerItem[subServiceId]?.standard || ''}
-                            onChange={(e) => handlePricePerItemChange(subServiceId, e.target.value)}
-                            placeholder="0"
-                          />
-                        </div>
-                      </div>
+                      {/* Render price fields based on wash category */}
+                      {renderPriceFields(subServiceId)}
                       
                       {/* Clothing Items */}
                       <div className="mt-5">
@@ -524,28 +771,9 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                         {/* Clothing Items with Prices */}
                         {(selectedClothingItems[subServiceId] || []).length > 0 && (
                           <div className="space-y-2 mt-3">
-                            {(selectedClothingItems[subServiceId] || []).map(itemId => (
-                              <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
-                                <span>{getClothingItemName(itemId)}</span>
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="number"
-                                    value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
-                                    onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, e.target.value)}
-                                    placeholder="Price"
-                                    className="w-24 h-8"
-                                  />
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
-                                    className="h-8 w-8 p-0 text-red-500"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
+                            {(selectedClothingItems[subServiceId] || []).map(itemId => 
+                              renderClothingItemPriceRow(subServiceId, itemId)
+                            )}
                           </div>
                         )}
                       </div>
