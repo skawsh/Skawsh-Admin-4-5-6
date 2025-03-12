@@ -135,7 +135,16 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   };
 
   const handleQuickAddService = () => {
-    if (!addService || !newServiceName.trim()) {
+    if (!addService) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Cannot add service: Add service function is not available"
+      });
+      return;
+    }
+
+    if (!newServiceName.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -353,7 +362,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const validateForm = () => {
     const errors = [];
     
-    if (!selectedServiceId) {
+    if (!selectedServiceId && !editingService) {
       errors.push('Please select a service');
     }
     
@@ -410,6 +419,10 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   };
 
   const handleSave = () => {
+    if (editingService && !selectedServiceId) {
+      setSelectedServiceId(editingService.serviceId);
+    }
+    
     if (!validateForm()) {
       return;
     }
@@ -490,7 +503,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     });
     
     const serviceData = {
-      serviceId: selectedServiceId,
+      serviceId: selectedServiceId || (editingService ? editingService.serviceId : ''),
       subServices: subServicesData
     };
     
