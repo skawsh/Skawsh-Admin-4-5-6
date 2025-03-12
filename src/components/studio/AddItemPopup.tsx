@@ -13,7 +13,7 @@ interface AddItemPopupProps {
   onOpenChange: (open: boolean) => void;
   clothingItems: ClothingItem[];
   selectedItems: string[];
-  onAddItem: (itemId: string, price: string) => void;
+  onAddItem: (itemId: string, standardPrice: string, expressPrice: string) => void;
   washCategory?: 'standard' | 'express' | 'both';
 }
 
@@ -25,14 +25,14 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
   onAddItem,
   washCategory = 'both'
 }) => {
-  const [itemRows, setItemRows] = useState<Array<{ itemId: string, price: string, expressPrice?: string }>>([
-    { itemId: '', price: '', expressPrice: '' }
+  const [itemRows, setItemRows] = useState<Array<{ itemId: string, standardPrice: string, expressPrice: string }>>([
+    { itemId: '', standardPrice: '', expressPrice: '' }
   ]);
 
   // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setItemRows([{ itemId: '', price: '', expressPrice: '' }]);
+      setItemRows([{ itemId: '', standardPrice: '', expressPrice: '' }]);
     }
   }, [isOpen]);
 
@@ -47,13 +47,13 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
     if (priceType === 'express') {
       newRows[index].expressPrice = value;
     } else {
-      newRows[index].price = value;
+      newRows[index].standardPrice = value;
     }
     setItemRows(newRows);
   };
 
   const handleAddRow = () => {
-    setItemRows([...itemRows, { itemId: '', price: '', expressPrice: '' }]);
+    setItemRows([...itemRows, { itemId: '', standardPrice: '', expressPrice: '' }]);
   };
 
   const handleRemoveRow = (index: number) => {
@@ -67,15 +67,9 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
   const handleDone = () => {
     // Add all valid items
     itemRows.forEach(row => {
-      if (row.itemId && (row.price || row.expressPrice)) {
-        if (washCategory === 'standard') {
-          onAddItem(row.itemId, row.price);
-        } else if (washCategory === 'express') {
-          onAddItem(row.itemId, row.expressPrice || '');
-        } else {
-          // For 'both', we'll pass the standard price and the component will handle both prices
-          onAddItem(row.itemId, row.price);
-        }
+      if (row.itemId && (row.standardPrice || row.expressPrice)) {
+        // Always pass both standard and express prices, component calling this will handle both
+        onAddItem(row.itemId, row.standardPrice, row.expressPrice);
       }
     });
     
@@ -136,8 +130,8 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                       </Label>
                       <Input
                         type="number"
-                        value={row.price}
-                        onChange={(e) => handlePriceChange(index, e.target.value)}
+                        value={row.standardPrice}
+                        onChange={(e) => handlePriceChange(index, e.target.value, 'standard')}
                         placeholder="Price"
                         className="rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
@@ -151,7 +145,7 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                       </Label>
                       <Input
                         type="number"
-                        value={row.expressPrice || ''}
+                        value={row.expressPrice}
                         onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
                         placeholder="Price"
                         className="rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
