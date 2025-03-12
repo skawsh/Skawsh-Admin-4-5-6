@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -669,7 +670,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[600px]">
+      <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader className="text-center">
           <DialogTitle className="text-xl font-semibold text-blue-600">Add Service</DialogTitle>
           <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
@@ -687,7 +688,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           </div>
         )}
         
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto pr-2 flex-grow">
           {/* Service Selection */}
           <div className="space-y-2">
             <Label htmlFor="service-select" className="font-medium">
@@ -795,7 +796,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           </div>
         </div>
         
-        <DialogFooter className="mt-6">
+        <DialogFooter className="mt-4 pt-2 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
