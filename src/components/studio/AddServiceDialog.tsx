@@ -1,30 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Trash, FileText, X } from "lucide-react";
-import { Service, SubService, ClothingItem } from "@/types/services";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import AddItemDialog from "@/components/services/AddItemDialog";
 
-interface SubServiceItem {
-  id: string;
-  name: string;
-  pricePerKg: string;
-  pricePerItem: string;
-  selectedItems: string[];
-  itemPrices: Record<string, string>; // Store prices for each clothing item
-}
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Service, SubService, ClothingItem } from '@/types/services';
 
 interface AddServiceDialogProps {
   isOpen: boolean;
@@ -33,12 +15,10 @@ interface AddServiceDialogProps {
   subServices: SubService[];
   clothingItems: ClothingItem[];
   onServiceAdded: (data: any) => void;
-}
-
-interface ClothingItemRow {
-  id: string;
-  clothingItemId: string;
-  price: string;
+  editingService?: {
+    serviceId: string;
+    subServices: any[];
+  } | null;
 }
 
 const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
@@ -47,251 +27,251 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   services,
   subServices,
   clothingItems,
-  onServiceAdded
+  onServiceAdded,
+  editingService = null
 }) => {
-  const safeServices = Array.isArray(services) ? services : [];
-  const safeSubServices = Array.isArray(subServices) ? subServices : [];
-  const safeClothingItems = Array.isArray(clothingItems) ? clothingItems : [];
+  const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+  const [selectedSubServiceNames, setSelectedSubServiceNames] = useState<string[]>([]);
+  const [pricePerKg, setPricePerKg] = useState<Record<string, string>>({});
+  const [pricePerItem, setPricePerItem] = useState<Record<string, string>>({});
+  const [selectedItems, setSelectedItems] = useState<Record<string, string[]>>({});
+  const [itemPrices, setItemPrices] = useState<Record<string, Record<string, string>>>({});
+  const [formErrors, setFormErrors] = useState<string[]>([]);
 
-  const [selectedService, setSelectedService] = useState<string>("");
-  const [selectedServiceName, setSelectedServiceName] = useState<string>("");
-  
-  const [subServiceItems, setSubServiceItems] = useState<SubServiceItem[]>([
-    {
-      id: Date.now().toString(),
-      name: "",
-      pricePerKg: "",
-      pricePerItem: "",
-      selectedItems: [],
-      itemPrices: {}
-    }
-  ]);
-  
-  const [selectedSubServiceNames, setSelectedSubServiceNames] = useState<Record<string, string>>({});
-  
-  const [isAddItemsDialogOpen, setIsAddItemsDialogOpen] = useState<Record<string, boolean>>({});
-  const [itemName, setItemName] = useState("");
-  const [selectedClothingItem, setSelectedClothingItem] = useState<string>("");
-
-  const [itemRows, setItemRows] = useState<ClothingItemRow[]>([
-    { id: Date.now().toString(), clothingItemId: "", price: "" }
-  ]);
-
+  // Reset the form when the dialog opens
   useEffect(() => {
-    if (!isOpen) {
-      setSelectedService("");
-      setSelectedServiceName("");
-      setSubServiceItems([{
-        id: Date.now().toString(),
-        name: "",
-        pricePerKg: "",
-        pricePerItem: "",
-        selectedItems: [],
-        itemPrices: {}
-      }]);
-      setSelectedSubServiceNames({});
-      setIsAddItemsDialogOpen({});
-      setItemRows([{ id: Date.now().toString(), clothingItemId: "", price: "" }]);
-    }
-  }, [isOpen]);
-
-  const handleAddSubService = () => {
-    const newItem = {
-      id: Date.now().toString(),
-      name: "",
-      pricePerKg: "",
-      pricePerItem: "",
-      selectedItems: [],
-      itemPrices: {}
-    };
-    
-    setSubServiceItems([...subServiceItems, newItem]);
-    
-    setSelectedSubServiceNames(prev => ({
-      ...prev,
-      [newItem.id]: ""
-    }));
-  };
-
-  const handleRemoveSubService = (id: string) => {
-    setSubServiceItems(subServiceItems.filter(item => item.id !== id));
-    
-    const newSubServiceNames = { ...selectedSubServiceNames };
-    delete newSubServiceNames[id];
-    setSelectedSubServiceNames(newSubServiceNames);
-    
-    const newDialogOpen = { ...isAddItemsDialogOpen };
-    delete newDialogOpen[id];
-    setIsAddItemsDialogOpen(newDialogOpen);
-  };
-
-  const handleSubServiceChange = (id: string, field: keyof SubServiceItem, value: any) => {
-    setSubServiceItems(subServiceItems.map(item => 
-      item.id === id ? { ...item, [field]: value } : item
-    ));
-  };
-
-  const handleItemPriceChange = (subServiceItemId: string, clothingItemId: string, price: string) => {
-    setSubServiceItems(subServiceItems.map(item => {
-      if (item.id === subServiceItemId) {
-        return {
-          ...item,
-          itemPrices: {
-            ...item.itemPrices,
-            [clothingItemId]: price
-          }
-        };
-      }
-      return item;
-    }));
-  };
-
-  const handleServiceSelect = (serviceId: string) => {
-    const service = safeServices.find(s => s.id === serviceId);
-    if (service) {
-      setSelectedService(serviceId);
-      setSelectedServiceName(service.name);
-    }
-  };
-
-  const handleSubServiceSelect = (subServiceId: string, subServiceItemId: string) => {
-    const subService = safeSubServices.find(s => s.id === subServiceId);
-    if (subService) {
-      handleSubServiceChange(subServiceItemId, 'name', subServiceId);
-      setSelectedSubServiceNames(prev => ({
-        ...prev,
-        [subServiceItemId]: subService.name
-      }));
-    }
-  };
-
-  const toggleAddItemsDialog = (id: string, isOpen: boolean) => {
-    setIsAddItemsDialogOpen(prev => ({
-      ...prev,
-      [id]: isOpen
-    }));
-    
     if (isOpen) {
-      const subServiceItem = subServiceItems.find(item => item.id === id);
-      if (subServiceItem && subServiceItem.selectedItems.length > 0) {
-        const existingRows = subServiceItem.selectedItems.map(itemId => ({
-          id: `${itemId}-${Date.now()}`,
-          clothingItemId: itemId,
-          price: subServiceItem.itemPrices[itemId] || ""
-        }));
-        setItemRows(existingRows);
+      if (!editingService) {
+        // Reset form for adding new service
+        resetForm();
       } else {
-        setItemRows([{ id: Date.now().toString(), clothingItemId: "", price: "" }]);
+        // Populate form with editing service data
+        populateFormWithEditingData();
       }
     }
+  }, [isOpen, editingService]);
+
+  const resetForm = () => {
+    setSelectedServiceId('');
+    setSelectedSubServiceNames([]);
+    setPricePerKg({});
+    setPricePerItem({});
+    setSelectedItems({});
+    setItemPrices({});
+    setFormErrors([]);
   };
 
-  const handleRowClothingItemChange = (rowId: string, clothingItemId: string) => {
-    setItemRows(rows => 
-      rows.map(row => 
-        row.id === rowId ? { ...row, clothingItemId } : row
-      )
-    );
-  };
+  const populateFormWithEditingData = () => {
+    if (!editingService) return;
 
-  const handleRowPriceChange = (rowId: string, price: string) => {
-    setItemRows(rows => 
-      rows.map(row => 
-        row.id === rowId ? { ...row, price } : row
-      )
-    );
-  };
+    // Set the selected service ID
+    setSelectedServiceId(editingService.serviceId);
 
-  const handleAddMoreItems = () => {
-    setItemRows([...itemRows, { id: Date.now().toString(), clothingItemId: "", price: "" }]);
-  };
+    // Extract sub-service names
+    const subServiceNames = editingService.subServices.map(subService => subService.name);
+    setSelectedSubServiceNames(subServiceNames);
 
-  const handleRemoveRow = (rowId: string) => {
-    setItemRows(rows => rows.filter(row => row.id !== rowId));
-  };
+    // Initialize containers for other data
+    const newPricePerKg: Record<string, string> = {};
+    const newPricePerItem: Record<string, string> = {};
+    const newSelectedItems: Record<string, string[]> = {};
+    const newItemPrices: Record<string, Record<string, string>> = {};
 
-  const handleDoneAddingItems = (subServiceItemId: string) => {
-    const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
-    if (!subServiceItem) return;
-
-    const validRows = itemRows.filter(row => row.clothingItemId && row.price);
-    
-    const newSelectedItems = validRows.map(row => row.clothingItemId);
-    const newItemPrices: Record<string, string> = {};
-    
-    validRows.forEach(row => {
-      newItemPrices[row.clothingItemId] = row.price;
+    // Populate data for each sub-service
+    editingService.subServices.forEach(subService => {
+      const subServiceName = subService.name;
+      
+      // Set prices
+      if (subService.pricePerKg) {
+        newPricePerKg[subServiceName] = subService.pricePerKg.toString();
+      }
+      
+      if (subService.pricePerItem) {
+        newPricePerItem[subServiceName] = subService.pricePerItem.toString();
+      }
+      
+      // Set selected items and their prices
+      if (subService.selectedItems && subService.selectedItems.length > 0) {
+        newSelectedItems[subServiceName] = [...subService.selectedItems];
+        
+        if (subService.itemPrices) {
+          newItemPrices[subServiceName] = { ...subService.itemPrices };
+        }
+      }
     });
 
-    setSubServiceItems(items => 
-      items.map(item => 
-        item.id === subServiceItemId 
-          ? { 
-              ...item, 
-              selectedItems: newSelectedItems,
-              itemPrices: newItemPrices 
-            } 
-          : item
-      )
-    );
-
-    toggleAddItemsDialog(subServiceItemId, false);
+    // Update all state
+    setPricePerKg(newPricePerKg);
+    setPricePerItem(newPricePerItem);
+    setSelectedItems(newSelectedItems);
+    setItemPrices(newItemPrices);
   };
 
-  const getClothingItemById = (id: string) => {
-    return safeClothingItems.find(item => item.id === id);
+  const handleServiceChange = (value: string) => {
+    setSelectedServiceId(value);
+  };
+
+  const handleSubServiceToggle = (subServiceName: string) => {
+    setSelectedSubServiceNames(prev => {
+      if (prev.includes(subServiceName)) {
+        return prev.filter(name => name !== subServiceName);
+      } else {
+        return [...prev, subServiceName];
+      }
+    });
+  };
+
+  const handlePricePerKgChange = (subServiceName: string, value: string) => {
+    setPricePerKg(prev => ({
+      ...prev,
+      [subServiceName]: value
+    }));
+  };
+
+  const handlePricePerItemChange = (subServiceName: string, value: string) => {
+    setPricePerItem(prev => ({
+      ...prev,
+      [subServiceName]: value
+    }));
+  };
+
+  const handleItemCheck = (subServiceName: string, itemId: string, checked: boolean) => {
+    setSelectedItems(prev => {
+      const currentItems = prev[subServiceName] || [];
+      
+      if (checked) {
+        if (!currentItems.includes(itemId)) {
+          return {
+            ...prev,
+            [subServiceName]: [...currentItems, itemId]
+          };
+        }
+      } else {
+        return {
+          ...prev,
+          [subServiceName]: currentItems.filter(id => id !== itemId)
+        };
+      }
+      
+      return prev;
+    });
+  };
+
+  const handleItemPriceChange = (subServiceName: string, itemId: string, price: string) => {
+    setItemPrices(prev => {
+      const currentPrices = prev[subServiceName] || {};
+      return {
+        ...prev,
+        [subServiceName]: {
+          ...currentPrices,
+          [itemId]: price
+        }
+      };
+    });
+  };
+
+  const getSelectedSubServiceName = (id: string) => {
+    const subService = subServices.find(s => s.id === id);
+    return subService ? subService.name : 'Unknown Sub-service';
+  };
+
+  const validateForm = () => {
+    const errors = [];
+    
+    if (!selectedServiceId) {
+      errors.push('Please select a service');
+    }
+    
+    if (selectedSubServiceNames.length === 0) {
+      errors.push('Please select at least one sub-service');
+    }
+    
+    // Check if pricing is provided for each sub-service
+    selectedSubServiceNames.forEach(subServiceName => {
+      const hasPerKgPrice = pricePerKg[subServiceName] && pricePerKg[subServiceName] !== '0';
+      const hasPerItemPrice = pricePerItem[subServiceName] && pricePerItem[subServiceName] !== '0';
+      const hasItems = selectedItems[subServiceName] && selectedItems[subServiceName].length > 0;
+      
+      if (!hasPerKgPrice && !hasPerItemPrice && !hasItems) {
+        errors.push(`Please add pricing for ${getSelectedSubServiceName(subServiceName)}`);
+      }
+      
+      // If items are selected, check if prices are provided
+      if (hasItems) {
+        const itemIds = selectedItems[subServiceName] || [];
+        const itemPricesForService = itemPrices[subServiceName] || {};
+        
+        itemIds.forEach(itemId => {
+          if (!itemPricesForService[itemId] || itemPricesForService[itemId] === '0') {
+            const item = clothingItems.find(i => i.id === itemId);
+            if (item) {
+              errors.push(`Please add price for ${item.name} in ${getSelectedSubServiceName(subServiceName)}`);
+            }
+          }
+        });
+      }
+    });
+    
+    setFormErrors(errors);
+    return errors.length === 0;
   };
 
   const handleSave = () => {
-    const formData = {
-      serviceId: selectedService,
-      subServices: subServiceItems
+    if (!validateForm()) {
+      return;
+    }
+    
+    // Prepare data for saving
+    const subServicesData = selectedSubServiceNames.map(subServiceName => {
+      return {
+        name: subServiceName,
+        pricePerKg: pricePerKg[subServiceName] || '0',
+        pricePerItem: pricePerItem[subServiceName] || '0',
+        selectedItems: selectedItems[subServiceName] || [],
+        itemPrices: itemPrices[subServiceName] || {}
+      };
+    });
+    
+    const serviceData = {
+      serviceId: selectedServiceId,
+      subServices: subServicesData
     };
     
-    onServiceAdded(formData);
-    
-    setSelectedService("");
-    setSelectedServiceName("");
-    setSubServiceItems([{
-      id: Date.now().toString(),
-      name: "",
-      pricePerKg: "",
-      pricePerItem: "",
-      selectedItems: [],
-      itemPrices: {}
-    }]);
-    setSelectedSubServiceNames({});
-    onOpenChange(false);
-  };
-
-  const getSelectedSubServiceName = (subServiceItemId: string) => {
-    return selectedSubServiceNames[subServiceItemId] || '';
+    onServiceAdded(serviceData);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl text-blue-600 font-semibold">Add Service</DialogTitle>
-          <DialogDescription className="text-center text-gray-500">
-            Add a new service with its subservices and items
-          </DialogDescription>
+          <DialogTitle>{editingService ? 'Edit Service' : 'Add Service'}</DialogTitle>
         </DialogHeader>
         
-        <div className="py-4 space-y-6">
+        {formErrors.length > 0 && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+            <h4 className="font-semibold mb-1">Please fix the following issues:</h4>
+            <ul className="list-disc list-inside">
+              {formErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
+        <div className="space-y-6">
+          {/* Service Selection */}
           <div className="space-y-2">
-            <label htmlFor="serviceName" className="text-base font-medium">
-              Service Name
-            </label>
-            
-            <Select value={selectedService} onValueChange={handleServiceSelect}>
-              <SelectTrigger className="h-12 w-full">
-                <SelectValue placeholder="Select a service">
-                  {selectedServiceName || "Select a service"}
-                </SelectValue>
+            <Label htmlFor="service-select">Select Service:</Label>
+            <Select
+              value={selectedServiceId}
+              onValueChange={handleServiceChange}
+              disabled={!!editingService} // Disable if editing
+            >
+              <SelectTrigger id="service-select">
+                <SelectValue placeholder="Select a service" />
               </SelectTrigger>
               <SelectContent>
-                {safeServices.map((service) => (
+                {services.filter(service => service.active).map((service) => (
                   <SelectItem key={service.id} value={service.id}>
                     {service.name}
                   </SelectItem>
@@ -299,209 +279,100 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
               </SelectContent>
             </Select>
           </div>
-
-          <div>
-            <h3 className="text-base font-medium mb-2">Sub Services</h3>
-            
-            {subServiceItems.map((subServiceItem, index) => (
-              <div key={subServiceItem.id} className="border rounded-lg p-4 mb-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-base font-medium">
-                      Sub Service Name
-                    </label>
-                    
-                    <Select 
-                      value={subServiceItem.name || ""} 
-                      onValueChange={(value) => handleSubServiceSelect(value, subServiceItem.id)}
-                    >
-                      <SelectTrigger className="h-10 w-full">
-                        <SelectValue placeholder="Select a subservice">
-                          {getSelectedSubServiceName(subServiceItem.id) || "Select a subservice"}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {safeSubServices.map((subService) => (
-                          <SelectItem key={subService.id} value={subService.id}>
-                            {subService.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-base font-medium">
-                        Price per KG
-                      </label>
-                      <Input 
-                        placeholder="Enter price" 
-                        value={subServiceItem.pricePerKg} 
-                        onChange={(e) => handleSubServiceChange(subServiceItem.id, 'pricePerKg', e.target.value)}
+          
+          {/* Sub-service Selection */}
+          {selectedServiceId && (
+            <div className="space-y-2">
+              <Label>Select Sub-services:</Label>
+              <div className="border rounded-md p-4 space-y-3">
+                {subServices.filter(subService => subService.active).map((subService) => (
+                  <div key={subService.id} className="flex flex-col pb-4 border-b last:border-0">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`sub-service-${subService.id}`}
+                        checked={selectedSubServiceNames.includes(subService.id)}
+                        onCheckedChange={(checked) => {
+                          if (typeof checked === 'boolean') {
+                            handleSubServiceToggle(subService.id);
+                          }
+                        }}
+                        disabled={!!editingService} // Only disable during editing if needed
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-base font-medium">
-                        Price per Item
-                      </label>
-                      <Input 
-                        placeholder="Enter price" 
-                        value={subServiceItem.pricePerItem} 
-                        onChange={(e) => handleSubServiceChange(subServiceItem.id, 'pricePerItem', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="text-base font-medium mb-3">Clothing Items</h4>
-                      <Button 
-                        type="button" 
-                        variant="blue" 
-                        onClick={() => toggleAddItemsDialog(subServiceItem.id, true)}
-                        className="w-auto"
-                      >
-                        Add Items
-                      </Button>
+                      <Label htmlFor={`sub-service-${subService.id}`} className="font-medium">{subService.name}</Label>
                     </div>
                     
-                    <Dialog 
-                      open={!!isAddItemsDialogOpen[subServiceItem.id]} 
-                      onOpenChange={(open) => toggleAddItemsDialog(subServiceItem.id, open)}
-                    >
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Add Clothing Items</DialogTitle>
-                        </DialogHeader>
-                        
-                        <div className="space-y-4 p-2">
-                          <ScrollArea className="max-h-60 overflow-y-auto">
-                            <div className="space-y-4">
-                              {itemRows.map((row) => (
-                                <div key={row.id} className="p-4 border rounded-lg flex items-end gap-4">
-                                  <div className="flex-1">
-                                    <label className="text-base font-medium mb-2 block">Clothing Item</label>
-                                    <Select 
-                                      value={row.clothingItemId} 
-                                      onValueChange={(value) => handleRowClothingItemChange(row.id, value)}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select..." />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {safeClothingItems
-                                          .filter(item => 
-                                            item.id === row.clothingItemId || 
-                                            !itemRows.some(r => r.id !== row.id && r.clothingItemId === item.id)
-                                          )
-                                          .map((item) => (
-                                            <SelectItem key={item.id} value={item.id}>
-                                              {item.name}
-                                            </SelectItem>
-                                          ))}
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="flex-1">
-                                    <label className="text-base font-medium mb-2 block">Price</label>
-                                    <Input 
-                                      placeholder="Price (per item)" 
-                                      value={row.price} 
-                                      onChange={(e) => handleRowPriceChange(row.id, e.target.value)}
-                                    />
-                                  </div>
-                                  <Button 
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-red-500 mt-7"
-                                    onClick={() => handleRemoveRow(row.id)}
-                                  >
-                                    <X className="h-5 w-5" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                          
-                          <Button 
-                            type="button"
-                            variant="blue"
-                            className="w-full"
-                            onClick={handleAddMoreItems}
-                          >
-                            <Plus className="mr-1 h-4 w-4" />
-                            Add more items
-                          </Button>
+                    {selectedSubServiceNames.includes(subService.id) && (
+                      <div className="mt-4 ml-6 space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`price-kg-${subService.id}`} className="text-sm">Price per KG (₹):</Label>
+                            <Input 
+                              id={`price-kg-${subService.id}`}
+                              type="number" 
+                              value={pricePerKg[subService.id] || ''}
+                              onChange={(e) => handlePricePerKgChange(subService.id, e.target.value)}
+                              placeholder="0"
+                              className="w-full"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`price-item-${subService.id}`} className="text-sm">Price per Item (₹):</Label>
+                            <Input 
+                              id={`price-item-${subService.id}`}
+                              type="number" 
+                              value={pricePerItem[subService.id] || ''}
+                              onChange={(e) => handlePricePerItemChange(subService.id, e.target.value)}
+                              placeholder="0" 
+                              className="w-full"
+                            />
+                          </div>
                         </div>
                         
-                        <DialogFooter>
-                          <Button 
-                            onClick={() => handleDoneAddingItems(subServiceItem.id)}
-                            className="bg-gray-900 hover:bg-gray-800"
-                          >
-                            Done
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                    
-                    {subServiceItem.selectedItems.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {subServiceItem.selectedItems.map(itemId => {
-                          const item = safeClothingItems.find(i => i.id === itemId);
-                          return item ? (
-                            <Badge key={itemId} variant="outline" className="bg-blue-50">
-                              {item.name} - ₹{subServiceItem.itemPrices[itemId] || '0'}
-                            </Badge>
-                          ) : null;
-                        })}
+                        <div className="space-y-2">
+                          <Label className="text-sm">Clothing Items with Prices:</Label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded-md p-3 bg-gray-50">
+                            {clothingItems.filter(item => item.active).map((item) => (
+                              <div key={item.id} className="flex items-center gap-2">
+                                <Checkbox 
+                                  id={`item-${subService.id}-${item.id}`}
+                                  checked={(selectedItems[subService.id] || []).includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    if (typeof checked === 'boolean') {
+                                      handleItemCheck(subService.id, item.id, checked);
+                                    }
+                                  }}
+                                />
+                                <Label htmlFor={`item-${subService.id}-${item.id}`} className="text-sm flex-1">
+                                  {item.name}
+                                </Label>
+                                {(selectedItems[subService.id] || []).includes(item.id) && (
+                                  <Input 
+                                    type="number" 
+                                    value={((itemPrices[subService.id] || {})[item.id]) || ''}
+                                    onChange={(e) => handleItemPriceChange(subService.id, item.id, e.target.value)}
+                                    placeholder="Price" 
+                                    className="w-20"
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  <div className="flex space-x-3">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="text-red-600 border-red-200"
-                      onClick={() => index > 0 && handleRemoveSubService(subServiceItem.id)}
-                      disabled={index === 0}
-                    >
-                      <Trash className="mr-1 h-4 w-4" />
-                      Remove
-                    </Button>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
-
-            <Button 
-              type="button" 
-              variant="outline" 
-              className="bg-blue-50 text-blue-600"
-              onClick={handleAddSubService}
-            >
-              <Plus className="mr-1 h-4 w-4" />
-              Add Sub Service
-            </Button>
-          </div>
+            </div>
+          )}
         </div>
-
-        <DialogFooter className="flex justify-between sm:justify-between">
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-            className="mt-2 sm:mt-0"
-          >
+        
+        <DialogFooter className="mt-6">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Save
+          <Button onClick={handleSave}>
+            {editingService ? 'Update Service' : 'Add Service'}
           </Button>
         </DialogFooter>
       </DialogContent>

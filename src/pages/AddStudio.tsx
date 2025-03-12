@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -25,6 +24,7 @@ const AddStudio: React.FC = () => {
   const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
   const [studioServices, setStudioServices] = useState<StudioService[]>([]);
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+  const [editingService, setEditingService] = useState<StudioService | null>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -95,73 +95,92 @@ const AddStudio: React.FC = () => {
   };
 
   const handleServiceAdded = (data: any) => {
-    // Check if service already exists
-    const existingServiceIndex = studioServices.findIndex(
-      service => service.serviceId === data.serviceId
-    );
-    
-    if (existingServiceIndex >= 0) {
-      // Service exists, check for sub-services
-      const updatedServices = [...studioServices];
-      const existingService = updatedServices[existingServiceIndex];
-      
-      // Process each sub-service in the new data
-      data.subServices.forEach((newSubService: any) => {
-        // Check if this sub-service already exists in this service
-        const existingSubServiceIndex = existingService.subServices.findIndex(
-          (subSrv: any) => subSrv.name === newSubService.name
-        );
-        
-        if (existingSubServiceIndex >= 0) {
-          // Sub-service exists, merge clothing items
-          const existingSubService = existingService.subServices[existingSubServiceIndex];
-          
-          // Update price per kg/item if provided
-          if (newSubService.pricePerKg) {
-            existingSubService.pricePerKg = newSubService.pricePerKg;
-          }
-          
-          if (newSubService.pricePerItem) {
-            existingSubService.pricePerItem = newSubService.pricePerItem;
-          }
-          
-          // Merge clothing items
-          const updatedSelectedItems = [...existingSubService.selectedItems];
-          const updatedItemPrices = {...existingSubService.itemPrices};
-          
-          newSubService.selectedItems.forEach((itemId: string) => {
-            if (!updatedSelectedItems.includes(itemId)) {
-              updatedSelectedItems.push(itemId);
-            }
-            // Always update the price with the latest value
-            updatedItemPrices[itemId] = newSubService.itemPrices[itemId];
-          });
-          
-          existingSubService.selectedItems = updatedSelectedItems;
-          existingSubService.itemPrices = updatedItemPrices;
-        } else {
-          // Sub-service doesn't exist, add it
-          existingService.subServices.push(newSubService);
-        }
-      });
+    // If we're editing an existing service
+    if (editingService) {
+      // Replace the entire service with the new data
+      const updatedServices = studioServices.map(service => 
+        service.serviceId === editingService.serviceId ? {
+          serviceId: data.serviceId,
+          subServices: data.subServices
+        } : service
+      );
       
       setStudioServices(updatedServices);
+      setEditingService(null);
+      
       toast({
         title: "Service updated",
-        description: "The service has been updated with new information.",
+        description: "The service has been updated successfully.",
       });
     } else {
-      // Service doesn't exist, add it
-      const newService = {
-        serviceId: data.serviceId,
-        subServices: data.subServices
-      };
+      // Check if service already exists
+      const existingServiceIndex = studioServices.findIndex(
+        service => service.serviceId === data.serviceId
+      );
       
-      setStudioServices([...studioServices, newService]);
-      toast({
-        title: "Service added",
-        description: "The service has been added to the studio.",
-      });
+      if (existingServiceIndex >= 0) {
+        // Service exists, check for sub-services
+        const updatedServices = [...studioServices];
+        const existingService = updatedServices[existingServiceIndex];
+        
+        // Process each sub-service in the new data
+        data.subServices.forEach((newSubService: any) => {
+          // Check if this sub-service already exists in this service
+          const existingSubServiceIndex = existingService.subServices.findIndex(
+            (subSrv: any) => subSrv.name === newSubService.name
+          );
+          
+          if (existingSubServiceIndex >= 0) {
+            // Sub-service exists, merge clothing items
+            const existingSubService = existingService.subServices[existingSubServiceIndex];
+            
+            // Update price per kg/item if provided
+            if (newSubService.pricePerKg) {
+              existingSubService.pricePerKg = newSubService.pricePerKg;
+            }
+            
+            if (newSubService.pricePerItem) {
+              existingSubService.pricePerItem = newSubService.pricePerItem;
+            }
+            
+            // Merge clothing items
+            const updatedSelectedItems = [...existingSubService.selectedItems];
+            const updatedItemPrices = {...existingSubService.itemPrices};
+            
+            newSubService.selectedItems.forEach((itemId: string) => {
+              if (!updatedSelectedItems.includes(itemId)) {
+                updatedSelectedItems.push(itemId);
+              }
+              // Always update the price with the latest value
+              updatedItemPrices[itemId] = newSubService.itemPrices[itemId];
+            });
+            
+            existingSubService.selectedItems = updatedSelectedItems;
+            existingSubService.itemPrices = updatedItemPrices;
+          } else {
+            // Sub-service doesn't exist, add it
+            existingService.subServices.push(newSubService);
+          }
+        });
+        
+        setStudioServices(updatedServices);
+        toast({
+          title: "Service updated",
+          description: "The service has been updated with new information.",
+        });
+      } else {
+        // Service doesn't exist, add it
+        const newService = {
+          serviceId: data.serviceId,
+          subServices: data.subServices
+        };
+        
+        setStudioServices([...studioServices, newService]);
+        toast({
+          title: "Service added",
+          description: "The service has been added to the studio.",
+        });
+      }
     }
     
     // Expand the service that was just added or updated
@@ -182,11 +201,16 @@ const AddStudio: React.FC = () => {
   };
 
   const handleEditService = (serviceIndex: number) => {
-    // This would open the edit dialog with pre-filled data
-    console.log("Edit service:", studioServices[serviceIndex]);
+    // Set the current service for editing
+    const serviceToEdit = studioServices[serviceIndex];
+    setEditingService(serviceToEdit);
+    
+    // Open the dialog for editing
+    setIsAddServiceDialogOpen(true);
+    
     toast({
       title: "Edit Service",
-      description: "Edit functionality will be implemented soon.",
+      description: "You can now edit the selected service.",
     });
   };
 
@@ -686,7 +710,10 @@ const AddStudio: React.FC = () => {
             type="button"
             variant="outline"
             className="bg-blue-700 text-white hover:bg-blue-800 transition mb-6"
-            onClick={() => setIsAddServiceDialogOpen(true)}
+            onClick={() => {
+              setEditingService(null);
+              setIsAddServiceDialogOpen(true);
+            }}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Services
@@ -794,6 +821,7 @@ const AddStudio: React.FC = () => {
           subServices={subServices}
           clothingItems={clothingItems}
           onServiceAdded={handleServiceAdded}
+          editingService={editingService}
         />
       </form>
     </Layout>
