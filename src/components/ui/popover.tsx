@@ -22,6 +22,11 @@ const PopoverContent = React.forwardRef<
         className
       )}
       {...props}
+      onInteractOutside={(e) => {
+        if (props.onInteractOutside) {
+          props.onInteractOutside(e);
+        }
+      }}
     />
   </PopoverPrimitive.Portal>
 ))

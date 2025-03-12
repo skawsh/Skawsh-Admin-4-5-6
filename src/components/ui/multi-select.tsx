@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -48,37 +48,20 @@ export function MultiSelect({
   disabled = false,
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [inputValue, setInputValue] = useState("");
 
   const handleUnselect = (selectedValue: string) => {
     onChange(selected.filter((value) => value !== selectedValue));
   };
 
-  const handleSelect = (selectedValue: string) => {
+  const handleSelect = useCallback((selectedValue: string) => {
     const isSelected = selected.includes(selectedValue);
     if (isSelected) {
       onChange(selected.filter((value) => value !== selectedValue));
     } else {
       onChange([...selected, selectedValue]);
     }
-  };
-
-  // Handle click outside to close popover
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  }, [selected, onChange]);
 
   // Limit the number of displayed selected items
   const displaySelected = maxDisplayItems
@@ -95,7 +78,7 @@ export function MultiSelect({
   };
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div className={cn("relative", className)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -149,7 +132,11 @@ export function MultiSelect({
           align="start"
         >
           <Command>
-            <CommandInput placeholder={searchPlaceholder} />
+            <CommandInput 
+              placeholder={searchPlaceholder} 
+              value={inputValue}
+              onValueChange={setInputValue}
+            />
             <CommandList>
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               <CommandGroup>
@@ -160,7 +147,11 @@ export function MultiSelect({
                       key={option.value}
                       value={option.value}
                       disabled={option.disabled}
-                      onSelect={() => handleSelect(option.value)}
+                      onSelect={() => {
+                        handleSelect(option.value);
+                        // Don't close the popover when selecting an item
+                        setInputValue("");
+                      }}
                       className={cn(
                         option.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
                         "flex items-center gap-2"
