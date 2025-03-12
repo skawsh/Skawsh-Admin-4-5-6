@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ClothingItem } from '@/types/services';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
 interface AddItemPopupProps {
   isOpen: boolean;
@@ -54,6 +54,14 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
 
   const handleAddRow = () => {
     setItemRows([...itemRows, { itemId: '', price: '', expressPrice: '' }]);
+  };
+
+  const handleRemoveRow = (index: number) => {
+    if (itemRows.length > 1) {
+      const newRows = [...itemRows];
+      newRows.splice(index, 1);
+      setItemRows(newRows);
+    }
   };
 
   const handleDone = () => {
@@ -110,55 +118,82 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                 </div>
                 
                 {washCategory === 'standard' && (
-                  <div className="w-24">
-                    <Input
-                      type="number"
-                      value={row.price}
-                      onChange={(e) => handlePriceChange(index, e.target.value)}
-                      placeholder="Price"
-                    />
+                  <div className="w-24 space-y-1">
+                    <Label className="text-xs">Standard</Label>
+                    <div className="flex items-center">
+                      <Input
+                        type="number"
+                        value={row.price}
+                        onChange={(e) => handlePriceChange(index, e.target.value)}
+                        className="h-8"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleRemoveRow(index)}
+                        className="h-8 w-8 p-0 text-red-500 ml-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 )}
                 
                 {washCategory === 'express' && (
-                  <div className="w-24">
-                    <Input
-                      type="number"
-                      value={row.expressPrice || ''}
-                      onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
-                      placeholder="Price"
-                    />
+                  <div className="w-24 space-y-1">
+                    <Label className="text-xs">Express</Label>
+                    <div className="flex items-center">
+                      <Input
+                        type="number"
+                        value={row.expressPrice || ''}
+                        onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
+                        className="h-8"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleRemoveRow(index)}
+                        className="h-8 w-8 p-0 text-red-500 ml-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 )}
                 
                 {washCategory === 'both' && (
                   <div className="flex gap-2">
-                    <div className="w-24">
+                    <div className="w-24 space-y-1">
+                      <Label className="text-xs">Standard</Label>
                       <Input
                         type="number"
                         value={row.price}
                         onChange={(e) => handlePriceChange(index, e.target.value)}
-                        placeholder="Standard"
+                        placeholder="Price"
+                        className="h-8"
                       />
                     </div>
-                    <div className="w-24">
+                    <div className="w-24 space-y-1">
+                      <Label className="text-xs">Express</Label>
                       <Input
                         type="number"
                         value={row.expressPrice || ''}
                         onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
-                        placeholder="Express"
+                        placeholder="Price"
+                        className="h-8"
                       />
                     </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleRemoveRow(index)}
+                      className="h-8 w-8 p-0 text-red-500 mt-6"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                 )}
               </div>
-              
-              {washCategory === 'both' && (
-                <div className="flex text-xs pl-[calc(100%-24rem)]">
-                  <div className="w-24 text-center">Standard</div>
-                  <div className="w-24 ml-2 text-center">Express</div>
-                </div>
-              )}
             </div>
           ))}
           
