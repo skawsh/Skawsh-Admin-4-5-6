@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import AddItemDialog from "@/components/services/AddItemDialog";
 
@@ -63,7 +64,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   
   // New state for the Add Items dialog
   const [isAddItemsDialogOpen, setIsAddItemsDialogOpen] = useState<Record<string, boolean>>({});
-  const [activeSubServiceId, setActiveSubServiceId] = useState<string>("");
+  const [itemName, setItemName] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
@@ -78,7 +79,6 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       }]);
       setSelectedSubServiceNames({});
       setIsAddItemsDialogOpen({});
-      setActiveSubServiceId("");
     }
   }, [isOpen]);
 
@@ -137,16 +137,28 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   };
 
   const toggleAddItemsDialog = (id: string, isOpen: boolean) => {
-    setActiveSubServiceId(id);
     setIsAddItemsDialogOpen(prev => ({
       ...prev,
       [id]: isOpen
     }));
   };
 
-  const handleItemsSelected = (subServiceItemId: string, selectedItems: string[]) => {
-    handleSubServiceChange(subServiceItemId, 'selectedItems', selectedItems);
-    toggleAddItemsDialog(subServiceItemId, false);
+  const handleClothingItemToggle = (subServiceItemId: string, clothingItemId: string) => {
+    const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
+    
+    if (subServiceItem) {
+      const selectedItems = [...subServiceItem.selectedItems];
+      
+      if (selectedItems.includes(clothingItemId)) {
+        // Remove if already selected
+        const updatedItems = selectedItems.filter(id => id !== clothingItemId);
+        handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
+      } else {
+        // Add if not selected
+        selectedItems.push(clothingItemId);
+        handleSubServiceChange(subServiceItemId, 'selectedItems', selectedItems);
+      }
+    }
   };
 
   const getSelectedClothingItemsCount = (subServiceItemId: string) => {
@@ -282,6 +294,45 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                       <Plus className="h-4 w-4" />
                     </Button>
                     
+                    {/* Add Items Dialog */}
+                    <Dialog 
+                      open={!!isAddItemsDialogOpen[subServiceItem.id]} 
+                      onOpenChange={(open) => toggleAddItemsDialog(subServiceItem.id, open)}
+                    >
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Select Clothing Items</DialogTitle>
+                          <DialogDescription>
+                            Choose clothing items for this subservice
+                          </DialogDescription>
+                        </DialogHeader>
+                        <ScrollArea className="h-60 w-full">
+                          <div className="p-2">
+                            {safeClothingItems.map((item) => (
+                              <div key={item.id} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
+                                <Checkbox 
+                                  id={`item-${subServiceItem.id}-${item.id}`} 
+                                  checked={subServiceItem.selectedItems.includes(item.id)}
+                                  onCheckedChange={() => handleClothingItemToggle(subServiceItem.id, item.id)}
+                                />
+                                <Label 
+                                  htmlFor={`item-${subServiceItem.id}-${item.id}`}
+                                  className="flex-1 cursor-pointer"
+                                >
+                                  {item.name}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                        <DialogFooter>
+                          <Button onClick={() => toggleAddItemsDialog(subServiceItem.id, false)}>
+                            Done
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    
                     {subServiceItem.selectedItems.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {subServiceItem.selectedItems.map(itemId => {
@@ -340,17 +391,6 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
           </Button>
         </DialogFooter>
       </DialogContent>
-
-      {/* Add Items Dialog */}
-      {activeSubServiceId && (
-        <AddItemDialog 
-          isOpen={!!isAddItemsDialogOpen[activeSubServiceId]} 
-          onOpenChange={(open) => toggleAddItemsDialog(activeSubServiceId, open)}
-          clothingItems={safeClothingItems}
-          selectedItems={subServiceItems.find(item => item.id === activeSubServiceId)?.selectedItems || []}
-          onSave={(selectedItems) => handleItemsSelected(activeSubServiceId, selectedItems)}
-        />
-      )}
     </Dialog>
   );
 };
