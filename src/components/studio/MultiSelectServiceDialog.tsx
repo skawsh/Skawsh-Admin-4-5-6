@@ -10,6 +10,7 @@ import MultiSelect from '@/components/ui/multi-select';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import AddItemPopup from './AddItemPopup';
+import CreateItemsDialog from './CreateItemsDialog';
 
 interface MultiSelectServiceDialogProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
   const [isAddItemsOpen, setIsAddItemsOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -643,9 +645,17 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
         <DialogHeader className="text-center pb-2 border-b">
           <DialogTitle className="text-2xl font-bold text-blue-600">Add Service</DialogTitle>
-          <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
+          <div className="flex justify-between items-center">
+            <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
+            <Button 
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              Create
+            </Button>
+          </div>
         </DialogHeader>
-        
+
         {formErrors.length > 0 && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
             <h4 className="font-semibold mb-1">Please fix the following issues:</h4>
@@ -777,19 +787,4 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           >
             Save
           </Button>
-        </DialogFooter>
-      </DialogContent>
-
-      <AddItemPopup
-        isOpen={isAddItemsOpen}
-        onOpenChange={setIsAddItemsOpen}
-        clothingItems={clothingItems}
-        selectedItems={activeSubServiceId ? (selectedClothingItems[activeSubServiceId] || []) : []}
-        onAddItem={handleAddItemFromPopup}
-        washCategory={washCategory}
-      />
-    </Dialog>
-  );
-};
-
-export default MultiSelectServiceDialog;
+        </DialogFooter
