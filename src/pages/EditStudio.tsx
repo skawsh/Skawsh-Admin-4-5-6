@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { ArrowLeft, Save, Plus, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -18,14 +19,27 @@ interface StudioService {
 
 type WashCategory = 'standard' | 'express' | 'both';
 
-const AddStudio: React.FC = () => {
+interface Studio {
+  id: number;
+  studioId: string;
+  studioName: string;
+  ownerName: string;
+  contact: string;
+  services: number;
+  rating: number;
+  status: boolean;
+}
+
+const EditStudio: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
   const { services, subServices, clothingItems } = useServicesData();
   const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
   const [studioServices, setStudioServices] = useState<StudioService[]>([]);
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [editingService, setEditingService] = useState<StudioService | null>(null);
+  const [studio, setStudio] = useState<Studio | null>(null);
   
   const [formData, setFormData] = useState({
     ownerFirstName: '',
@@ -63,6 +77,57 @@ const AddStudio: React.FC = () => {
     paymentSchedule: 'daily',
   });
 
+  // Load studio data based on ID
+  useEffect(() => {
+    if (!id) return;
+    
+    const savedStudios = localStorage.getItem('laundryStudios');
+    if (!savedStudios) {
+      toast({
+        title: "Error",
+        description: "Studio not found",
+      });
+      navigate('/studios');
+      return;
+    }
+    
+    const studios = JSON.parse(savedStudios);
+    const foundStudio = studios.find((s: Studio) => s.id === parseInt(id));
+    
+    if (!foundStudio) {
+      toast({
+        title: "Error",
+        description: "Studio not found",
+      });
+      navigate('/studios');
+      return;
+    }
+    
+    setStudio(foundStudio);
+    
+    // Try to load extended studio data if available
+    const savedStudioData = localStorage.getItem(`studioData_${foundStudio.id}`);
+    if (savedStudioData) {
+      const studioData = JSON.parse(savedStudioData);
+      setFormData(studioData);
+      
+      // Load services if available
+      if (studioData.services && Array.isArray(studioData.studioServices)) {
+        setStudioServices(studioData.studioServices);
+      }
+    } else {
+      // Initialize form with basic studio data
+      const nameParts = foundStudio.ownerName.split(' ');
+      setFormData(prev => ({
+        ...prev,
+        ownerFirstName: nameParts[0] || '',
+        ownerLastName: nameParts.slice(1).join(' ') || '',
+        studioName: foundStudio.studioName,
+        primaryNumber: foundStudio.contact,
+      }));
+    }
+  }, [id, navigate, toast]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -83,72 +148,41 @@ const AddStudio: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Studio data to submit:', formData);
-    console.log('Studio services to submit:', studioServices);
+    if (!studio) return;
     
-    // Generate random values for testing
-    const randomRating = Math.floor(Math.random() * 10) / 10 + 4.0; // Random rating between 4.0 and 5.0
-    const randomServices = Math.floor(Math.random() * 30) + 30; // Random services between 30 and 60
+    console.log('Studio data to update:', formData);
+    console.log('Studio services to update:', studioServices);
     
-    // Create a new studio ID
-    const newStudioId = generateNewStudioId();
-    
-    // Create a new studio object
-    const newStudio = {
-      id: newStudioId,
-      studioId: generateStudioIdString(),
+    // Update the studio object
+    const updatedStudio = {
+      ...studio,
       studioName: formData.studioName,
       ownerName: `${formData.ownerFirstName} ${formData.ownerLastName}`.trim(),
       contact: formData.primaryNumber,
-      services: studioServices.length > 0 ? studioServices.length : randomServices,
-      rating: randomRating,
-      status: true
+      services: studioServices.length > 0 ? studioServices.length : studio.services,
     };
     
-    // Add the new studio to localStorage
+    // Update the studio in localStorage
     const savedStudios = localStorage.getItem('laundryStudios');
-    let studios = savedStudios ? JSON.parse(savedStudios) : [];
+    if (savedStudios) {
+      let studios = JSON.parse(savedStudios);
+      studios = studios.map((s: Studio) => s.id === studio.id ? updatedStudio : s);
+      localStorage.setItem('laundryStudios', JSON.stringify(studios));
+    }
     
-    studios.push(newStudio);
-    localStorage.setItem('laundryStudios', JSON.stringify(studios));
-    
-    // Save the detailed form data in a separate localStorage item
+    // Save extended studio data
     const studioDataToSave = {
       ...formData,
       studioServices: studioServices
     };
-    localStorage.setItem(`studioData_${newStudioId}`, JSON.stringify(studioDataToSave));
+    localStorage.setItem(`studioData_${studio.id}`, JSON.stringify(studioDataToSave));
     
     toast({
-      title: "Studio saved",
-      description: "The studio has been successfully created.",
+      title: "Studio updated",
+      description: "The studio has been successfully updated.",
     });
     
     navigate('/studios');
-  };
-
-  const generateNewStudioId = (): number => {
-    const savedStudios = localStorage.getItem('laundryStudios');
-    if (!savedStudios) return 1;
-    
-    const studios = JSON.parse(savedStudios);
-    const highestId = studios.reduce((max: number, studio: any) => 
-      studio.id > max ? studio.id : max, 0);
-    
-    return highestId + 1;
-  };
-
-  const generateStudioIdString = (): string => {
-    const savedStudios = localStorage.getItem('laundryStudios');
-    if (!savedStudios) return 'STU10001';
-    
-    const studios = JSON.parse(savedStudios);
-    const highestIdNum = studios.reduce((max: number, studio: any) => {
-      const idNum = parseInt(studio.studioId.replace('STU', ''), 10);
-      return idNum > max ? idNum : max;
-    }, 10000);
-    
-    return `STU${highestIdNum + 1}`;
   };
 
   const handleServiceAdded = (data: any) => {
@@ -282,8 +316,8 @@ const AddStudio: React.FC = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Add New Studio</h1>
-              <p className="text-gray-600">Create a new laundry studio</p>
+              <h1 className="text-3xl font-bold text-gray-800">Edit Studio</h1>
+              <p className="text-gray-600">Update studio information</p>
             </div>
           </div>
           <Button 
@@ -291,10 +325,11 @@ const AddStudio: React.FC = () => {
             className="bg-blue-700 hover:bg-blue-800"
           >
             <Save className="mr-2 h-4 w-4" />
-            Save Studio
+            Save Changes
           </Button>
         </div>
 
+        {/* Basic Information */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Basic Information</h2>
           
@@ -383,6 +418,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Address Details */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Address Details</h2>
           
@@ -467,6 +503,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Business Details */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Business Details</h2>
           
@@ -551,6 +588,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Studio Setup */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Studio Setup</h2>
           
@@ -620,6 +658,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Payment Details */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Payment Details</h2>
           
@@ -724,6 +763,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Services */}
         <Card className="p-6 mb-6">
           <h2 className="text-2xl font-bold mb-6">Services</h2>
           
@@ -748,78 +788,52 @@ const AddStudio: React.FC = () => {
                 
                 return (
                   <Card key={`${studioService.serviceId}-${index}`} className="border border-gray-200 shadow-sm">
-                    <CardHeader className="bg-gray-50 rounded-t-lg flex flex-row items-center justify-between p-4">
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0" 
-                          onClick={() => toggleServiceExpansion(studioService.serviceId)}
-                        >
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </Button>
-                        <CardTitle className="text-lg font-bold text-gray-800">{serviceName}</CardTitle>
+                    <CardContent className="p-0">
+                      <div className="bg-gray-50 rounded-t-lg flex flex-row items-center justify-between p-4">
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0" 
+                            onClick={() => toggleServiceExpansion(studioService.serviceId)}
+                          >
+                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </Button>
+                          <h3 className="text-lg font-bold text-gray-800">{serviceName}</h3>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-blue-600 hover:text-blue-800"
+                            onClick={() => handleEditService(index)}
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-red-600 hover:text-red-800"
+                            onClick={() => handleDeleteService(index)}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-blue-600 hover:text-blue-800"
-                          onClick={() => handleEditService(index)}
-                        >
-                          <Pencil size={16} />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-red-600 hover:text-red-800"
-                          onClick={() => handleDeleteService(index)}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    
-                    {isExpanded && (
-                      <CardContent className="p-4">
-                        <div className="space-y-6">
-                          {studioService.subServices.map((subService, subIndex) => {
-                            const subServiceName = getSubServiceNameById(subService.name);
-                            
-                            return (
-                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-white shadow-sm">
-                                <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
-                                
-                                <div className="space-y-4 mb-4">
-                                  {formData.washCategory === 'standard' && (
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                        <span className="text-sm text-gray-500">Standard Price per KG:</span>
-                                        <span className="ml-2 font-medium">₹{subService.standardPricePerKg || subService.pricePerKg || '0'}</span>
-                                      </div>
-                                      <div>
-                                        <span className="text-sm text-gray-500">Standard Price per Item:</span>
-                                        <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
-                                      </div>
-                                    </div>
-                                  )}
+                      {isExpanded && (
+                        <div className="p-4">
+                          <div className="space-y-6">
+                            {studioService.subServices.map((subService, subIndex) => {
+                              const subServiceName = getSubServiceNameById(subService.name);
+                              
+                              return (
+                                <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-white shadow-sm">
+                                  <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
                                   
-                                  {formData.washCategory === 'express' && (
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                        <span className="text-sm text-gray-500">Express Price per KG:</span>
-                                        <span className="ml-2 font-medium">₹{subService.expressPricePerKg || subService.pricePerKg || '0'}</span>
-                                      </div>
-                                      <div>
-                                        <span className="text-sm text-gray-500">Express Price per Item:</span>
-                                        <span className="ml-2 font-medium">₹{subService.expressPricePerItem || subService.pricePerItem || '0'}</span>
-                                      </div>
-                                    </div>
-                                  )}
-                                  
-                                  {formData.washCategory === 'both' && (
-                                    <div className="space-y-2">
+                                  <div className="space-y-4 mb-4">
+                                    {formData.washCategory === 'standard' && (
                                       <div className="grid grid-cols-2 gap-4">
                                         <div>
                                           <span className="text-sm text-gray-500">Standard Price per KG:</span>
@@ -830,61 +844,89 @@ const AddStudio: React.FC = () => {
                                           <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
                                         </div>
                                       </div>
+                                    )}
+                                    
+                                    {formData.washCategory === 'express' && (
                                       <div className="grid grid-cols-2 gap-4">
                                         <div>
                                           <span className="text-sm text-gray-500">Express Price per KG:</span>
-                                          <span className="ml-2 font-medium">₹{subService.expressPricePerKg || '0'}</span>
+                                          <span className="ml-2 font-medium">₹{subService.expressPricePerKg || subService.pricePerKg || '0'}</span>
                                         </div>
                                         <div>
                                           <span className="text-sm text-gray-500">Express Price per Item:</span>
-                                          <span className="ml-2 font-medium">₹{subService.expressPricePerItem || '0'}</span>
+                                          <span className="ml-2 font-medium">₹{subService.expressPricePerItem || subService.pricePerItem || '0'}</span>
                                         </div>
+                                      </div>
+                                    )}
+                                    
+                                    {formData.washCategory === 'both' && (
+                                      <div className="space-y-2">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div>
+                                            <span className="text-sm text-gray-500">Standard Price per KG:</span>
+                                            <span className="ml-2 font-medium">₹{subService.standardPricePerKg || subService.pricePerKg || '0'}</span>
+                                          </div>
+                                          <div>
+                                            <span className="text-sm text-gray-500">Standard Price per Item:</span>
+                                            <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
+                                          </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div>
+                                            <span className="text-sm text-gray-500">Express Price per KG:</span>
+                                            <span className="ml-2 font-medium">₹{subService.expressPricePerKg || '0'}</span>
+                                          </div>
+                                          <div>
+                                            <span className="text-sm text-gray-500">Express Price per Item:</span>
+                                            <span className="ml-2 font-medium">₹{subService.expressPricePerItem || '0'}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  {subService.selectedItems && subService.selectedItems.length > 0 && (
+                                    <div>
+                                      <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
+                                      <div className="space-y-3">
+                                        {subService.selectedItems.map((itemId: string) => {
+                                          const itemName = getClothingItemNameById(itemId);
+                                          return (
+                                            <div key={itemId} className="border border-gray-100 rounded p-3 bg-gray-50">
+                                              <div className="font-medium text-gray-700 mb-2">{itemName}</div>
+                                              {formData.washCategory === 'standard' && (
+                                                <div className="text-sm text-gray-600">
+                                                  Standard Price: ₹{subService.standardItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
+                                                </div>
+                                              )}
+                                              {formData.washCategory === 'express' && (
+                                                <div className="text-sm text-gray-600">
+                                                  Express Price: ₹{subService.expressItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
+                                                </div>
+                                              )}
+                                              {formData.washCategory === 'both' && (
+                                                <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                                                  <div>
+                                                    Standard Price: ₹{subService.standardItemPrices?.[itemId] || '0'}
+                                                  </div>
+                                                  <div>
+                                                    Express Price: ₹{subService.expressItemPrices?.[itemId] || '0'}
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
                                       </div>
                                     </div>
                                   )}
                                 </div>
-                                
-                                {subService.selectedItems && subService.selectedItems.length > 0 && (
-                                  <div>
-                                    <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
-                                    <div className="space-y-3">
-                                      {subService.selectedItems.map((itemId: string) => {
-                                        const itemName = getClothingItemNameById(itemId);
-                                        return (
-                                          <div key={itemId} className="border border-gray-100 rounded p-3 bg-gray-50">
-                                            <div className="font-medium text-gray-700 mb-2">{itemName}</div>
-                                            {formData.washCategory === 'standard' && (
-                                              <div className="text-sm text-gray-600">
-                                                Standard Price: ₹{subService.standardItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
-                                              </div>
-                                            )}
-                                            {formData.washCategory === 'express' && (
-                                              <div className="text-sm text-gray-600">
-                                                Express Price: ₹{subService.expressItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
-                                              </div>
-                                            )}
-                                            {formData.washCategory === 'both' && (
-                                              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                                                <div>
-                                                  Standard Price: ₹{subService.standardItemPrices?.[itemId] || '0'}
-                                                </div>
-                                                <div>
-                                                  Express Price: ₹{subService.expressItemPrices?.[itemId] || '0'}
-                                                </div>
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
-                      </CardContent>
-                    )}
+                      )}
+                    </CardContent>
                   </Card>
                 );
               })}
@@ -911,5 +953,4 @@ const AddStudio: React.FC = () => {
   );
 };
 
-export default AddStudio;
-
+export default EditStudio;

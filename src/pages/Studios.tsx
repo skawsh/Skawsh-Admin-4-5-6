@@ -66,7 +66,6 @@ const Studios: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [studiosData, setStudiosData] = useState<Studio[]>([]);
 
-  // Sample data
   const defaultStudios: Studio[] = [
     {
       id: 1,
@@ -150,7 +149,6 @@ const Studios: React.FC = () => {
     }
   ];
 
-  // Load studios from localStorage on component mount
   useEffect(() => {
     const savedStudios = localStorage.getItem('laundryStudios');
     
@@ -162,21 +160,17 @@ const Studios: React.FC = () => {
     }
   }, []);
 
-  // Filtering and sorting logic
   const filteredStudios = studiosData.filter((studio) => {
-    // Search filter
     const matchesSearch = searchTerm === '' || 
       studio.studioName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       studio.studioId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       studio.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       studio.contact.includes(searchTerm);
     
-    // Status filter
     const matchesStatus = statusFilter === null || 
       (statusFilter === 'active' && studio.status) ||
       (statusFilter === 'inactive' && !studio.status);
     
-    // Rating filter
     const matchesRating = ratingFilter === null ||
       (ratingFilter === 'above4.5' && studio.rating >= 4.5) ||
       (ratingFilter === '4to4.5' && studio.rating >= 4 && studio.rating < 4.5) ||
@@ -187,304 +181,10 @@ const Studios: React.FC = () => {
     return sortDirection === 'asc' ? a.id - b.id : b.id - a.id;
   });
 
-  // Calculate stats
   const totalStudios = studiosData.length;
   const activeStudios = studiosData.filter(s => s.status).length;
   const inactiveStudios = studiosData.filter(s => !s.status).length;
-  const avgSackValue = 396; // Example value from the image
+  const avgSackValue = 396;
 
-  const resetFilters = () => {
-    setSearchTerm('');
-    setStatusFilter(null);
-    setRatingFilter(null);
-    setSortDirection('asc');
-  };
+ 
 
-  const toggleSort = () => {
-    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-  };
-
-  const handleStatusToggle = (studioId: number, newStatus: boolean) => {
-    const updatedStudios = studiosData.map(studio => 
-      studio.id === studioId ? { ...studio, status: newStatus } : studio
-    );
-    
-    setStudiosData(updatedStudios);
-    localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
-  };
-
-  const handlePaymentsClick = (studio: Studio) => {
-    toast({
-      title: "Payments",
-      description: `Viewing payments for ${studio.studioName}`,
-    });
-    // Implement payments view/navigation logic here
-  };
-
-  const handleViewEditStudioClick = (studio: Studio) => {
-    toast({
-      title: "Edit Studio",
-      description: `Editing details for ${studio.studioName}`,
-    });
-    // Implement navigation to studio edit page
-    // navigate(`/studios/edit/${studio.id}`);
-  };
-
-  const handleViewEditServicesClick = (studio: Studio) => {
-    toast({
-      title: "Edit Services",
-      description: `Editing services for ${studio.studioName}`,
-    });
-    // Implement navigation to services edit page
-    // navigate(`/studios/${studio.id}/services`);
-  };
-
-  const handleViewAnalyticsClick = (studio: Studio) => {
-    toast({
-      title: "Analytics",
-      description: `Viewing analytics for ${studio.studioName}`,
-    });
-    // Implement navigation to studio analytics page
-    // navigate(`/studios/${studio.id}/analytics`);
-  };
-
-  const handleDeleteStudioClick = (studio: Studio) => {
-    // Show a confirmation before deleting
-    if (window.confirm(`Are you sure you want to delete ${studio.studioName}?`)) {
-      const updatedStudios = studiosData.filter(s => s.id !== studio.id);
-      setStudiosData(updatedStudios);
-      localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
-      
-      toast({
-        title: "Studio Deleted",
-        description: `${studio.studioName} has been deleted`,
-      });
-    }
-  };
-
-  return (
-    <Layout activeSection="studios">
-      <div className="space-y-6">
-        {/* Header Section - Updated to match design */}
-        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Laundry Studios</h1>
-            <p className="text-gray-600 mt-1">Manage all laundry studios on your platform</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Button 
-              variant="outline" 
-              className="bg-white" 
-              onClick={resetFilters}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Reset Filters
-            </Button>
-            <Button 
-              variant="outline" 
-              className="bg-white"
-            >
-              <BarChart2 className="mr-2 h-4 w-4" />
-              Overall Analytics
-            </Button>
-            <Button 
-              className="bg-blue-700 hover:bg-blue-800"
-              onClick={() => navigate('/studios/add')}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Studio
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Total Studios</p>
-                <p className="text-3xl font-bold">{totalStudios}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Active Studios</p>
-                <p className="text-3xl font-bold text-green-500">{activeStudios}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Inactive Studios</p>
-                <p className="text-3xl font-bold">{inactiveStudios}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Avg. Sack Value</p>
-                <p className="text-3xl font-bold">₹{avgSackValue}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Action Buttons and Filters */}
-        <div className="flex flex-wrap justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <p className="text-gray-500">Filter by:</p>
-            <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? null : value)}>
-              <SelectTrigger className="w-[120px]">
-                <span className="flex items-center gap-2">
-                  <span>Status</span>
-                  <ChevronDown size={16} />
-                </span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={ratingFilter || "all"} onValueChange={(value) => setRatingFilter(value === "all" ? null : value)}>
-              <SelectTrigger className="w-[120px]">
-                <span className="flex items-center gap-2">
-                  <span>Rating</span>
-                  <ChevronDown size={16} />
-                </span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="above4.5">Above 4.5</SelectItem>
-                <SelectItem value="4to4.5">4.0 - 4.5</SelectItem>
-                <SelectItem value="below4">Below 4.0</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              className="bg-white"
-              onClick={toggleSort}
-            >
-              <span className="flex items-center gap-2">
-                <span>Sort</span>
-                <ArrowUpDown size={16} />
-              </span>
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                type="text"
-                placeholder="Search by studio ID, name, etc."
-                className="pl-10 w-[300px]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Studios Table */}
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">S.NO</TableHead>
-                <TableHead>STUDIO ID</TableHead>
-                <TableHead>STUDIO NAME</TableHead>
-                <TableHead>OWNER NAME</TableHead>
-                <TableHead>PRIMARY CONTACT</TableHead>
-                <TableHead>SERVICES</TableHead>
-                <TableHead>RATING</TableHead>
-                <TableHead>STATUS</TableHead>
-                <TableHead className="text-right">ACTIONS</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStudios.map((studio) => (
-                <TableRow key={studio.id}>
-                  <TableCell>{studio.id}</TableCell>
-                  <TableCell>{studio.studioId}</TableCell>
-                  <TableCell>{studio.studioName}</TableCell>
-                  <TableCell>{studio.ownerName}</TableCell>
-                  <TableCell>{studio.contact}</TableCell>
-                  <TableCell>{studio.services}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      {studio.rating.toFixed(1)}
-                      <Star className="ml-1 text-yellow-500 fill-yellow-500" size={16} />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={studio.status}
-                      onCheckedChange={(checked) => handleStatusToggle(studio.id, checked)}
-                    />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal size={20} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuItem 
-                          onClick={() => handlePaymentsClick(studio)}
-                          className="flex items-center gap-2 cursor-pointer py-2"
-                        >
-                          <CreditCard className="h-4 w-4 text-gray-500" />
-                          <span>Payments</span>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem 
-                          onClick={() => handleViewEditStudioClick(studio)}
-                          className="flex items-center gap-2 cursor-pointer py-2"
-                        >
-                          <Settings className="h-4 w-4 text-gray-500" />
-                          <span>View/Edit Studio Details</span>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem 
-                          onClick={() => handleViewEditServicesClick(studio)}
-                          className="flex items-center gap-2 cursor-pointer py-2"
-                        >
-                          <Package className="h-4 w-4 text-gray-500" />
-                          <span>View/Edit Services</span>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem 
-                          onClick={() => handleViewAnalyticsClick(studio)}
-                          className="flex items-center gap-2 cursor-pointer py-2"
-                        >
-                          <BarChart className="h-4 w-4 text-gray-500" />
-                          <span>View Analytics</span>
-                        </DropdownMenuItem>
-                        
-                        <DropdownMenuItem 
-                          onClick={() => handleDeleteStudioClick(studio)}
-                          className="flex items-center gap-2 cursor-pointer py-2 text-red-500"
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span>Delete Studio</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-    </Layout>
-  );
-};
-
-export default Studios;
