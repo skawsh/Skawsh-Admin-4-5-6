@@ -10,6 +10,7 @@ import MultiSelect from '@/components/ui/multi-select';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import AddItemPopup from './AddItemPopup';
+import CreateItemsDialog from './CreateItemsDialog';
 
 interface MultiSelectServiceDialogProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
   const [isAddItemsOpen, setIsAddItemsOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -639,146 +641,156 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
-        <DialogHeader className="text-center pb-2 border-b">
-          <DialogTitle className="text-2xl font-bold text-blue-600">Add Service</DialogTitle>
-          <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
-        </DialogHeader>
-        
-        {formErrors.length > 0 && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
-            <h4 className="font-semibold mb-1">Please fix the following issues:</h4>
-            <ul className="list-disc list-inside">
-              {formErrors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        
-        <div className="space-y-6 overflow-y-auto pr-2 flex-grow">
-          <div className="space-y-2 mt-2">
-            <Label htmlFor="service-select" className="font-semibold text-gray-800">
-              Service Name
-            </Label>
-            <Select
-              value={selectedServiceId}
-              onValueChange={handleServiceChange}
-              disabled={!!editingService}
-            >
-              <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                <SelectValue placeholder="Select a service" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.filter(service => service.active).map((service) => (
-                  <SelectItem key={service.id} value={service.id}>
-                    {service.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
+          <DialogHeader className="text-center pb-2 border-b">
+            <DialogTitle className="text-2xl font-bold text-blue-600">Add Service</DialogTitle>
+            <div className="flex justify-between items-center">
+              <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
+              <Button 
+                onClick={() => setIsCreateDialogOpen(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Create
+              </Button>
+            </div>
+          </DialogHeader>
           
-          <div className="space-y-4 pt-2">
-            <Label className="font-semibold text-gray-800">Sub Services</Label>
+          {formErrors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+              <h4 className="font-semibold mb-1">Please fix the following issues:</h4>
+              <ul className="list-disc list-inside">
+                {formErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          <div className="space-y-6 overflow-y-auto pr-2 flex-grow">
+            <div className="space-y-2 mt-2">
+              <Label htmlFor="service-select" className="font-semibold text-gray-800">
+                Service Name
+              </Label>
+              <Select
+                value={selectedServiceId}
+                onValueChange={handleServiceChange}
+                disabled={!!editingService}
+              >
+                <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                  <SelectValue placeholder="Select a service" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.filter(service => service.active).map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             
-            {selectedSubServices.length > 0 && (
-              <div className="space-y-4">
-                {selectedSubServices.map(subServiceId => (
-                  <Card key={subServiceId} className="border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
-                    <CardContent className="p-4 pt-4">
-                      <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-semibold text-gray-800">Sub Service Name</h3>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleRemoveSubService(subServiceId)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      <Select value={subServiceId} disabled>
-                        <SelectTrigger className="border-gray-300 bg-gray-50">
-                          <SelectValue>{getSubServiceName(subServiceId)}</SelectValue>
-                        </SelectTrigger>
-                      </Select>
-                      
-                      {renderPriceFields(subServiceId)}
-                      
-                      <div className="mt-5">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-semibold text-gray-800">Clothing Items</h4>
+            <div className="space-y-4 pt-2">
+              <Label className="font-semibold text-gray-800">Sub Services</Label>
+              
+              {selectedSubServices.length > 0 && (
+                <div className="space-y-4">
+                  {selectedSubServices.map(subServiceId => (
+                    <Card key={subServiceId} className="border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+                      <CardContent className="p-4 pt-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <h3 className="font-semibold text-gray-800">Sub Service Name</h3>
                           <Button 
-                            type="button"
-                            variant="outline"
-                            className="h-8 py-1 px-3 text-sm border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:border-blue-300"
-                            onClick={() => {
-                              setActiveSubServiceId(subServiceId);
-                              handleOpenAddItems();
-                            }}
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleRemoveSubService(subServiceId)}
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
                           >
-                            <Plus className="h-3.5 w-3.5 mr-1" />
-                            Add Items
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                         
-                        {(selectedClothingItems[subServiceId] || []).length > 0 ? (
-                          <div className="space-y-2 mt-3">
-                            {(selectedClothingItems[subServiceId] || []).map(itemId => 
-                              renderClothingItemPriceRow(subServiceId, itemId)
-                            )}
+                        <Select value={subServiceId} disabled>
+                          <SelectTrigger className="border-gray-300 bg-gray-50">
+                            <SelectValue>{getSubServiceName(subServiceId)}</SelectValue>
+                          </SelectTrigger>
+                        </Select>
+                        
+                        {renderPriceFields(subServiceId)}
+                        
+                        <div className="mt-5">
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold text-gray-800">Clothing Items</h4>
+                            <Button 
+                              type="button"
+                              variant="outline"
+                              className="h-8 py-1 px-3 text-sm border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:border-blue-300"
+                              onClick={() => {
+                                setActiveSubServiceId(subServiceId);
+                                handleOpenAddItems();
+                              }}
+                            >
+                              <Plus className="h-3.5 w-3.5 mr-1" />
+                              Add Items
+                            </Button>
                           </div>
-                        ) : (
-                          <div className="bg-gray-50 rounded-md p-4 text-center text-gray-500 border border-dashed border-gray-300 mt-2">
-                            No clothing items added yet
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-            
-            <Select onValueChange={handleSubServiceSelect}>
-              <SelectTrigger className="w-full max-w-sm mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
-                <div className="flex items-center">
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span>Add Sub Service</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {subServices
-                  .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
-                  .map(subService => (
-                    <SelectItem key={subService.id} value={subService.id}>
-                      {subService.name}
-                    </SelectItem>
+                          
+                          {(selectedClothingItems[subServiceId] || []).length > 0 ? (
+                            <div className="space-y-2 mt-3">
+                              {(selectedClothingItems[subServiceId] || []).map(itemId => 
+                                renderClothingItemPriceRow(subServiceId, itemId)
+                              )}
+                            </div>
+                          ) : (
+                            <div className="bg-gray-50 rounded-md p-4 text-center text-gray-500 border border-dashed border-gray-300 mt-2">
+                              No clothing items added yet
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
-              </SelectContent>
-            </Select>
+                </div>
+              )}
+              
+              <Select onValueChange={handleSubServiceSelect}>
+                <SelectTrigger className="w-full max-w-sm mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
+                  <div className="flex items-center">
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span>Add Sub Service</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {subServices
+                    .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+                    .map(subService => (
+                      <SelectItem key={subService.id} value={subService.id}>
+                        {subService.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
-        
-        <DialogFooter className="mt-4 pt-3 border-t flex justify-end space-x-2">
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-            className="px-5 py-2 font-medium text-gray-700 hover:bg-gray-100 border-gray-300"
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSave} 
-            className="px-5 py-2 font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-          >
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+          
+          <DialogFooter className="mt-4 pt-3 border-t flex justify-end space-x-2">
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="px-5 py-2 font-medium text-gray-700 hover:bg-gray-100 border-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              className="px-5 py-2 font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AddItemPopup
         isOpen={isAddItemsOpen}
@@ -788,7 +800,15 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         onAddItem={handleAddItemFromPopup}
         washCategory={washCategory}
       />
-    </Dialog>
+
+      <CreateItemsDialog
+        isOpen={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        services={services}
+        subServices={subServices}
+        clothingItems={clothingItems}
+      />
+    </>
   );
 };
 
