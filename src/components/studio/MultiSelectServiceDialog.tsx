@@ -40,6 +40,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   addClothingItem
 }) => {
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+  const [manualServiceName, setManualServiceName] = useState<string>('');
   const [selectedSubServices, setSelectedSubServices] = useState<string[]>([]);
   const [pricePerKg, setPricePerKg] = useState<Record<string, { standard: string, express: string }>>({});
   const [pricePerItem, setPricePerItem] = useState<Record<string, { standard: string, express: string }>>({});
@@ -70,6 +71,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 
   const resetForm = () => {
     setSelectedServiceId('');
+    setManualServiceName('');
     setSelectedSubServices([]);
     setPricePerKg({});
     setPricePerItem({});
@@ -208,6 +210,12 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 
   const handleServiceChange = (value: string) => {
     setSelectedServiceId(value);
+    setManualServiceName('');
+  };
+
+  const handleManualServiceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setManualServiceName(e.target.value);
+    setSelectedServiceId('');
   };
 
   const handleSubServiceSelect = (subServiceId: string) => {
@@ -362,8 +370,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const validateForm = () => {
     const errors = [];
     
-    if (!selectedServiceId && !editingService) {
-      errors.push('Please select a service');
+    if (!selectedServiceId && !manualServiceName && !editingService) {
+      errors.push('Please select a service or enter a service name');
     }
     
     if (selectedSubServices.length === 0) {
@@ -419,13 +427,13 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   };
 
   const handleSave = () => {
-    if (editingService && !selectedServiceId) {
-      setSelectedServiceId(editingService.serviceId);
-    }
-    
     if (!validateForm()) {
       return;
     }
+    
+    const effectiveServiceId = selectedServiceId || 
+                              (editingService ? editingService.serviceId : 
+                               manualServiceName ? `temp_${Date.now()}` : '');
     
     const subServicesData = selectedSubServices.map(subServiceId => {
       const data: any = {
@@ -503,7 +511,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     });
     
     const serviceData = {
-      serviceId: selectedServiceId || (editingService ? editingService.serviceId : ''),
+      serviceId: effectiveServiceId,
+      serviceName: manualServiceName || '',
       subServices: subServicesData
     };
     
@@ -737,6 +746,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }
   };
 
+  const shouldUseManualInput = !addService && !editingService;
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
@@ -783,6 +794,14 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                   Cancel
                 </Button>
               </div>
+            ) : shouldUseManualInput ? (
+              <Input
+                id="service-name-manual"
+                value={manualServiceName}
+                onChange={handleManualServiceNameChange}
+                placeholder="Enter service name"
+                className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
             ) : (
               <div className="flex items-center gap-2">
                 <Select
@@ -802,15 +821,17 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                   </SelectContent>
                 </Select>
                 
-                <Button 
-                  type="button" 
-                  className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
-                  onClick={() => setIsAddingNewService(true)}
-                  title="Add new service"
-                  disabled={!!editingService}
-                >
-                  <Plus className="h-5 w-5" />
-                </Button>
+                {addService && (
+                  <Button 
+                    type="button" 
+                    className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
+                    onClick={() => setIsAddingNewService(true)}
+                    title="Add new service"
+                    disabled={!!editingService}
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -921,14 +942,16 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                   </Select>
                 </div>
                 
-                <Button 
-                  type="button" 
-                  className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
-                  onClick={() => setIsAddingNewSubService(true)}
-                  title="Add new sub-service"
-                >
-                  <Plus className="h-5 w-5" />
-                </Button>
+                {addSubService && (
+                  <Button 
+                    type="button" 
+                    className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
+                    onClick={() => setIsAddingNewSubService(true)}
+                    title="Add new sub-service"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -997,3 +1020,4 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 };
 
 export default MultiSelectServiceDialog;
+

@@ -15,6 +15,7 @@ import { useServicesData } from '@/hooks/useServicesData';
 interface StudioService {
   serviceId: string;
   subServices: any[];
+  name?: string;
 }
 
 type WashCategory = 'standard' | 'express' | 'both';
@@ -748,7 +749,7 @@ const AddStudio: React.FC = () => {
           {studioServices.length > 0 ? (
             <div className="space-y-4">
               {studioServices.map((studioService, index) => {
-                const serviceName = getServiceNameById(studioService.serviceId);
+                const serviceName = studioService.name || getServiceNameById(studioService.serviceId);
                 const isExpanded = expandedServices[studioService.serviceId] || false;
                 
                 return (
