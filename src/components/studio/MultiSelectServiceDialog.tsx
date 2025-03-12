@@ -55,7 +55,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [isAddingNewSubService, setIsAddingNewSubService] = useState(false);
   const [newClothingItemName, setNewClothingItemName] = useState('');
   const [isAddingNewClothingItem, setIsAddingNewClothingItem] = useState(false);
-  const [newServiceId, setNewServiceId] = useState<string>('');
   
   const { toast } = useToast();
 
@@ -80,7 +79,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     setActiveSubServiceId(null);
     
     setNewServiceName('');
-    setNewServiceId('');
     setIsAddingNewService(false);
     setNewSubServiceName('');
     setIsAddingNewSubService(false);
@@ -364,8 +362,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const validateForm = () => {
     const errors = [];
     
-    if (!selectedServiceId && !editingService && !newServiceName.trim()) {
-      errors.push('Please select a service or add a new one');
+    if (!selectedServiceId && !editingService) {
+      errors.push('Please select a service');
     }
     
     if (selectedSubServices.length === 0) {
@@ -505,8 +503,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     });
     
     const serviceData = {
-      serviceId: newServiceId || selectedServiceId || (editingService ? editingService.serviceId : ''),
-      serviceName: newServiceName.trim() && !addService ? newServiceName.trim() : undefined,
+      serviceId: selectedServiceId || (editingService ? editingService.serviceId : ''),
       subServices: subServicesData
     };
     
@@ -776,7 +773,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                 <Button 
                   onClick={handleQuickAddService}
                   className="bg-green-500 hover:bg-green-600 text-white"
-                  disabled={!addService}
                 >
                   Add
                 </Button>
@@ -789,83 +785,32 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                {!editingService && (
-                  <>
-                    {selectedServiceId ? (
-                      <Select
-                        value={selectedServiceId}
-                        onValueChange={handleServiceChange}
-                      >
-                        <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                          <SelectValue placeholder="Select a service" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {services.filter(service => service.active).map((service) => (
-                            <SelectItem key={service.id} value={service.id}>
-                              {service.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <div className="w-full">
-                        <Input
-                          value={newServiceName}
-                          onChange={(e) => setNewServiceName(e.target.value)}
-                          placeholder={addService ? "Select or add a new service" : "Enter new service name"}
-                          className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
+                <Select
+                  value={selectedServiceId}
+                  onValueChange={handleServiceChange}
+                  disabled={!!editingService}
+                >
+                  <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <SelectValue placeholder="Select a service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.filter(service => service.active).map((service) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        {service.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 
-                {selectedServiceId && !editingService && (
-                  <Button 
-                    type="button" 
-                    className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
-                    onClick={() => {
-                      setSelectedServiceId('');
-                      setIsAddingNewService(true);
-                    }}
-                    title="Add new service"
-                  >
-                    <Plus className="h-5 w-5" />
-                  </Button>
-                )}
-                
-                {!selectedServiceId && !isAddingNewService && (
-                  <div className="flex gap-2 w-full">
-                    <Button 
-                      type="button" 
-                      className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
-                      onClick={() => setIsAddingNewService(true)}
-                      title="Add new service"
-                    >
-                      <Plus className="h-5 w-5" />
-                    </Button>
-                    
-                    {addService && (
-                      <div className="w-full">
-                        <Select
-                          value={selectedServiceId}
-                          onValueChange={handleServiceChange}
-                        >
-                          <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                            <SelectValue placeholder="Select a service" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {services.filter(service => service.active).map((service) => (
-                              <SelectItem key={service.id} value={service.id}>
-                                {service.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <Button 
+                  type="button" 
+                  className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
+                  onClick={() => setIsAddingNewService(true)}
+                  title="Add new service"
+                  disabled={!!editingService}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
               </div>
             )}
           </div>
