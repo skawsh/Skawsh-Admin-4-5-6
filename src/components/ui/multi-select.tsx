@@ -77,6 +77,15 @@ export function MultiSelect({
     return option ? option.label : value;
   };
 
+  // Prevent closing popover when clicking inside
+  const handlePopoverInteraction = (e: Event) => {
+    // Allow interaction within the popover content
+    if ((e.target as HTMLElement).closest('[cmdk-input-wrapper]') ||
+        (e.target as HTMLElement).closest('[cmdk-item]')) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className={cn("relative", className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -130,6 +139,7 @@ export function MultiSelect({
         <PopoverContent
           className="p-0 w-[var(--radix-popover-trigger-width)]"
           align="start"
+          onInteractOutside={handlePopoverInteraction}
         >
           <Command>
             <CommandInput 
@@ -164,6 +174,12 @@ export function MultiSelect({
                             ? "bg-primary text-primary-foreground"
                             : "opacity-50"
                         )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!option.disabled) {
+                            handleSelect(option.value);
+                          }
+                        }}
                       >
                         {isSelected && <Check className="h-3 w-3" />}
                       </div>
