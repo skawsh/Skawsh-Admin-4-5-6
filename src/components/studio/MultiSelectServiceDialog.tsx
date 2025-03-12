@@ -780,7 +780,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         </DialogFooter>
       </DialogContent>
 
-      {/* Add Items Popup */}
       <AddItemPopup
         isOpen={isAddItemsOpen}
         onOpenChange={setIsAddItemsOpen}
@@ -789,4 +788,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         onAddItem={handleAddItemFromPopup}
         washCategory={washCategory}
       />
-    </
+    </Dialog>
+  );
+};
+
+export default MultiSelectServiceDialog;
