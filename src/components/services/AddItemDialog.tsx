@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 interface AddItemDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  title: string;
+  title: string;  // Added title prop
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
