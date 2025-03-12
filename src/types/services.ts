@@ -1,3 +1,4 @@
+
 export interface Service {
   id: string;
   name: string;
@@ -33,6 +34,7 @@ export interface StudioService {
     standardItemPrices?: { [key: string]: number };
     expressItemPrices?: { [key: string]: number };
     itemPrices?: { [key: string]: number };
+    active?: boolean; // Added active property to subServices
   }>;
 }
 
