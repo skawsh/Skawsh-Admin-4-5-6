@@ -1,27 +1,42 @@
 
 import React, { useState } from 'react';
-import { StudioService } from '@/types/services';
-import { Card } from '../ui/card';
+import { StudioService, SubService } from '@/types/services';
+import { Card } from '@/components/ui/card';
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, Trash2 } from 'lucide-react';
 import { useServicesData } from '@/hooks/useServicesData';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface StudioServicesDetailsProps {
   studioServices: StudioService[];
   onServiceStatusChange: (serviceIndex: number) => void;
   onSubServiceStatusChange?: (serviceIndex: number, subServiceIndex: number, active: boolean) => void;
   onClothingItemStatusChange?: (serviceIndex: number, subServiceIndex: number, itemId: string, active: boolean) => void;
+  onServiceEdit?: (serviceIndex: number) => void;
+  onServiceDelete?: (serviceIndex: number) => void;
+  onSubServiceEdit?: (serviceIndex: number, subServiceIndex: number) => void;
+  onSubServiceDelete?: (serviceIndex: number, subServiceIndex: number) => void;
+  onClothingItemEdit?: (serviceIndex: number, subServiceIndex: number, itemId: string) => void;
+  onClothingItemDelete?: (serviceIndex: number, subServiceIndex: number, itemId: string) => void;
 }
 
 const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
   studioServices,
   onServiceStatusChange,
   onSubServiceStatusChange,
-  onClothingItemStatusChange
+  onClothingItemStatusChange,
+  onServiceEdit,
+  onServiceDelete,
+  onSubServiceEdit,
+  onSubServiceDelete,
+  onClothingItemEdit,
+  onClothingItemDelete
 }) => {
   const { services, subServices, clothingItems } = useServicesData();
   const [expandedServices, setExpandedServices] = useState<{[key: string]: boolean}>({});
+  const { toast } = useToast();
   
   // Helper functions to get names from IDs
   const getSubServiceName = (id: string) => {
@@ -45,7 +60,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
     <div className="space-y-6">
       <h2 className="text-xl font-bold">Studio Services</h2>
       {studioServices.map((service, serviceIndex) => {
-        const isExpanded = expandedServices[service.id] !== false; // Default to expanded
+        const isExpanded = expandedServices[service.id] === true; // Default to collapsed
         
         return (
           <Card key={service.id} className="p-6 mb-6">
@@ -61,11 +76,32 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                     {service.active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
-                <Switch
-                  checked={service.active}
-                  onCheckedChange={() => onServiceStatusChange(serviceIndex)}
-                  onClick={(e) => e.stopPropagation()} // Prevent triggering collapse
-                />
+                <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                  <Switch
+                    checked={service.active}
+                    onCheckedChange={() => onServiceStatusChange(serviceIndex)}
+                  />
+                  {onServiceEdit && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => onServiceEdit(serviceIndex)}
+                    >
+                      <Edit size={18} />
+                    </Button>
+                  )}
+                  {onServiceDelete && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => onServiceDelete(serviceIndex)}
+                    >
+                      <Trash2 size={18} />
+                    </Button>
+                  )}
+                </div>
               </div>
               
               {isExpanded && (
@@ -81,14 +117,36 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                             </Badge>
                           )}
                         </div>
-                        {onSubServiceStatusChange && (
-                          <Switch
-                            checked={subService.active !== false}
-                            onCheckedChange={(checked) => 
-                              onSubServiceStatusChange(serviceIndex, subIndex, checked)
-                            }
-                          />
-                        )}
+                        <div className="flex items-center gap-3">
+                          {onSubServiceStatusChange && (
+                            <Switch
+                              checked={subService.active !== false}
+                              onCheckedChange={(checked) => 
+                                onSubServiceStatusChange(serviceIndex, subIndex, checked)
+                              }
+                            />
+                          )}
+                          {onSubServiceEdit && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-blue-600 hover:text-blue-800"
+                              onClick={() => onSubServiceEdit(serviceIndex, subIndex)}
+                            >
+                              <Edit size={16} />
+                            </Button>
+                          )}
+                          {onSubServiceDelete && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-red-600 hover:text-red-800"
+                              onClick={() => onSubServiceDelete(serviceIndex, subIndex)}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       
                       {/* Pricing Grid */}
@@ -143,21 +201,44 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                               return (
                                 <div key={itemIndex} className="flex flex-col border rounded-md p-3 bg-white">
                                   <div className="flex items-center justify-between mb-2">
-                                    <div className="font-medium">{getClothingItemName(itemId)}</div>
-                                    {onClothingItemStatusChange && (
-                                      <div className="flex items-center gap-2">
-                                        <Badge variant={itemActive ? "success" : "secondary"} className="mr-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className="font-medium">{getClothingItemName(itemId)}</div>
+                                      {onClothingItemStatusChange && (
+                                        <Badge variant={itemActive ? "success" : "secondary"}>
                                           {itemActive ? 'Active' : 'Inactive'}
                                         </Badge>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {onClothingItemStatusChange && (
                                         <Switch
                                           checked={itemActive}
                                           onCheckedChange={(checked) => 
                                             onClothingItemStatusChange(serviceIndex, subIndex, itemId, checked)
                                           }
-                                          className="ml-auto"
                                         />
-                                      </div>
-                                    )}
+                                      )}
+                                      {onClothingItemEdit && (
+                                        <Button 
+                                          variant="ghost" 
+                                          size="icon"
+                                          className="h-8 w-8 text-blue-600 hover:text-blue-800"
+                                          onClick={() => onClothingItemEdit(serviceIndex, subIndex, itemId)}
+                                        >
+                                          <Edit size={14} />
+                                        </Button>
+                                      )}
+                                      {onClothingItemDelete && (
+                                        <Button 
+                                          variant="ghost" 
+                                          size="icon"
+                                          className="h-8 w-8 text-red-600 hover:text-red-800"
+                                          onClick={() => onClothingItemDelete(serviceIndex, subIndex, itemId)}
+                                        >
+                                          <Trash2 size={14} />
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
                                   <div className="grid grid-cols-2 gap-4">
                                     {subService.standardItemPrices && subService.standardItemPrices[itemId] !== undefined && (

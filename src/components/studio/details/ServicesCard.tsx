@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -75,7 +76,7 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
         {services && services.length > 0 ? (
           <div className="space-y-4">
             {services.map((service, index) => {
-              const isExpanded = expandedServices[service.id] || false;
+              const isExpanded = expandedServices[service.id] === true; // Default to collapsed
               
               return (
                 <div key={service.id} className="border rounded-lg">

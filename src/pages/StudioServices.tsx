@@ -7,6 +7,9 @@ import { StudioService } from '@/types/services';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useServicesData } from '@/hooks/useServicesData';
 
 interface SubService {
   name: string;
@@ -22,15 +25,59 @@ interface SubService {
   clothingItemsStatus?: { [key: string]: boolean };
 }
 
+interface EditDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSave: () => void;
+}
+
+const EditDialog: React.FC<EditDialogProps> = ({ isOpen, onClose, title, value, onChange, onSave }) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          <Input 
+            value={value} 
+            onChange={(e) => onChange(e.target.value)} 
+            placeholder="Enter name"
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={onSave}>Save Changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const StudioServices: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { services: allServices, subServices: allSubServices, clothingItems: allClothingItems } = useServicesData();
   const [studioData, setStudioData] = useState<{
     studioName: string;
     studioServices: StudioService[];
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Edit state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editType, setEditType] = useState<'service' | 'subservice' | 'clothingitem'>('service');
+  const [editValue, setEditValue] = useState('');
+  const [editIndices, setEditIndices] = useState<{ serviceIndex: number, subServiceIndex?: number, itemId?: string }>({ serviceIndex: 0 });
+
+  // Delete confirmation state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<'service' | 'subservice' | 'clothingitem'>('service');
+  const [deleteIndices, setDeleteIndices] = useState<{ serviceIndex: number, subServiceIndex?: number, itemId?: string }>({ serviceIndex: 0 });
 
   useEffect(() => {
     const loadStudioServices = () => {
@@ -294,6 +341,214 @@ const StudioServices: React.FC = () => {
     }
   };
 
+  // Handle edit dialog open
+  const handleEditService = (serviceIndex: number) => {
+    if (studioData && studioData.studioServices[serviceIndex]) {
+      setEditType('service');
+      setEditValue(studioData.studioServices[serviceIndex].name);
+      setEditIndices({ serviceIndex });
+      setEditDialogOpen(true);
+    }
+  };
+
+  const handleEditSubService = (serviceIndex: number, subServiceIndex: number) => {
+    if (studioData && 
+        studioData.studioServices[serviceIndex] && 
+        studioData.studioServices[serviceIndex].subServices[subServiceIndex]) {
+      
+      const subServiceId = studioData.studioServices[serviceIndex].subServices[subServiceIndex].name;
+      const subService = allSubServices.find(s => s.id === subServiceId);
+      
+      setEditType('subservice');
+      setEditValue(subService ? subService.name : subServiceId);
+      setEditIndices({ serviceIndex, subServiceIndex });
+      setEditDialogOpen(true);
+    }
+  };
+
+  const handleEditClothingItem = (serviceIndex: number, subServiceIndex: number, itemId: string) => {
+    if (studioData && 
+        studioData.studioServices[serviceIndex] && 
+        studioData.studioServices[serviceIndex].subServices[subServiceIndex]) {
+      
+      const clothingItem = allClothingItems.find(item => item.id === itemId);
+      
+      setEditType('clothingitem');
+      setEditValue(clothingItem ? clothingItem.name : itemId);
+      setEditIndices({ serviceIndex, subServiceIndex, itemId });
+      setEditDialogOpen(true);
+    }
+  };
+
+  // Handle delete dialog open
+  const handleDeleteService = (serviceIndex: number) => {
+    if (studioData && studioData.studioServices[serviceIndex]) {
+      setDeleteType('service');
+      setDeleteIndices({ serviceIndex });
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeleteSubService = (serviceIndex: number, subServiceIndex: number) => {
+    if (studioData && 
+        studioData.studioServices[serviceIndex] && 
+        studioData.studioServices[serviceIndex].subServices[subServiceIndex]) {
+      
+      setDeleteType('subservice');
+      setDeleteIndices({ serviceIndex, subServiceIndex });
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeleteClothingItem = (serviceIndex: number, subServiceIndex: number, itemId: string) => {
+    if (studioData && 
+        studioData.studioServices[serviceIndex] && 
+        studioData.studioServices[serviceIndex].subServices[subServiceIndex]) {
+      
+      setDeleteType('clothingitem');
+      setDeleteIndices({ serviceIndex, subServiceIndex, itemId });
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  // Handle actual edit
+  const handleSaveEdit = () => {
+    if (!studioData || !studioData.studioServices) return;
+    
+    const updatedServices = [...studioData.studioServices];
+    
+    switch (editType) {
+      case 'service':
+        if (updatedServices[editIndices.serviceIndex]) {
+          updatedServices[editIndices.serviceIndex].name = editValue;
+          toast({
+            title: "Service Updated",
+            description: "The service name has been updated successfully."
+          });
+        }
+        break;
+        
+      case 'subservice':
+        if (updatedServices[editIndices.serviceIndex] && 
+            typeof editIndices.subServiceIndex === 'number') {
+          // We can't directly change the ID reference, but we can update the UI name
+          // This is informational only - the actual change would need to happen in the services data
+          toast({
+            title: "Information",
+            description: "Sub-service names are managed globally in the Services section."
+          });
+        }
+        break;
+        
+      case 'clothingitem':
+        if (updatedServices[editIndices.serviceIndex] && 
+            typeof editIndices.subServiceIndex === 'number' &&
+            editIndices.itemId) {
+          // We can't directly change the ID reference, but we can update the UI name
+          // This is informational only - the actual change would need to happen in the services data
+          toast({
+            title: "Information",
+            description: "Clothing item names are managed globally in the Services section."
+          });
+        }
+        break;
+    }
+    
+    setStudioData({
+      ...studioData,
+      studioServices: updatedServices
+    });
+    
+    saveUpdatedServicesToLocalStorage(updatedServices);
+    setEditDialogOpen(false);
+  };
+
+  // Handle actual delete
+  const handleConfirmDelete = () => {
+    if (!studioData || !studioData.studioServices) return;
+    
+    const updatedServices = [...studioData.studioServices];
+    
+    switch (deleteType) {
+      case 'service':
+        // Remove the entire service
+        updatedServices.splice(deleteIndices.serviceIndex, 1);
+        toast({
+          title: "Service Deleted",
+          description: "The service has been removed successfully."
+        });
+        break;
+        
+      case 'subservice':
+        if (updatedServices[deleteIndices.serviceIndex] && 
+            typeof deleteIndices.subServiceIndex === 'number') {
+          
+          // Remove the subservice
+          updatedServices[deleteIndices.serviceIndex].subServices.splice(deleteIndices.subServiceIndex, 1);
+          
+          // If no subservices remain, make service inactive
+          if (updatedServices[deleteIndices.serviceIndex].subServices.length === 0) {
+            updatedServices[deleteIndices.serviceIndex].active = false;
+            toast({
+              title: "Sub-Service Deleted",
+              description: "The sub-service has been removed and the service has been deactivated since it has no sub-services."
+            });
+          } else {
+            toast({
+              title: "Sub-Service Deleted",
+              description: "The sub-service has been removed successfully."
+            });
+          }
+        }
+        break;
+        
+      case 'clothingitem':
+        if (updatedServices[deleteIndices.serviceIndex] && 
+            typeof deleteIndices.subServiceIndex === 'number' &&
+            deleteIndices.itemId) {
+          
+          const subService = updatedServices[deleteIndices.serviceIndex].subServices[deleteIndices.subServiceIndex!];
+          
+          // Remove the item from selectedItems
+          if (subService.selectedItems) {
+            subService.selectedItems = subService.selectedItems.filter(id => id !== deleteIndices.itemId);
+          }
+          
+          // Remove any pricing for this item
+          if (subService.standardItemPrices) {
+            delete subService.standardItemPrices[deleteIndices.itemId!];
+          }
+          
+          if (subService.expressItemPrices) {
+            delete subService.expressItemPrices[deleteIndices.itemId!];
+          }
+          
+          if (subService.itemPrices) {
+            delete subService.itemPrices[deleteIndices.itemId!];
+          }
+          
+          // Remove from clothingItemsStatus
+          if (subService.clothingItemsStatus) {
+            delete subService.clothingItemsStatus[deleteIndices.itemId!];
+          }
+          
+          toast({
+            title: "Clothing Item Deleted",
+            description: "The clothing item has been removed successfully."
+          });
+        }
+        break;
+    }
+    
+    setStudioData({
+      ...studioData,
+      studioServices: updatedServices
+    });
+    
+    saveUpdatedServicesToLocalStorage(updatedServices);
+    setDeleteDialogOpen(false);
+  };
+
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
@@ -329,6 +584,12 @@ const StudioServices: React.FC = () => {
               onServiceStatusChange={handleServiceStatusChange}
               onSubServiceStatusChange={handleSubServiceStatusChange}
               onClothingItemStatusChange={handleClothingItemStatusChange}
+              onServiceEdit={handleEditService}
+              onServiceDelete={handleDeleteService}
+              onSubServiceEdit={handleEditSubService}
+              onSubServiceDelete={handleDeleteSubService}
+              onClothingItemEdit={handleEditClothingItem}
+              onClothingItemDelete={handleDeleteClothingItem}
             />
           </div>
         ) : (
@@ -342,6 +603,33 @@ const StudioServices: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      <EditDialog
+        isOpen={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        title={`Edit ${editType === 'service' ? 'Service' : editType === 'subservice' ? 'Sub-service' : 'Clothing Item'}`}
+        value={editValue}
+        onChange={setEditValue}
+        onSave={handleSaveEdit}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Are you sure you want to delete this {deleteType === 'service' ? 'service' : deleteType === 'subservice' ? 'sub-service' : 'clothing item'}?</p>
+            <p className="text-red-500 mt-2">This action cannot be undone.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
