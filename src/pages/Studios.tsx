@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -221,10 +220,9 @@ const Studios: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <Layout activeSection="studios">
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col gap-6">
-          {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-2xl font-bold">Studios</h1>
@@ -236,7 +234,6 @@ const Studios: React.FC = () => {
             </Button>
           </div>
           
-          {/* Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 flex items-center gap-4">
@@ -287,7 +284,6 @@ const Studios: React.FC = () => {
             </Card>
           </div>
           
-          {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -308,7 +304,7 @@ const Studios: React.FC = () => {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
@@ -322,7 +318,7 @@ const Studios: React.FC = () => {
                   <SelectValue placeholder="Filter by rating" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Ratings</SelectItem>
+                  <SelectItem value="all">All Ratings</SelectItem>
                   <SelectItem value="above4.5">Above 4.5</SelectItem>
                   <SelectItem value="4to4.5">4.0 - 4.5</SelectItem>
                   <SelectItem value="below4">Below 4.0</SelectItem>
@@ -340,7 +336,6 @@ const Studios: React.FC = () => {
             </div>
           </div>
           
-          {/* Studios Table */}
           <div className="rounded-lg border">
             <Table>
               <TableHeader>
