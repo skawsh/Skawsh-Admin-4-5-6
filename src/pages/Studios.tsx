@@ -1,8 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import { Filter, BarChart2, Plus, Star, Search, ChevronDown, MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { 
+  Filter, 
+  BarChart2, 
+  Plus, 
+  Star, 
+  Search, 
+  ChevronDown, 
+  MoreHorizontal, 
+  ArrowUpDown,
+  CreditCard,
+  Settings,
+  Package,
+  BarChart,
+  Trash 
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -25,6 +38,13 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from '@/hooks/use-toast';
 
 interface Studio {
   id: number;
@@ -39,6 +59,7 @@ interface Studio {
 
 const Studios: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [ratingFilter, setRatingFilter] = useState<string | null>(null);
@@ -136,7 +157,6 @@ const Studios: React.FC = () => {
     if (savedStudios) {
       setStudiosData(JSON.parse(savedStudios));
     } else {
-      // Use default data if nothing is saved
       setStudiosData(defaultStudios);
       localStorage.setItem('laundryStudios', JSON.stringify(defaultStudios));
     }
@@ -191,6 +211,55 @@ const Studios: React.FC = () => {
     
     setStudiosData(updatedStudios);
     localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
+  };
+
+  const handlePaymentsClick = (studio: Studio) => {
+    toast({
+      title: "Payments",
+      description: `Viewing payments for ${studio.studioName}`,
+    });
+    // Implement payments view/navigation logic here
+  };
+
+  const handleViewEditStudioClick = (studio: Studio) => {
+    toast({
+      title: "Edit Studio",
+      description: `Editing details for ${studio.studioName}`,
+    });
+    // Implement navigation to studio edit page
+    // navigate(`/studios/edit/${studio.id}`);
+  };
+
+  const handleViewEditServicesClick = (studio: Studio) => {
+    toast({
+      title: "Edit Services",
+      description: `Editing services for ${studio.studioName}`,
+    });
+    // Implement navigation to services edit page
+    // navigate(`/studios/${studio.id}/services`);
+  };
+
+  const handleViewAnalyticsClick = (studio: Studio) => {
+    toast({
+      title: "Analytics",
+      description: `Viewing analytics for ${studio.studioName}`,
+    });
+    // Implement navigation to studio analytics page
+    // navigate(`/studios/${studio.id}/analytics`);
+  };
+
+  const handleDeleteStudioClick = (studio: Studio) => {
+    // Show a confirmation before deleting
+    if (window.confirm(`Are you sure you want to delete ${studio.studioName}?`)) {
+      const updatedStudios = studiosData.filter(s => s.id !== studio.id);
+      setStudiosData(updatedStudios);
+      localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
+      
+      toast({
+        title: "Studio Deleted",
+        description: `${studio.studioName} has been deleted`,
+      });
+    }
   };
 
   return (
@@ -359,9 +428,54 @@ const Studios: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal size={20} />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal size={20} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem 
+                          onClick={() => handlePaymentsClick(studio)}
+                          className="flex items-center gap-2 cursor-pointer py-2"
+                        >
+                          <CreditCard className="h-4 w-4 text-gray-500" />
+                          <span>Payments</span>
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => handleViewEditStudioClick(studio)}
+                          className="flex items-center gap-2 cursor-pointer py-2"
+                        >
+                          <Settings className="h-4 w-4 text-gray-500" />
+                          <span>View/Edit Studio Details</span>
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => handleViewEditServicesClick(studio)}
+                          className="flex items-center gap-2 cursor-pointer py-2"
+                        >
+                          <Package className="h-4 w-4 text-gray-500" />
+                          <span>View/Edit Services</span>
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => handleViewAnalyticsClick(studio)}
+                          className="flex items-center gap-2 cursor-pointer py-2"
+                        >
+                          <BarChart className="h-4 w-4 text-gray-500" />
+                          <span>View Analytics</span>
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteStudioClick(studio)}
+                          className="flex items-center gap-2 cursor-pointer py-2 text-red-500"
+                        >
+                          <Trash className="h-4 w-4" />
+                          <span>Delete Studio</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
