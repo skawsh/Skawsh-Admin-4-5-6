@@ -10,7 +10,6 @@ import MultiSelect from '@/components/ui/multi-select';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import AddItemPopup from './AddItemPopup';
-import { useToast } from "@/hooks/use-toast";
 
 interface MultiSelectServiceDialogProps {
   isOpen: boolean;
@@ -21,9 +20,6 @@ interface MultiSelectServiceDialogProps {
   washCategory: 'standard' | 'express' | 'both';
   onSave: (data: any) => void;
   editingService?: any | null;
-  addService?: (name: string) => boolean;
-  addSubService?: (name: string) => boolean;
-  addClothingItem?: (name: string) => boolean;
 }
 
 const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
@@ -35,12 +31,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   washCategory,
   onSave,
   editingService = null,
-  addService,
-  addSubService,
-  addClothingItem
 }) => {
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
-  const [manualServiceName, setManualServiceName] = useState<string>('');
   const [selectedSubServices, setSelectedSubServices] = useState<string[]>([]);
   const [pricePerKg, setPricePerKg] = useState<Record<string, { standard: string, express: string }>>({});
   const [pricePerItem, setPricePerItem] = useState<Record<string, { standard: string, express: string }>>({});
@@ -49,15 +41,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
   const [isAddItemsOpen, setIsAddItemsOpen] = useState(false);
-  
-  const [newServiceName, setNewServiceName] = useState('');
-  const [isAddingNewService, setIsAddingNewService] = useState(false);
-  const [newSubServiceName, setNewSubServiceName] = useState('');
-  const [isAddingNewSubService, setIsAddingNewSubService] = useState(false);
-  const [newClothingItemName, setNewClothingItemName] = useState('');
-  const [isAddingNewClothingItem, setIsAddingNewClothingItem] = useState(false);
-  
-  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -71,7 +54,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 
   const resetForm = () => {
     setSelectedServiceId('');
-    setManualServiceName('');
     setSelectedSubServices([]);
     setPricePerKg({});
     setPricePerItem({});
@@ -79,13 +61,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     setClothingItemPrices({});
     setFormErrors([]);
     setActiveSubServiceId(null);
-    
-    setNewServiceName('');
-    setIsAddingNewService(false);
-    setNewSubServiceName('');
-    setIsAddingNewSubService(false);
-    setNewClothingItemName('');
-    setIsAddingNewClothingItem(false);
   };
 
   const populateFormWithEditingData = () => {
@@ -136,86 +111,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }
   };
 
-  const handleQuickAddService = () => {
-    if (!addService) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Cannot add service: Add service function is not available"
-      });
-      return;
-    }
-
-    if (!newServiceName.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Service name cannot be empty"
-      });
-      return;
-    }
-
-    const success = addService(newServiceName.trim());
-    if (success) {
-      toast({
-        title: "Success",
-        description: "Service added successfully"
-      });
-      setNewServiceName('');
-      setIsAddingNewService(false);
-    }
-  };
-
-  const handleQuickAddSubService = () => {
-    if (!addSubService || !newSubServiceName.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Sub-service name cannot be empty"
-      });
-      return;
-    }
-
-    const success = addSubService(newSubServiceName.trim());
-    if (success) {
-      toast({
-        title: "Success",
-        description: "Sub-service added successfully"
-      });
-      setNewSubServiceName('');
-      setIsAddingNewSubService(false);
-    }
-  };
-
-  const handleQuickAddClothingItem = () => {
-    if (!addClothingItem || !newClothingItemName.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Clothing item name cannot be empty"
-      });
-      return;
-    }
-
-    const success = addClothingItem(newClothingItemName.trim());
-    if (success) {
-      toast({
-        title: "Success",
-        description: "Clothing item added successfully"
-      });
-      setNewClothingItemName('');
-      setIsAddingNewClothingItem(false);
-    }
-  };
-
   const handleServiceChange = (value: string) => {
     setSelectedServiceId(value);
-    setManualServiceName('');
-  };
-
-  const handleManualServiceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setManualServiceName(e.target.value);
-    setSelectedServiceId('');
   };
 
   const handleSubServiceSelect = (subServiceId: string) => {
@@ -370,8 +267,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const validateForm = () => {
     const errors = [];
     
-    if (!selectedServiceId && !manualServiceName && !editingService) {
-      errors.push('Please select a service or enter a service name');
+    if (!selectedServiceId) {
+      errors.push('Please select a service');
     }
     
     if (selectedSubServices.length === 0) {
@@ -430,10 +327,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     if (!validateForm()) {
       return;
     }
-    
-    const effectiveServiceId = selectedServiceId || 
-                              (editingService ? editingService.serviceId : 
-                               manualServiceName ? `temp_${Date.now()}` : '');
     
     const subServicesData = selectedSubServices.map(subServiceId => {
       const data: any = {
@@ -511,8 +404,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     });
     
     const serviceData = {
-      serviceId: effectiveServiceId,
-      serviceName: manualServiceName || '',
+      serviceId: selectedServiceId,
       subServices: subServicesData
     };
     
@@ -746,8 +638,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }
   };
 
-  const shouldUseManualInput = !addService && !editingService;
-  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
@@ -772,68 +662,22 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
             <Label htmlFor="service-select" className="font-semibold text-gray-800">
               Service Name
             </Label>
-            
-            {isAddingNewService ? (
-              <div className="flex items-center gap-2">
-                <Input
-                  value={newServiceName}
-                  onChange={(e) => setNewServiceName(e.target.value)}
-                  placeholder="Enter new service name"
-                  className="flex-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <Button 
-                  onClick={handleQuickAddService}
-                  className="bg-green-500 hover:bg-green-600 text-white"
-                >
-                  Add
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsAddingNewService(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            ) : shouldUseManualInput ? (
-              <Input
-                id="service-name-manual"
-                value={manualServiceName}
-                onChange={handleManualServiceNameChange}
-                placeholder="Enter service name"
-                className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            ) : (
-              <div className="flex items-center gap-2">
-                <Select
-                  value={selectedServiceId}
-                  onValueChange={handleServiceChange}
-                  disabled={!!editingService}
-                >
-                  <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                    <SelectValue placeholder="Select a service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {services.filter(service => service.active).map((service) => (
-                      <SelectItem key={service.id} value={service.id}>
-                        {service.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                {addService && (
-                  <Button 
-                    type="button" 
-                    className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
-                    onClick={() => setIsAddingNewService(true)}
-                    title="Add new service"
-                    disabled={!!editingService}
-                  >
-                    <Plus className="h-5 w-5" />
-                  </Button>
-                )}
-              </div>
-            )}
+            <Select
+              value={selectedServiceId}
+              onValueChange={handleServiceChange}
+              disabled={!!editingService}
+            >
+              <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                <SelectValue placeholder="Select a service" />
+              </SelectTrigger>
+              <SelectContent>
+                {services.filter(service => service.active).map((service) => (
+                  <SelectItem key={service.id} value={service.id}>
+                    {service.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-4 pt-2">
@@ -899,61 +743,23 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
               </div>
             )}
             
-            {isAddingNewSubService ? (
-              <div className="flex items-center gap-2 mt-4">
-                <Input
-                  value={newSubServiceName}
-                  onChange={(e) => setNewSubServiceName(e.target.value)}
-                  placeholder="Enter new sub-service name"
-                  className="flex-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <Button 
-                  onClick={handleQuickAddSubService}
-                  className="bg-green-500 hover:bg-green-600 text-white"
-                >
-                  Add
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsAddingNewSubService(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="w-full">
-                  <Select onValueChange={handleSubServiceSelect}>
-                    <SelectTrigger className="max-w-full mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
-                      <div className="flex items-center">
-                        <Plus className="h-4 w-4 mr-2" />
-                        <span>Select a sub-service</span>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subServices
-                        .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
-                        .map(subService => (
-                          <SelectItem key={subService.id} value={subService.id}>
-                            {subService.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
+            <Select onValueChange={handleSubServiceSelect}>
+              <SelectTrigger className="w-full max-w-sm mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
+                <div className="flex items-center">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span>Add Sub Service</span>
                 </div>
-                
-                {addSubService && (
-                  <Button 
-                    type="button" 
-                    className="h-10 w-10 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center"
-                    onClick={() => setIsAddingNewSubService(true)}
-                    title="Add new sub-service"
-                  >
-                    <Plus className="h-5 w-5" />
-                  </Button>
-                )}
-              </div>
-            )}
+              </SelectTrigger>
+              <SelectContent>
+                {subServices
+                  .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+                  .map(subService => (
+                    <SelectItem key={subService.id} value={subService.id}>
+                      {subService.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         
@@ -981,43 +787,9 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         selectedItems={activeSubServiceId ? (selectedClothingItems[activeSubServiceId] || []) : []}
         onAddItem={handleAddItemFromPopup}
         washCategory={washCategory}
-        addNewItem={isAddingNewClothingItem ? undefined : () => setIsAddingNewClothingItem(true)}
       />
-      
-      {isAddingNewClothingItem && (
-        <Dialog open={isAddingNewClothingItem} onOpenChange={setIsAddingNewClothingItem}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New Clothing Item</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="new-clothing-item">Item Name</Label>
-                <Input
-                  id="new-clothing-item"
-                  placeholder="Enter clothing item name"
-                  value={newClothingItemName}
-                  onChange={(e) => setNewClothingItemName(e.target.value)}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddingNewClothingItem(false)}>
-                Cancel
-              </Button>
-              <Button 
-                className="bg-green-500 hover:bg-green-600 text-white" 
-                onClick={handleQuickAddClothingItem}
-              >
-                Add Item
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
     </Dialog>
   );
 };
 
 export default MultiSelectServiceDialog;
-
