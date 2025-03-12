@@ -3,11 +3,13 @@ import React, { ReactNode } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DialogDescription } from "@/components/ui/dialog";
 
 interface AddItemDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
+  description?: string;
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
@@ -19,6 +21,7 @@ const AddItemDialog: React.FC<AddItemDialogProps> = ({
   isOpen,
   onOpenChange,
   title,
+  description,
   placeholder,
   value,
   onChange,
@@ -30,6 +33,7 @@ const AddItemDialog: React.FC<AddItemDialogProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         <div className="py-4">
           {children ? (
