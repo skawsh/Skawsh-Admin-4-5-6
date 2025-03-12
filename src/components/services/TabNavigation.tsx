@@ -27,11 +27,11 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
           <button 
             key={tab.id} 
             className={`flex items-center gap-2 py-2 px-4 rounded-md transition-colors ${
-              activeTab === tab.id ? 'bg-white shadow-sm border border-gray-100' : 'text-gray-600 hover:bg-gray-50'
+              activeTab === tab.id ? 'bg-laundry-blue text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'
             }`} 
             onClick={() => onTabChange(tab.id)}
           >
-            <tab.icon size={18} className={activeTab === tab.id ? 'text-laundry-blue' : 'text-gray-500'} />
+            <tab.icon size={18} className={activeTab === tab.id ? 'text-white' : 'text-gray-500'} />
             <span className={activeTab === tab.id ? 'font-medium' : ''}>{tab.label}</span>
           </button>
         ))}

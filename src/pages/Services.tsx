@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import TabNavigation from '../components/services/TabNavigation';
@@ -133,7 +134,6 @@ const Services: React.FC = () => {
   return (
     <Layout activeSection="services">
       <div className="space-y-6">
-        <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
         <ServicesHeader 
           activeTab={activeTab}
           title={tabInfo.title}
@@ -145,6 +145,7 @@ const Services: React.FC = () => {
           onClearSearch={clearSearch}
           onAddButtonClick={handleAddButtonClick}
         />
+        <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm">
           {activeTab === 'services' && (
             <>
