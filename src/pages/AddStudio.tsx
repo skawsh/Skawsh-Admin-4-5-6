@@ -16,6 +16,8 @@ interface StudioService {
   subServices: any[];
 }
 
+type WashCategory = 'standard' | 'express' | 'both';
+
 const AddStudio: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -50,7 +52,7 @@ const AddStudio: React.FC = () => {
     employeeCount: '0',
     dailyCapacity: '0',
     specialEquipment: '',
-    washCategory: 'both',
+    washCategory: 'both' as WashCategory,
     
     accountHolderName: '',
     bankName: '',
@@ -67,7 +69,15 @@ const AddStudio: React.FC = () => {
   };
 
   const handleRadioChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'washCategory') {
+      const washValue = (value === 'standard' || value === 'express' || value === 'both') 
+        ? value as WashCategory
+        : 'both' as WashCategory;
+      
+      setFormData(prev => ({ ...prev, [name]: washValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -845,4 +855,3 @@ const AddStudio: React.FC = () => {
 };
 
 export default AddStudio;
-
