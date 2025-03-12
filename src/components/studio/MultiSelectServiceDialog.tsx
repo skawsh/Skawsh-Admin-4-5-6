@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -786,4 +787,55 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {localSubServices
-                    .filter(subService
+                    .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+                    .map(subService => (
+                      <SelectItem key={subService.id} value={subService.id}>
+                        {subService.name}
+                      </SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter className="border-t pt-4 flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="rounded-md bg-white text-gray-700 hover:bg-gray-100 border-gray-300 transition-colors"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSave}
+              className="rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <AddItemPopup
+        isOpen={isAddItemsOpen}
+        onOpenChange={setIsAddItemsOpen}
+        clothingItems={localClothingItems}
+        selectedItems={selectedClothingItems[activeSubServiceId || ''] || []}
+        onAddItem={handleAddItemFromPopup}
+        washCategory={washCategory}
+      />
+      
+      <CreateItemsDialog
+        isOpen={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        services={localServices}
+        subServices={localSubServices}
+        clothingItems={localClothingItems}
+        onItemsCreated={handleItemsCreated}
+      />
+    </>
+  );
+};
+
+export default MultiSelectServiceDialog;
