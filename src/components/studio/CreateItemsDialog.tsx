@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ interface CreateItemsDialogProps {
   services: Service[];
   subServices: SubService[];
   clothingItems: ClothingItem[];
+  onItemsCreated?: (newServices: Service[], newSubServices: SubService[], newClothingItems: ClothingItem[]) => void;
 }
 
 const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
@@ -22,7 +23,8 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
   onOpenChange,
   services,
   subServices,
-  clothingItems
+  clothingItems,
+  onItemsCreated
 }) => {
   const [activeTab, setActiveTab] = useState<string>("service");
   const [serviceName, setServiceName] = useState<string>("");
@@ -38,7 +40,7 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
   const { addService, addSubService, addClothingItem } = useServicesData();
 
   // Update local state when props change
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalServices(services);
     setLocalSubServices(subServices);
     setLocalClothingItems(clothingItems);
@@ -66,7 +68,13 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
         active: true
       };
       
-      setLocalServices([...localServices, newService]);
+      const updatedServices = [...localServices, newService];
+      setLocalServices(updatedServices);
+      
+      // Notify parent component about new items
+      if (onItemsCreated) {
+        onItemsCreated(updatedServices, localSubServices, localClothingItems);
+      }
       
       toast({
         title: "Success",
@@ -97,7 +105,13 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
         active: true
       };
       
-      setLocalSubServices([...localSubServices, newSubService]);
+      const updatedSubServices = [...localSubServices, newSubService];
+      setLocalSubServices(updatedSubServices);
+      
+      // Notify parent component about new items
+      if (onItemsCreated) {
+        onItemsCreated(localServices, updatedSubServices, localClothingItems);
+      }
       
       toast({
         title: "Success",
@@ -128,7 +142,13 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
         active: true
       };
       
-      setLocalClothingItems([...localClothingItems, newClothingItem]);
+      const updatedClothingItems = [...localClothingItems, newClothingItem];
+      setLocalClothingItems(updatedClothingItems);
+      
+      // Notify parent component about new items
+      if (onItemsCreated) {
+        onItemsCreated(localServices, localSubServices, updatedClothingItems);
+      }
       
       toast({
         title: "Success",

@@ -83,7 +83,7 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md rounded-xl shadow-lg border-0">
+      <DialogContent className="max-w-md rounded-xl shadow-lg border-0 bg-white">
         <DialogHeader className="pb-4 border-b">
           <DialogTitle className="text-xl font-bold text-gray-800">Add Clothing Items</DialogTitle>
         </DialogHeader>
@@ -99,7 +99,7 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                       <SelectTrigger className="w-full rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         <SelectValue placeholder="Select item" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {availableItems.map(item => (
                           <SelectItem 
                             key={item.id} 
