@@ -95,23 +95,83 @@ const AddStudio: React.FC = () => {
   };
 
   const handleServiceAdded = (data: any) => {
-    const newService = {
-      serviceId: data.serviceId,
-      subServices: data.subServices
-    };
+    // Check if service already exists
+    const existingServiceIndex = studioServices.findIndex(
+      service => service.serviceId === data.serviceId
+    );
     
-    setStudioServices([...studioServices, newService]);
+    if (existingServiceIndex >= 0) {
+      // Service exists, check for sub-services
+      const updatedServices = [...studioServices];
+      const existingService = updatedServices[existingServiceIndex];
+      
+      // Process each sub-service in the new data
+      data.subServices.forEach((newSubService: any) => {
+        // Check if this sub-service already exists in this service
+        const existingSubServiceIndex = existingService.subServices.findIndex(
+          (subSrv: any) => subSrv.name === newSubService.name
+        );
+        
+        if (existingSubServiceIndex >= 0) {
+          // Sub-service exists, merge clothing items
+          const existingSubService = existingService.subServices[existingSubServiceIndex];
+          
+          // Update price per kg/item if provided
+          if (newSubService.pricePerKg) {
+            existingSubService.pricePerKg = newSubService.pricePerKg;
+          }
+          
+          if (newSubService.pricePerItem) {
+            existingSubService.pricePerItem = newSubService.pricePerItem;
+          }
+          
+          // Merge clothing items
+          const updatedSelectedItems = [...existingSubService.selectedItems];
+          const updatedItemPrices = {...existingSubService.itemPrices};
+          
+          newSubService.selectedItems.forEach((itemId: string) => {
+            if (!updatedSelectedItems.includes(itemId)) {
+              updatedSelectedItems.push(itemId);
+            }
+            // Always update the price with the latest value
+            updatedItemPrices[itemId] = newSubService.itemPrices[itemId];
+          });
+          
+          existingSubService.selectedItems = updatedSelectedItems;
+          existingSubService.itemPrices = updatedItemPrices;
+        } else {
+          // Sub-service doesn't exist, add it
+          existingService.subServices.push(newSubService);
+        }
+      });
+      
+      setStudioServices(updatedServices);
+      toast({
+        title: "Service updated",
+        description: "The service has been updated with new information.",
+      });
+    } else {
+      // Service doesn't exist, add it
+      const newService = {
+        serviceId: data.serviceId,
+        subServices: data.subServices
+      };
+      
+      setStudioServices([...studioServices, newService]);
+      toast({
+        title: "Service added",
+        description: "The service has been added to the studio.",
+      });
+    }
     
-    // Expand the newly added service by default
+    // Expand the service that was just added or updated
     setExpandedServices(prev => ({
       ...prev,
       [data.serviceId]: true
     }));
     
-    toast({
-      title: "Service added",
-      description: "The service has been added to the studio.",
-    });
+    // Close the dialog
+    setIsAddServiceDialogOpen(false);
   };
 
   const toggleServiceExpansion = (serviceId: string) => {
@@ -639,7 +699,7 @@ const AddStudio: React.FC = () => {
                 const isExpanded = expandedServices[studioService.serviceId] || false;
                 
                 return (
-                  <Card key={`${studioService.serviceId}-${index}`} className="border-gray-200">
+                  <Card key={`${studioService.serviceId}-${index}`} className="border border-gray-200 shadow-sm">
                     <CardHeader className="bg-gray-50 rounded-t-lg flex flex-row items-center justify-between p-4">
                       <div className="flex items-center gap-2">
                         <Button 
@@ -680,7 +740,7 @@ const AddStudio: React.FC = () => {
                             const subServiceName = getSubServiceNameById(subService.name);
                             
                             return (
-                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4">
+                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-white shadow-sm">
                                 <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
                                 
                                 <div className="grid grid-cols-2 gap-4 mb-4">
