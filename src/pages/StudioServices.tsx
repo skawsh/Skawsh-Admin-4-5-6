@@ -34,9 +34,19 @@ const StudioServices: React.FC = () => {
             // Check if studioServices exists in the studio object
             if (studio.studioServices) {
               console.log("Studio services found:", studio.studioServices);
+              
+              // Ensure each subservice has an active property
+              const updatedStudioServices = studio.studioServices.map((service: any) => ({
+                ...service,
+                subServices: service.subServices.map((subService: any) => ({
+                  ...subService,
+                  active: subService.active !== false // Default to true if not explicitly false
+                }))
+              }));
+              
               setStudioData({
                 studioName: studio.studioName,
-                studioServices: studio.studioServices
+                studioServices: updatedStudioServices
               });
             } else {
               console.log("No studio services found in the studio object");
@@ -91,29 +101,59 @@ const StudioServices: React.FC = () => {
         studioServices: updatedServices
       });
       
-      const savedStudios = localStorage.getItem('laundryStudios');
-      if (savedStudios && id) {
-        try {
-          const studios = JSON.parse(savedStudios);
-          const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
-          
-          if (studioIndex !== -1) {
-            studios[studioIndex].studioServices = updatedServices;
-            localStorage.setItem('laundryStudios', JSON.stringify(studios));
-            
-            toast({
-              title: "Service Status Updated",
-              description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'}.`
-            });
-          }
-        } catch (error) {
-          console.error("Error updating service status:", error);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to update service status"
-          });
+      saveUpdatedServicesToLocalStorage(updatedServices);
+      
+      toast({
+        title: "Service Status Updated",
+        description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'}.`
+      });
+    }
+  };
+
+  const handleSubServiceStatusChange = (serviceIndex: number, subServiceIndex: number, active: boolean) => {
+    if (studioData && studioData.studioServices) {
+      const updatedServices = [...studioData.studioServices];
+      // Ensure subServices array exists and has the specified index
+      if (updatedServices[serviceIndex] && 
+          updatedServices[serviceIndex].subServices && 
+          updatedServices[serviceIndex].subServices[subServiceIndex]) {
+        
+        updatedServices[serviceIndex].subServices[subServiceIndex].active = active;
+        
+        setStudioData({
+          ...studioData,
+          studioServices: updatedServices
+        });
+        
+        saveUpdatedServicesToLocalStorage(updatedServices);
+        
+        const subServiceName = updatedServices[serviceIndex].subServices[subServiceIndex].name;
+        toast({
+          title: "Sub-Service Status Updated",
+          description: `${subServiceName} has been ${active ? 'activated' : 'deactivated'}.`
+        });
+      }
+    }
+  };
+
+  const saveUpdatedServicesToLocalStorage = (updatedServices: StudioService[]) => {
+    const savedStudios = localStorage.getItem('laundryStudios');
+    if (savedStudios && id) {
+      try {
+        const studios = JSON.parse(savedStudios);
+        const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
+        
+        if (studioIndex !== -1) {
+          studios[studioIndex].studioServices = updatedServices;
+          localStorage.setItem('laundryStudios', JSON.stringify(studios));
         }
+      } catch (error) {
+        console.error("Error updating service status:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update service status"
+        });
       }
     }
   };
@@ -151,6 +191,7 @@ const StudioServices: React.FC = () => {
             <StudioServicesDetails
               studioServices={studioData.studioServices}
               onServiceStatusChange={handleServiceStatusChange}
+              onSubServiceStatusChange={handleSubServiceStatusChange}
             />
           </div>
         ) : (
