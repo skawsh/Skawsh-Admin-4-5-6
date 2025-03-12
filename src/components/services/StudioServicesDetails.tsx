@@ -1,22 +1,38 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StudioService } from '@/types/services';
 import { Card } from '../ui/card';
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { ToggleLeft, ToggleRight } from 'lucide-react';
+import { useServicesData } from '@/hooks/useServicesData';
 
 interface StudioServicesDetailsProps {
   studioServices: StudioService[];
   onServiceStatusChange: (serviceIndex: number) => void;
   onSubServiceStatusChange?: (serviceIndex: number, subServiceIndex: number, active: boolean) => void;
+  onClothingItemStatusChange?: (serviceIndex: number, subServiceIndex: number, itemId: string, active: boolean) => void;
 }
 
 const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
   studioServices,
   onServiceStatusChange,
-  onSubServiceStatusChange
+  onSubServiceStatusChange,
+  onClothingItemStatusChange
 }) => {
+  const { services, subServices, clothingItems } = useServicesData();
+  
+  // Helper functions to get names from IDs
+  const getSubServiceName = (id: string) => {
+    const subService = subServices.find(s => s.id === id);
+    return subService ? subService.name : id;
+  };
+
+  const getClothingItemName = (id: string) => {
+    const item = clothingItems.find(i => i.id === id);
+    return item ? item.name : id;
+  };
+  
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold">Studio Services</h2>
@@ -41,7 +57,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                 <div key={subIndex} className="border p-4 rounded-lg bg-gray-50">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-lg">{subService.name}</h4>
+                      <h4 className="font-medium text-lg">{getSubServiceName(subService.name)}</h4>
                       {onSubServiceStatusChange && (
                         <Badge variant={subService.active !== false ? "success" : "secondary"}>
                           {subService.active !== false ? 'Active' : 'Inactive'}
@@ -104,31 +120,51 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                     <div>
                       <h5 className="font-medium mb-3 text-gray-700">Clothing Items</h5>
                       <div className="space-y-3">
-                        {subService.selectedItems.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex flex-col border rounded-md p-3 bg-white">
-                            <div className="font-medium mb-2">{item}</div>
-                            <div className="grid grid-cols-2 gap-4">
-                              {subService.standardItemPrices && subService.standardItemPrices[item] !== undefined && (
-                                <div className="flex flex-col">
-                                  <span className="text-sm text-gray-500">Standard Price:</span>
-                                  <span className="font-medium">₹{subService.standardItemPrices[item]}</span>
-                                </div>
-                              )}
-                              {subService.expressItemPrices && subService.expressItemPrices[item] !== undefined && (
-                                <div className="flex flex-col">
-                                  <span className="text-sm text-gray-500">Express Price:</span>
-                                  <span className="font-medium">₹{subService.expressItemPrices[item]}</span>
-                                </div>
-                              )}
-                              {subService.itemPrices && subService.itemPrices[item] !== undefined && (
-                                <div className="flex flex-col">
-                                  <span className="text-sm text-gray-500">Price:</span>
-                                  <span className="font-medium">₹{subService.itemPrices[item]}</span>
-                                </div>
-                              )}
+                        {subService.selectedItems.map((itemId, itemIndex) => {
+                          const itemActive = subService.clothingItemsStatus?.[itemId] !== false;
+                          
+                          return (
+                            <div key={itemIndex} className="flex flex-col border rounded-md p-3 bg-white">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="font-medium">{getClothingItemName(itemId)}</div>
+                                {onClothingItemStatusChange && (
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={itemActive ? "success" : "secondary"} className="mr-2">
+                                      {itemActive ? 'Active' : 'Inactive'}
+                                    </Badge>
+                                    <Switch
+                                      checked={itemActive}
+                                      onCheckedChange={(checked) => 
+                                        onClothingItemStatusChange(serviceIndex, subIndex, itemId, checked)
+                                      }
+                                      className="ml-auto"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                {subService.standardItemPrices && subService.standardItemPrices[itemId] !== undefined && (
+                                  <div className="flex flex-col">
+                                    <span className="text-sm text-gray-500">Standard Price:</span>
+                                    <span className="font-medium">₹{subService.standardItemPrices[itemId]}</span>
+                                  </div>
+                                )}
+                                {subService.expressItemPrices && subService.expressItemPrices[itemId] !== undefined && (
+                                  <div className="flex flex-col">
+                                    <span className="text-sm text-gray-500">Express Price:</span>
+                                    <span className="font-medium">₹{subService.expressItemPrices[itemId]}</span>
+                                  </div>
+                                )}
+                                {subService.itemPrices && subService.itemPrices[itemId] !== undefined && (
+                                  <div className="flex flex-col">
+                                    <span className="text-sm text-gray-500">Price:</span>
+                                    <span className="font-medium">₹{subService.itemPrices[itemId]}</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}

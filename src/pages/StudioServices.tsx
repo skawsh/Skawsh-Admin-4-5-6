@@ -19,6 +19,7 @@ interface SubService {
   expressItemPrices?: { [key: string]: number };
   itemPrices?: { [key: string]: number };
   active?: boolean;
+  clothingItemsStatus?: { [key: string]: boolean };
 }
 
 const StudioServices: React.FC = () => {
@@ -48,13 +49,28 @@ const StudioServices: React.FC = () => {
             if (studio.studioServices) {
               console.log("Studio services found:", studio.studioServices);
               
-              // Ensure each subservice has an active property
+              // Ensure each subservice has an active property and clothingItemsStatus
               const updatedStudioServices = studio.studioServices.map((service: any) => ({
                 ...service,
-                subServices: service.subServices.map((subService: SubService) => ({
-                  ...subService,
-                  active: subService.active !== false // Default to true if not explicitly false
-                }))
+                subServices: service.subServices.map((subService: SubService) => {
+                  // Initialize clothingItemsStatus if it doesn't exist
+                  const clothingItemsStatus = subService.clothingItemsStatus || {};
+                  
+                  // If there are selectedItems but no status for them, initialize all to active
+                  if (subService.selectedItems && subService.selectedItems.length > 0) {
+                    subService.selectedItems.forEach(itemId => {
+                      if (clothingItemsStatus[itemId] === undefined) {
+                        clothingItemsStatus[itemId] = true;
+                      }
+                    });
+                  }
+                  
+                  return {
+                    ...subService,
+                    active: subService.active !== false, // Default to true if not explicitly false
+                    clothingItemsStatus
+                  };
+                })
               }));
               
               setStudioData({
@@ -149,6 +165,44 @@ const StudioServices: React.FC = () => {
     }
   };
 
+  const handleClothingItemStatusChange = (
+    serviceIndex: number, 
+    subServiceIndex: number, 
+    itemId: string, 
+    active: boolean
+  ) => {
+    if (studioData && studioData.studioServices) {
+      const updatedServices = [...studioData.studioServices];
+      // Ensure all required objects exist
+      if (updatedServices[serviceIndex] && 
+          updatedServices[serviceIndex].subServices && 
+          updatedServices[serviceIndex].subServices[subServiceIndex]) {
+        
+        const subService = updatedServices[serviceIndex].subServices[subServiceIndex];
+        
+        // Initialize clothingItemsStatus if it doesn't exist
+        if (!subService.clothingItemsStatus) {
+          subService.clothingItemsStatus = {};
+        }
+        
+        // Update status
+        subService.clothingItemsStatus[itemId] = active;
+        
+        setStudioData({
+          ...studioData,
+          studioServices: updatedServices
+        });
+        
+        saveUpdatedServicesToLocalStorage(updatedServices);
+        
+        toast({
+          title: "Clothing Item Status Updated",
+          description: `Item has been ${active ? 'activated' : 'deactivated'}.`
+        });
+      }
+    }
+  };
+
   const saveUpdatedServicesToLocalStorage = (updatedServices: StudioService[]) => {
     const savedStudios = localStorage.getItem('laundryStudios');
     if (savedStudios && id) {
@@ -205,6 +259,7 @@ const StudioServices: React.FC = () => {
               studioServices={studioData.studioServices}
               onServiceStatusChange={handleServiceStatusChange}
               onSubServiceStatusChange={handleSubServiceStatusChange}
+              onClothingItemStatusChange={handleClothingItemStatusChange}
             />
           </div>
         ) : (
