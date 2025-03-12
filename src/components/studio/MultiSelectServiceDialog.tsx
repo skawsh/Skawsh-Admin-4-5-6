@@ -6,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Service, SubService, ClothingItem } from '@/types/services';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MultiSelect from '@/components/ui/multi-select';
 import { Card, CardContent } from "@/components/ui/card";
-import { Info } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import MultiSelect from '@/components/ui/multi-select';
+import { ChevronDown, Plus, X } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
 interface MultiSelectServiceDialogProps {
   isOpen: boolean;
@@ -41,6 +40,9 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [selectedClothingItems, setSelectedClothingItems] = useState<Record<string, string[]>>({});
   const [clothingItemPrices, setClothingItemPrices] = useState<Record<string, Record<string, { standard: string, express: string }>>>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  
+  // Current active sub-service for adding items
+  const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -61,6 +63,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     setSelectedClothingItems({});
     setClothingItemPrices({});
     setFormErrors([]);
+    setActiveSubServiceId(null);
   };
 
   const populateFormWithEditingData = () => {
@@ -113,6 +116,11 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     setPricePerItem(newPricePerItem);
     setSelectedClothingItems(newSelectedClothingItems);
     setClothingItemPrices(newClothingItemPrices);
+    
+    // Set first sub-service as active if any
+    if (subServiceIds.length > 0) {
+      setActiveSubServiceId(subServiceIds[0]);
+    }
   };
 
   // Handle service selection
@@ -121,50 +129,59 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   };
 
   // Handle sub-service selection
-  const handleSubServiceChange = (values: string[]) => {
-    setSelectedSubServices(values);
-    
-    // Initialize pricing for newly added sub-services
-    const newPricePerKg = { ...pricePerKg };
-    const newPricePerItem = { ...pricePerItem };
-    const newSelectedClothingItems = { ...selectedClothingItems };
-    const newClothingItemPrices = { ...clothingItemPrices };
-    
-    values.forEach(subServiceId => {
-      if (!newPricePerKg[subServiceId]) {
-        newPricePerKg[subServiceId] = { standard: '', express: '' };
-      }
+  const handleSubServiceSelect = (subServiceId: string) => {
+    if (!selectedSubServices.includes(subServiceId)) {
+      const newSelectedSubServices = [...selectedSubServices, subServiceId];
+      setSelectedSubServices(newSelectedSubServices);
       
-      if (!newPricePerItem[subServiceId]) {
-        newPricePerItem[subServiceId] = { standard: '', express: '' };
-      }
+      // Initialize pricing for new sub-service
+      setPricePerKg(prev => ({
+        ...prev,
+        [subServiceId]: { standard: '', express: '' }
+      }));
       
-      if (!newSelectedClothingItems[subServiceId]) {
-        newSelectedClothingItems[subServiceId] = [];
-      }
+      setPricePerItem(prev => ({
+        ...prev,
+        [subServiceId]: { standard: '', express: '' }
+      }));
       
-      if (!newClothingItemPrices[subServiceId]) {
-        newClothingItemPrices[subServiceId] = {};
-      }
-    });
+      setSelectedClothingItems(prev => ({
+        ...prev,
+        [subServiceId]: []
+      }));
+      
+      setClothingItemPrices(prev => ({
+        ...prev,
+        [subServiceId]: {}
+      }));
+      
+      // Set as active sub-service
+      setActiveSubServiceId(subServiceId);
+    }
+  };
+
+  // Remove a sub-service
+  const handleRemoveSubService = (subServiceId: string) => {
+    setSelectedSubServices(prev => prev.filter(id => id !== subServiceId));
     
-    setPricePerKg(newPricePerKg);
-    setPricePerItem(newPricePerItem);
-    setSelectedClothingItems(newSelectedClothingItems);
-    setClothingItemPrices(newClothingItemPrices);
+    // If removing active sub-service, set another one as active
+    if (activeSubServiceId === subServiceId) {
+      const remaining = selectedSubServices.filter(id => id !== subServiceId);
+      setActiveSubServiceId(remaining.length > 0 ? remaining[0] : null);
+    }
   };
 
   // Handle price per kg change
   const handlePricePerKgChange = (
     subServiceId: string, 
-    type: 'standard' | 'express', 
     value: string
   ) => {
     setPricePerKg(prev => ({
       ...prev,
       [subServiceId]: {
         ...prev[subServiceId],
-        [type]: value
+        standard: value,
+        express: value // For simplicity in the new UI, set both to the same value
       }
     }));
   };
@@ -172,45 +189,68 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   // Handle price per item change
   const handlePricePerItemChange = (
     subServiceId: string, 
-    type: 'standard' | 'express', 
     value: string
   ) => {
     setPricePerItem(prev => ({
       ...prev,
       [subServiceId]: {
         ...prev[subServiceId],
-        [type]: value
+        standard: value,
+        express: value // For simplicity in the new UI, set both to the same value
       }
     }));
   };
 
   // Handle clothing item selection for a sub-service
-  const handleClothingItemChange = (subServiceId: string, values: string[]) => {
-    setSelectedClothingItems(prev => ({
-      ...prev,
-      [subServiceId]: values
-    }));
+  const handleClothingItemSelect = (subServiceId: string, itemId: string) => {
+    const items = selectedClothingItems[subServiceId] || [];
     
-    // Initialize prices for newly added items
-    const newClothingItemPrices = { ...clothingItemPrices };
-    if (!newClothingItemPrices[subServiceId]) {
-      newClothingItemPrices[subServiceId] = {};
+    if (!items.includes(itemId)) {
+      const newItems = [...items, itemId];
+      setSelectedClothingItems(prev => ({
+        ...prev,
+        [subServiceId]: newItems
+      }));
+      
+      // Initialize price for the item
+      setClothingItemPrices(prev => {
+        const subServicePrices = prev[subServiceId] || {};
+        return {
+          ...prev,
+          [subServiceId]: {
+            ...subServicePrices,
+            [itemId]: { standard: '', express: '' }
+          }
+        };
+      });
     }
-    
-    values.forEach(itemId => {
-      if (!newClothingItemPrices[subServiceId][itemId]) {
-        newClothingItemPrices[subServiceId][itemId] = { standard: '', express: '' };
-      }
+  };
+
+  // Remove a clothing item
+  const handleRemoveClothingItem = (subServiceId: string, itemId: string) => {
+    setSelectedClothingItems(prev => {
+      const items = prev[subServiceId] || [];
+      return {
+        ...prev,
+        [subServiceId]: items.filter(id => id !== itemId)
+      };
     });
     
-    setClothingItemPrices(newClothingItemPrices);
+    // Also remove its prices
+    setClothingItemPrices(prev => {
+      const subServicePrices = prev[subServiceId] || {};
+      const { [itemId]: _, ...rest } = subServicePrices;
+      return {
+        ...prev,
+        [subServiceId]: rest
+      };
+    });
   };
 
   // Handle clothing item price change
   const handleClothingItemPriceChange = (
     subServiceId: string, 
     itemId: string, 
-    type: 'standard' | 'express', 
     value: string
   ) => {
     setClothingItemPrices(prev => {
@@ -222,8 +262,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         [subServiceId]: {
           ...subServicePrices,
           [itemId]: {
-            ...itemPrices,
-            [type]: value
+            standard: value,
+            express: value // For simplicity in the new UI, set both to the same value
           }
         }
       };
@@ -233,12 +273,18 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   // Helper functions
   const getSubServiceName = (id: string) => {
     const subService = subServices.find(s => s.id === id);
-    return subService ? subService.name : 'Unknown Sub-service';
+    return subService ? subService.name : id;
   };
 
   const getClothingItemName = (id: string) => {
     const item = clothingItems.find(i => i.id === id);
-    return item ? item.name : 'Unknown Item';
+    return item ? item.name : id;
+  };
+
+  // Add a new sub-service panel
+  const addSubServicePanel = () => {
+    // In this simpler UI, we just open the sub-service dropdown
+    // It will be added when selected
   };
 
   // Form validation
@@ -253,57 +299,31 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       errors.push('Please select at least one sub-service');
     }
     
-    // Check pricing for sub-services
+    // Simplified validation for the new UI
+    let hasPricing = false;
+    
     selectedSubServices.forEach(subServiceId => {
-      let hasPricing = false;
+      const kgPrice = pricePerKg[subServiceId]?.standard;
+      const itemPrice = pricePerItem[subServiceId]?.standard;
       
-      // Check for pricing based on wash category
-      if (washCategory === 'standard' || washCategory === 'both') {
-        const hasStandardKgPrice = pricePerKg[subServiceId]?.standard && 
-                                  pricePerKg[subServiceId].standard !== '0';
-        const hasStandardItemPrice = pricePerItem[subServiceId]?.standard && 
-                                    pricePerItem[subServiceId].standard !== '0';
-        
-        if (hasStandardKgPrice || hasStandardItemPrice) {
-          hasPricing = true;
-        }
-        
-        // Check clothing item prices
-        const hasItemsWithPrices = selectedClothingItems[subServiceId]?.some(itemId => {
-          const price = clothingItemPrices[subServiceId]?.[itemId]?.standard;
-          return price && price !== '0';
-        });
-        
-        if (hasItemsWithPrices) {
-          hasPricing = true;
-        }
+      if ((kgPrice && kgPrice !== '0') || (itemPrice && itemPrice !== '0')) {
+        hasPricing = true;
       }
       
-      if (washCategory === 'express' || washCategory === 'both') {
-        const hasExpressKgPrice = pricePerKg[subServiceId]?.express && 
-                                 pricePerKg[subServiceId].express !== '0';
-        const hasExpressItemPrice = pricePerItem[subServiceId]?.express && 
-                                   pricePerItem[subServiceId].express !== '0';
-        
-        if (hasExpressKgPrice || hasExpressItemPrice) {
-          hasPricing = true;
-        }
-        
-        // Check clothing item prices
-        const hasItemsWithPrices = selectedClothingItems[subServiceId]?.some(itemId => {
-          const price = clothingItemPrices[subServiceId]?.[itemId]?.express;
-          return price && price !== '0';
-        });
-        
-        if (hasItemsWithPrices) {
-          hasPricing = true;
-        }
-      }
+      // Check clothing item prices
+      const hasItemsWithPrices = (selectedClothingItems[subServiceId] || []).some(itemId => {
+        const price = clothingItemPrices[subServiceId]?.[itemId]?.standard;
+        return price && price !== '0';
+      });
       
-      if (!hasPricing) {
-        errors.push(`Please add pricing for ${getSubServiceName(subServiceId)}`);
+      if (hasItemsWithPrices) {
+        hasPricing = true;
       }
     });
+    
+    if (!hasPricing) {
+      errors.push('Please add pricing for at least one sub-service');
+    }
     
     setFormErrors(errors);
     return errors.length === 0;
@@ -315,19 +335,22 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       return;
     }
     
-    // Prepare data for saving
+    // Prepare data for saving - maintain the same data structure as before
     const subServicesData = selectedSubServices.map(subServiceId => {
       const data: any = {
         name: subServiceId,
         selectedItems: selectedClothingItems[subServiceId] || []
       };
       
-      // Add pricing based on wash category
-      if (washCategory === 'standard') {
-        data.pricePerKg = pricePerKg[subServiceId]?.standard || '0';
-        data.pricePerItem = pricePerItem[subServiceId]?.standard || '0';
-        data.standardPricePerKg = pricePerKg[subServiceId]?.standard || '0';
-        data.standardPricePerItem = pricePerItem[subServiceId]?.standard || '0';
+      // Add pricing
+      const kgPrice = pricePerKg[subServiceId]?.standard || '0';
+      const itemPrice = pricePerItem[subServiceId]?.standard || '0';
+      
+      if (washCategory === 'standard' || washCategory === 'both') {
+        data.pricePerKg = kgPrice;
+        data.pricePerItem = itemPrice;
+        data.standardPricePerKg = kgPrice;
+        data.standardPricePerItem = itemPrice;
         
         // Add item prices
         data.itemPrices = {};
@@ -338,44 +361,27 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           data.itemPrices[itemId] = price;
           data.standardItemPrices[itemId] = price;
         });
-      } else if (washCategory === 'express') {
-        data.pricePerKg = pricePerKg[subServiceId]?.express || '0';
-        data.pricePerItem = pricePerItem[subServiceId]?.express || '0';
-        data.expressPricePerKg = pricePerKg[subServiceId]?.express || '0';
-        data.expressPricePerItem = pricePerItem[subServiceId]?.express || '0';
+      }
+      
+      if (washCategory === 'express' || washCategory === 'both') {
+        data.expressPricePerKg = kgPrice; // Use same price for express in this UI
+        data.expressPricePerItem = itemPrice; // Use same price for express in this UI
         
-        // Add item prices
-        data.itemPrices = {};
+        if (washCategory === 'express') {
+          data.pricePerKg = kgPrice;
+          data.pricePerItem = itemPrice;
+        }
+        
+        // Add item prices for express
         data.expressItemPrices = {};
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
-          const price = clothingItemPrices[subServiceId]?.[itemId]?.express || '0';
-          data.itemPrices[itemId] = price;
+          const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
+          if (washCategory === 'express') {
+            data.itemPrices = data.itemPrices || {};
+            data.itemPrices[itemId] = price;
+          }
           data.expressItemPrices[itemId] = price;
-        });
-      } else if (washCategory === 'both') {
-        // For "both", include all pricing
-        data.standardPricePerKg = pricePerKg[subServiceId]?.standard || '0';
-        data.standardPricePerItem = pricePerItem[subServiceId]?.standard || '0';
-        data.expressPricePerKg = pricePerKg[subServiceId]?.express || '0';
-        data.expressPricePerItem = pricePerItem[subServiceId]?.express || '0';
-        
-        // Default to standard for backward compatibility
-        data.pricePerKg = pricePerKg[subServiceId]?.standard || '0';
-        data.pricePerItem = pricePerItem[subServiceId]?.standard || '0';
-        
-        // Add item prices
-        data.itemPrices = {};
-        data.standardItemPrices = {};
-        data.expressItemPrices = {};
-        
-        (selectedClothingItems[subServiceId] || []).forEach(itemId => {
-          const standardPrice = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
-          const expressPrice = clothingItemPrices[subServiceId]?.[itemId]?.express || '0';
-          
-          data.standardItemPrices[itemId] = standardPrice;
-          data.expressItemPrices[itemId] = expressPrice;
-          data.itemPrices[itemId] = standardPrice; // Default to standard
         });
       }
       
@@ -391,215 +397,12 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     onOpenChange(false);
   };
 
-  // Convert sub-services and clothing items to options for multi-select
-  const subServiceOptions = subServices
-    .filter(subService => subService.active)
-    .map(subService => ({
-      value: subService.id,
-      label: subService.name
-    }));
-
-  const clothingItemOptions = clothingItems
-    .filter(item => item.active)
-    .map(item => ({
-      value: item.id,
-      label: item.name
-    }));
-
-  // Render price fields based on wash category
-  const renderPriceFields = (subServiceId: string, fieldType: 'kg' | 'item') => {
-    const pricing = fieldType === 'kg' ? pricePerKg : pricePerItem;
-    const handleChange = fieldType === 'kg' ? handlePricePerKgChange : handlePricePerItemChange;
-    const fieldLabel = fieldType === 'kg' ? 'Price per KG (₹)' : 'Price per Item (₹)';
-    
-    if (washCategory === 'standard') {
-      return (
-        <div className="space-y-2">
-          <Label className="text-sm flex items-center gap-1">
-            Standard {fieldLabel}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-gray-400" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Price for Standard Wash category</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Label>
-          <Input 
-            type="number" 
-            value={pricing[subServiceId]?.standard || ''}
-            onChange={(e) => handleChange(subServiceId, 'standard', e.target.value)}
-            placeholder="0"
-            className="w-full"
-          />
-        </div>
-      );
-    } else if (washCategory === 'express') {
-      return (
-        <div className="space-y-2">
-          <Label className="text-sm flex items-center gap-1">
-            Express {fieldLabel}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-gray-400" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Price for Express Wash category</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </Label>
-          <Input 
-            type="number" 
-            value={pricing[subServiceId]?.express || ''}
-            onChange={(e) => handleChange(subServiceId, 'express', e.target.value)}
-            placeholder="0"
-            className="w-full"
-          />
-        </div>
-      );
-    } else if (washCategory === 'both') {
-      return (
-        <div className="space-y-4">
-          <Tabs defaultValue="standard" className="w-full">
-            <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="standard">Standard</TabsTrigger>
-              <TabsTrigger value="express">Express</TabsTrigger>
-            </TabsList>
-            <TabsContent value="standard" className="pt-2">
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Standard {fieldLabel}
-                </Label>
-                <Input 
-                  type="number" 
-                  value={pricing[subServiceId]?.standard || ''}
-                  onChange={(e) => handleChange(subServiceId, 'standard', e.target.value)}
-                  placeholder="0"
-                  className="w-full"
-                />
-              </div>
-            </TabsContent>
-            <TabsContent value="express" className="pt-2">
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Express {fieldLabel}
-                </Label>
-                <Input 
-                  type="number" 
-                  value={pricing[subServiceId]?.express || ''}
-                  onChange={(e) => handleChange(subServiceId, 'express', e.target.value)}
-                  placeholder="0"
-                  className="w-full"
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      );
-    } else {
-      // Fallback
-      return (
-        <div className="space-y-2">
-          <Label className="text-sm">
-            {fieldLabel}
-          </Label>
-          <Input 
-            type="number" 
-            value={pricing[subServiceId]?.standard || ''}
-            onChange={(e) => handleChange(subServiceId, 'standard', e.target.value)}
-            placeholder="0"
-            className="w-full"
-          />
-        </div>
-      );
-    }
-  };
-
-  // Render clothing item price fields
-  const renderClothingItemPriceFields = (subServiceId: string, itemId: string) => {
-    if (washCategory === 'standard') {
-      return (
-        <div className="flex items-center gap-2 mt-1">
-          <Label className="text-xs whitespace-nowrap">Standard Price:</Label>
-          <Input 
-            type="number" 
-            value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
-            onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
-            placeholder="0" 
-            className="w-20"
-          />
-        </div>
-      );
-    } else if (washCategory === 'express') {
-      return (
-        <div className="flex items-center gap-2 mt-1">
-          <Label className="text-xs whitespace-nowrap">Express Price:</Label>
-          <Input 
-            type="number" 
-            value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
-            onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
-            placeholder="0" 
-            className="w-20"
-          />
-        </div>
-      );
-    } else if (washCategory === 'both') {
-      return (
-        <div className="flex flex-wrap gap-3 mt-2">
-          <div className="flex items-center gap-2">
-            <Label className="text-xs whitespace-nowrap">Standard:</Label>
-            <Input 
-              type="number" 
-              value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
-              onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
-              placeholder="0" 
-              className="w-20"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="text-xs whitespace-nowrap">Express:</Label>
-            <Input 
-              type="number" 
-              value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
-              onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
-              placeholder="0" 
-              className="w-20"
-            />
-          </div>
-        </div>
-      );
-    } else {
-      // Fallback
-      return (
-        <div className="flex items-center gap-2 mt-1">
-          <Label className="text-xs whitespace-nowrap">Price:</Label>
-          <Input 
-            type="number" 
-            value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
-            onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
-            placeholder="0" 
-            className="w-20"
-          />
-        </div>
-      );
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{editingService ? 'Edit Service' : 'Add Service'}</DialogTitle>
-          <div className="text-sm text-muted-foreground mt-1">
-            {washCategory === 'standard' && "Configure services with Standard Wash pricing"}
-            {washCategory === 'express' && "Configure services with Express Wash pricing"}
-            {washCategory === 'both' && "Configure services with both Standard and Express Wash pricing"}
-          </div>
+      <DialogContent className="max-w-[600px]">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-xl font-semibold text-blue-600">Add Service</DialogTitle>
+          <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
         </DialogHeader>
         
         {/* Error messages */}
@@ -615,17 +418,17 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         )}
         
         <div className="space-y-6">
-          {/* Service Selection (Single-select) */}
+          {/* Service Selection */}
           <div className="space-y-2">
-            <Label htmlFor="service-select" className="text-base font-medium">
-              Select Service
+            <Label htmlFor="service-select" className="font-medium">
+              Service Name
             </Label>
             <Select
               value={selectedServiceId}
               onValueChange={handleServiceChange}
               disabled={!!editingService}
             >
-              <SelectTrigger id="service-select">
+              <SelectTrigger id="service-select" className="w-full">
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
               <SelectContent>
@@ -638,89 +441,154 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
             </Select>
           </div>
           
-          {/* Sub-service Selection (Multi-select) */}
-          {selectedServiceId && (
-            <div className="space-y-2">
-              <Label className="text-base font-medium">
-                Select Sub-services
-              </Label>
-              <MultiSelect
-                options={subServiceOptions}
-                selected={selectedSubServices}
-                onChange={handleSubServiceChange}
-                placeholder="Select sub-services..."
-                searchPlaceholder="Search sub-services..."
-                className="w-full"
-              />
-            </div>
-          )}
-          
-          {/* Sub-service Configuration */}
-          {selectedSubServices.length > 0 && (
-            <div className="space-y-4">
-              <Label className="text-base font-medium">Configure Sub-services</Label>
-              
-              {selectedSubServices.map((subServiceId) => (
-                <Card key={subServiceId} className="overflow-hidden">
-                  <div className="bg-muted p-4 flex items-center justify-between">
-                    <h3 className="font-medium">{getSubServiceName(subServiceId)}</h3>
-                  </div>
-                  <CardContent className="p-4 pt-6">
-                    <div className="space-y-4">
-                      {/* Pricing options */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Sub Services */}
+          <div className="space-y-2">
+            <Label className="font-medium">Sub Services</Label>
+            
+            {/* Added Sub-Services Panels */}
+            {selectedSubServices.length > 0 && (
+              <div className="space-y-4">
+                {selectedSubServices.map(subServiceId => (
+                  <Card key={subServiceId} className="border border-gray-200">
+                    <CardContent className="p-4 pt-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-medium">Sub Service Name</h3>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleRemoveSubService(subServiceId)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <Select value={subServiceId} disabled>
+                        <SelectTrigger>
+                          <SelectValue>{getSubServiceName(subServiceId)}</SelectValue>
+                        </SelectTrigger>
+                      </Select>
+                      
+                      <div className="grid grid-cols-2 gap-4 mt-4">
                         {/* Price per KG */}
-                        {renderPriceFields(subServiceId, 'kg')}
+                        <div className="space-y-2">
+                          <Label>Price per KG</Label>
+                          <Input 
+                            type="number" 
+                            value={pricePerKg[subServiceId]?.standard || ''}
+                            onChange={(e) => handlePricePerKgChange(subServiceId, e.target.value)}
+                            placeholder="0"
+                          />
+                        </div>
                         
                         {/* Price per Item */}
-                        {renderPriceFields(subServiceId, 'item')}
+                        <div className="space-y-2">
+                          <Label>Price per Item</Label>
+                          <Input 
+                            type="number" 
+                            value={pricePerItem[subServiceId]?.standard || ''}
+                            onChange={(e) => handlePricePerItemChange(subServiceId, e.target.value)}
+                            placeholder="0"
+                          />
+                        </div>
                       </div>
                       
                       {/* Clothing Items */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">
-                          Select Clothing Items with Prices
-                        </Label>
+                      <div className="mt-5">
+                        <h4 className="font-medium mb-2">Clothing Items</h4>
                         
-                        <MultiSelect
-                          options={clothingItemOptions}
-                          selected={selectedClothingItems[subServiceId] || []}
-                          onChange={(values) => handleClothingItemChange(subServiceId, values)}
-                          placeholder="Select clothing items..."
-                          searchPlaceholder="Search clothing items..."
-                          className="w-full"
-                        />
+                        {/* Add Items Button */}
+                        <Select onValueChange={(value) => handleClothingItemSelect(subServiceId, value)}>
+                          <SelectTrigger className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-3">
+                            <div className="flex items-center">
+                              <Plus className="h-4 w-4 mr-2" />
+                              <span>Add Items</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {clothingItems
+                              .filter(item => item.active && !(selectedClothingItems[subServiceId] || []).includes(item.id))
+                              .map(item => (
+                                <SelectItem key={item.id} value={item.id}>
+                                  {item.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
                         
-                        {/* Clothing Item Prices */}
+                        {/* Selected Clothing Items */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {(selectedClothingItems[subServiceId] || []).map(itemId => {
+                            const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '';
+                            return (
+                              <Badge key={itemId} variant="secondary" className="p-2">
+                                {getClothingItemName(itemId)} - ₹{price || 0}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                        
+                        {/* Clothing Items with Prices */}
                         {(selectedClothingItems[subServiceId] || []).length > 0 && (
-                          <div className="mt-3 border rounded-md p-3 bg-gray-50 space-y-3">
-                            {(selectedClothingItems[subServiceId] || []).map((itemId) => (
-                              <div key={itemId} className="flex flex-col border-b pb-3 last:border-0 last:pb-0">
-                                <div className="font-medium text-sm">
-                                  {getClothingItemName(itemId)}
+                          <div className="space-y-2 mt-3">
+                            {(selectedClothingItems[subServiceId] || []).map(itemId => (
+                              <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
+                                <span>{getClothingItemName(itemId)}</span>
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="number"
+                                    value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
+                                    onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, e.target.value)}
+                                    placeholder="Price"
+                                    className="w-24 h-8"
+                                  />
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
+                                    className="h-8 w-8 p-0 text-red-500"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
                                 </div>
-                                
-                                {/* Render price fields for the item */}
-                                {renderClothingItemPriceFields(subServiceId, itemId)}
                               </div>
                             ))}
                           </div>
                         )}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            
+            {/* Add Sub Service Button */}
+            <Select onValueChange={handleSubServiceSelect}>
+              <SelectTrigger className="w-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100">
+                <div className="flex items-center">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span>Add Sub Service</span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {subServices
+                  .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+                  .map(subService => (
+                    <SelectItem key={subService.id} value={subService.id}>
+                      {subService.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
         <DialogFooter className="mt-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            {editingService ? 'Update Service' : 'Add Service'}
+          <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>
