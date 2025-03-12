@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { useServicesData } from '@/hooks/useServicesData';
 
 interface StudioDetails {
   id: number;
@@ -65,6 +65,7 @@ const StudioDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { services, subServices, clothingItems } = useServicesData();
   const [studioDetails, setStudioDetails] = useState<StudioDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAddService, setShowAddService] = useState(false);
@@ -75,7 +76,6 @@ const StudioDetails: React.FC = () => {
     const fetchStudioDetails = () => {
       setLoading(true);
       try {
-        // Get all studios from localStorage
         const savedStudios = localStorage.getItem('laundryStudios');
         
         if (savedStudios) {
@@ -83,8 +83,6 @@ const StudioDetails: React.FC = () => {
           const studio = studios.find((s: any) => s.id === Number(id));
           
           if (studio) {
-            // This is a simplified version - in a real app, this would come from the backend
-            // For now, we'll mock the additional details
             const studioFullDetails: StudioDetails = {
               ...studio,
               email: "saitejasamala0808@gmail.com",
@@ -120,7 +118,6 @@ const StudioDetails: React.FC = () => {
                 upiId: `${studio.ownerName.toLowerCase().replace(/\s+/g, '')}@upi`,
                 paymentSchedule: "Daily Payment"
               },
-              // Mock services for the studio
               studioServices: [
                 { id: '1', name: 'Dry Cleaning', active: true, price: 150 },
                 { id: '2', name: 'Express Wash', active: true, price: 200 },
@@ -161,97 +158,6 @@ const StudioDetails: React.FC = () => {
     fetchStudioDetails();
   }, [id, navigate, toast]);
 
-  const handleAddService = () => {
-    if (!newServiceName.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Service name cannot be empty"
-      });
-      return;
-    }
-
-    if (newServicePrice <= 0) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Price must be greater than zero"
-      });
-      return;
-    }
-
-    if (studioDetails && studioDetails.studioServices) {
-      const newService: StudioService = {
-        id: Date.now().toString(),
-        name: newServiceName,
-        active: true,
-        price: newServicePrice
-      };
-
-      const updatedStudioDetails = {
-        ...studioDetails,
-        studioServices: [...studioDetails.studioServices, newService]
-      };
-
-      setStudioDetails(updatedStudioDetails);
-      
-      // In a real application, you would save this to the backend
-      // For now, we're just updating the state
-      
-      toast({
-        title: "Service Added",
-        description: `${newServiceName} has been added to this studio's services`
-      });
-
-      // Reset form
-      setNewServiceName('');
-      setNewServicePrice(0);
-      setShowAddService(false);
-    }
-  };
-
-  const toggleServiceStatus = (serviceId: string) => {
-    if (studioDetails && studioDetails.studioServices) {
-      const updatedServices = studioDetails.studioServices.map(service => 
-        service.id === serviceId ? { ...service, active: !service.active } : service
-      );
-
-      const updatedStudioDetails = {
-        ...studioDetails,
-        studioServices: updatedServices
-      };
-
-      setStudioDetails(updatedStudioDetails);
-      
-      const service = studioDetails.studioServices.find(s => s.id === serviceId);
-      toast({
-        title: service?.active ? "Service Disabled" : "Service Enabled",
-        description: `${service?.name} has been ${service?.active ? "disabled" : "enabled"}`
-      });
-    }
-  };
-
-  const deleteService = (serviceId: string) => {
-    if (studioDetails && studioDetails.studioServices) {
-      const service = studioDetails.studioServices.find(s => s.id === serviceId);
-      const updatedServices = studioDetails.studioServices.filter(
-        service => service.id !== serviceId
-      );
-
-      const updatedStudioDetails = {
-        ...studioDetails,
-        studioServices: updatedServices
-      };
-
-      setStudioDetails(updatedStudioDetails);
-      
-      toast({
-        title: "Service Removed",
-        description: `${service?.name} has been removed from this studio's services`
-      });
-    }
-  };
-
   if (loading) {
     return (
       <Layout activeSection="studios">
@@ -278,7 +184,6 @@ const StudioDetails: React.FC = () => {
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
-        {/* Header with back button and edit button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -308,7 +213,6 @@ const StudioDetails: React.FC = () => {
           </Button>
         </div>
 
-        {/* Basic Information Card */}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-6">Basic Information</h2>
@@ -337,7 +241,6 @@ const StudioDetails: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Address Details Card */}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-6">Address Details</h2>
@@ -374,7 +277,6 @@ const StudioDetails: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Business Details Card */}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-6">Business Details</h2>
@@ -407,7 +309,6 @@ const StudioDetails: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Studio Setup Card */}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-6">Studio Setup</h2>
@@ -439,7 +340,6 @@ const StudioDetails: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Studio Services Card - NEW SECTION */}
         <Card>
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -447,94 +347,36 @@ const StudioDetails: React.FC = () => {
                 <Package className="h-6 w-6" />
                 Studio Services
               </h2>
-              <Button 
-                onClick={() => setShowAddService(!showAddService)} 
-                variant="outline" 
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add Service
-              </Button>
             </div>
 
-            {showAddService && (
-              <div className="mb-6 p-4 border rounded-md bg-gray-50">
-                <h3 className="font-semibold mb-3">Add New Service</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Service Name</label>
-                    <input
-                      type="text"
-                      value={newServiceName}
-                      onChange={(e) => setNewServiceName(e.target.value)}
-                      className="w-full p-2 border rounded"
-                      placeholder="Enter service name"
-                    />
+            {studioDetails?.studioServices && studioDetails.studioServices.length > 0 ? (
+              <div className="space-y-4">
+                {studioDetails.studioServices.map((service, index) => (
+                  <div key={service.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">{service.name}</h3>
+                        <p className="text-sm text-gray-500">Price: ₹{service.price}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Switch
+                          checked={service.active}
+                          onCheckedChange={() => {
+                            const updatedServices = [...studioDetails.studioServices];
+                            updatedServices[index].active = !service.active;
+                            setStudioDetails({
+                              ...studioDetails,
+                              studioServices: updatedServices,
+                            });
+                          }}
+                        />
+                        <Badge variant={service.active ? "default" : "outline"}>
+                          {service.active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Price (₹)</label>
-                    <input
-                      type="number"
-                      value={newServicePrice}
-                      onChange={(e) => setNewServicePrice(parseFloat(e.target.value))}
-                      className="w-full p-2 border rounded"
-                      placeholder="Enter price"
-                      min="0"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowAddService(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddService}>
-                    Save Service
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {studioDetails.studioServices && studioDetails.studioServices.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="p-3 text-left">Service Name</th>
-                      <th className="p-3 text-left">Price</th>
-                      <th className="p-3 text-left">Status</th>
-                      <th className="p-3 text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {studioDetails.studioServices.map((service) => (
-                      <tr key={service.id} className="border-b">
-                        <td className="p-3">{service.name}</td>
-                        <td className="p-3">₹{service.price}</td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <Switch
-                              checked={service.active}
-                              onCheckedChange={() => toggleServiceStatus(service.id)}
-                            />
-                            <Badge variant={service.active ? "default" : "outline"}>
-                              {service.active ? "Active" : "Inactive"}
-                            </Badge>
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                            onClick={() => deleteService(service.id)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                ))}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
@@ -544,7 +386,6 @@ const StudioDetails: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Payment Details Card */}
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-6">Payment Details</h2>
