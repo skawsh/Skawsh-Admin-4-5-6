@@ -725,5 +725,75 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                           </Button>
                         </div>
                         
-                        {(
+                        {(selectedClothingItems[subServiceId]?.length || 0) > 0 ? (
+                          <div className="space-y-2">
+                            {selectedClothingItems[subServiceId]?.map(itemId => (
+                              renderClothingItemPriceRow(subServiceId, itemId)
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-4 bg-gray-50 rounded-md border border-dashed border-gray-300">
+                            <p className="text-gray-500 text-sm">No clothing items added yet</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            
+            {selectedSubServices.length < subServices.filter(s => s.active).length && (
+              <div>
+                <Label className="font-semibold text-gray-700 mb-2 block">Add Sub Service</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {subServices
+                    .filter(s => s.active && !selectedSubServices.includes(s.id))
+                    .map(subService => (
+                      <Button
+                        key={subService.id}
+                        type="button"
+                        variant="outline"
+                        className="justify-start border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors"
+                        onClick={() => handleSubServiceSelect(subService.id)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        {subService.name}
+                      </Button>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <DialogFooter className="border-t pt-4 flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="rounded-md bg-white text-gray-700 hover:bg-gray-100 border-gray-300 transition-colors"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave}
+            className="rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
 
+      <AddItemPopup
+        isOpen={isAddItemsOpen}
+        onOpenChange={setIsAddItemsOpen}
+        clothingItems={clothingItems}
+        selectedItems={Object.values(selectedClothingItems).flat()}
+        onAddItem={handleAddItemFromPopup}
+        washCategory={washCategory}
+      />
+    </Dialog>
+  );
+};
+
+export default MultiSelectServiceDialog;
