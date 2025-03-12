@@ -1,16 +1,34 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Service, SubService, ClothingItem } from '@/types/services';
 import { Card, CardContent } from "@/components/ui/card";
 import MultiSelect from '@/components/ui/multi-select';
-import { ChevronDown, Plus, X } from 'lucide-react';
+import { ChevronDown, Plus, X, Search } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import AddItemPopup from './AddItemPopup';
+import { 
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 
 interface MultiSelectServiceDialogProps {
   isOpen: boolean;
@@ -42,6 +60,11 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
   const [isAddItemsOpen, setIsAddItemsOpen] = useState(false);
+  
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const [subServiceOpen, setSubServiceOpen] = useState(false);
+  const [serviceSearchValue, setServiceSearchValue] = useState("");
+  const [subServiceSearchValue, setSubServiceSearchValue] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -114,6 +137,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 
   const handleServiceChange = (value: string) => {
     setSelectedServiceId(value);
+    setServiceOpen(false);
   };
 
   const handleSubServiceSelect = (subServiceId: string) => {
@@ -142,6 +166,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       }));
       
       setActiveSubServiceId(subServiceId);
+      setSubServiceOpen(false);
     }
   };
 
@@ -639,6 +664,18 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }
   };
 
+  const filteredServices = services
+    .filter(service => service.active)
+    .filter(service => 
+      service.name.toLowerCase().includes(serviceSearchValue.toLowerCase())
+    );
+
+  const filteredSubServices = subServices
+    .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+    .filter(subService => 
+      subService.name.toLowerCase().includes(subServiceSearchValue.toLowerCase())
+    );
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
@@ -663,22 +700,68 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
             <Label htmlFor="service-select" className="font-semibold text-gray-800">
               Service Name
             </Label>
-            <Select
-              value={selectedServiceId}
-              onValueChange={handleServiceChange}
-              disabled={!!editingService}
-            >
-              <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                <SelectValue placeholder="Select a service" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.filter(service => service.active).map((service) => (
-                  <SelectItem key={service.id} value={service.id}>
-                    {service.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={serviceOpen && !editingService} onOpenChange={setServiceOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={serviceOpen}
+                  className="w-full justify-between border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  disabled={!!editingService}
+                >
+                  {selectedServiceId ? (
+                    services.find(service => service.id === selectedServiceId)?.name || "Select a service"
+                  ) : (
+                    "Select a service"
+                  )}
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search services..." 
+                    value={serviceSearchValue}
+                    onValueChange={setServiceSearchValue}
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>No services found</CommandEmpty>
+                    <CommandGroup>
+                      {filteredServices.map((service) => (
+                        <CommandItem
+                          key={service.id}
+                          value={service.id}
+                          onSelect={() => handleServiceChange(service.id)}
+                          className="cursor-pointer"
+                        >
+                          {service.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            
+            {editingService && (
+              <Select
+                value={selectedServiceId}
+                onValueChange={handleServiceChange}
+                disabled={true}
+              >
+                <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                  <SelectValue placeholder="Select a service" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.filter(service => service.active).map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
           
           <div className="space-y-4 pt-2">
@@ -744,23 +827,47 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
               </div>
             )}
             
-            <Select onValueChange={handleSubServiceSelect}>
-              <SelectTrigger className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                <div className="flex items-center">
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span>Add Sub Service</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {subServices
-                  .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
-                  .map(subService => (
-                    <SelectItem key={subService.id} value={subService.id}>
-                      {subService.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <Popover open={subServiceOpen} onOpenChange={setSubServiceOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={subServiceOpen}
+                  className="w-full justify-between border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                >
+                  <div className="flex items-center">
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span>Add Sub Service</span>
+                  </div>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search sub services..." 
+                    value={subServiceSearchValue}
+                    onValueChange={setSubServiceSearchValue}
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>No sub services found</CommandEmpty>
+                    <CommandGroup>
+                      {filteredSubServices.map((subService) => (
+                        <CommandItem
+                          key={subService.id}
+                          value={subService.id}
+                          onSelect={() => handleSubServiceSelect(subService.id)}
+                          className="cursor-pointer"
+                        >
+                          {subService.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         
