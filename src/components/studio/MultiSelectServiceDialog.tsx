@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -747,7 +748,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
               <SelectTrigger className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                 <div className="flex items-center">
                   <Plus className="h-4 w-4 mr-2" />
-                  <span>Select a sub-service</span>
+                  <span>Add Sub Service</span>
                 </div>
               </SelectTrigger>
               <SelectContent>
