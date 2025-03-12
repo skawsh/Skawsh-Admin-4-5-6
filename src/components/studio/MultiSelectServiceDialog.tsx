@@ -484,22 +484,30 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       return (
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="space-y-2">
-            <Label>Standard Price per KG</Label>
+            <Label className="flex items-center text-gray-700">
+              <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Standard</span>
+              Price per KG
+            </Label>
             <Input 
               type="number" 
               value={pricePerKg[subServiceId]?.standard || ''}
               onChange={(e) => handlePricePerKgChange(subServiceId, 'standard', e.target.value)}
               placeholder="0"
+              className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
           <div className="space-y-2">
-            <Label>Standard Price per Item</Label>
+            <Label className="flex items-center text-gray-700">
+              <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Standard</span>
+              Price per Item
+            </Label>
             <Input 
               type="number" 
               value={pricePerItem[subServiceId]?.standard || ''}
               onChange={(e) => handlePricePerItemChange(subServiceId, 'standard', e.target.value)}
               placeholder="0"
+              className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -508,22 +516,30 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       return (
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="space-y-2">
-            <Label>Express Price per KG</Label>
+            <Label className="flex items-center text-gray-700">
+              <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Express</span>
+              Price per KG
+            </Label>
             <Input 
               type="number" 
               value={pricePerKg[subServiceId]?.express || ''}
               onChange={(e) => handlePricePerKgChange(subServiceId, 'express', e.target.value)}
               placeholder="0"
+              className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           
           <div className="space-y-2">
-            <Label>Express Price per Item</Label>
+            <Label className="flex items-center text-gray-700">
+              <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Express</span>
+              Price per Item
+            </Label>
             <Input 
               type="number" 
               value={pricePerItem[subServiceId]?.express || ''}
               onChange={(e) => handlePricePerItemChange(subServiceId, 'express', e.target.value)}
               placeholder="0"
+              className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -533,44 +549,60 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         <div className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Standard Price per KG</Label>
+              <Label className="flex items-center text-gray-700">
+                <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Standard</span>
+                Price per KG
+              </Label>
               <Input 
                 type="number" 
                 value={pricePerKg[subServiceId]?.standard || ''}
                 onChange={(e) => handlePricePerKgChange(subServiceId, 'standard', e.target.value)}
                 placeholder="0"
+                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
             <div className="space-y-2">
-              <Label>Standard Price per Item</Label>
+              <Label className="flex items-center text-gray-700">
+                <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Standard</span>
+                Price per Item
+              </Label>
               <Input 
                 type="number" 
                 value={pricePerItem[subServiceId]?.standard || ''}
                 onChange={(e) => handlePricePerItemChange(subServiceId, 'standard', e.target.value)}
                 placeholder="0"
+                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Express Price per KG</Label>
+              <Label className="flex items-center text-gray-700">
+                <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Express</span>
+                Price per KG
+              </Label>
               <Input 
                 type="number" 
                 value={pricePerKg[subServiceId]?.express || ''}
                 onChange={(e) => handlePricePerKgChange(subServiceId, 'express', e.target.value)}
                 placeholder="0"
+                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
             <div className="space-y-2">
-              <Label>Express Price per Item</Label>
+              <Label className="flex items-center text-gray-700">
+                <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Express</span>
+                Price per Item
+              </Label>
               <Input 
                 type="number" 
                 value={pricePerItem[subServiceId]?.express || ''}
                 onChange={(e) => handlePricePerItemChange(subServiceId, 'express', e.target.value)}
                 placeholder="0"
+                className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -583,21 +615,24 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const renderClothingItemPriceRow = (subServiceId: string, itemId: string) => {
     if (washCategory === 'standard') {
       return (
-        <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
-          <span>{getClothingItemName(itemId)}</span>
+        <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors duration-150">
+          <span className="font-medium text-gray-800">{getClothingItemName(itemId)}</span>
           <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
-              onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
-              placeholder="Price"
-              className="w-24 h-8"
-            />
+            <div className="flex items-center">
+              <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Standard</span>
+              <Input
+                type="number"
+                value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
+                onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
+                placeholder="Price"
+                className="w-24 h-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
-              className="h-8 w-8 p-0 text-red-500"
+              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -606,21 +641,24 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       );
     } else if (washCategory === 'express') {
       return (
-        <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
-          <span>{getClothingItemName(itemId)}</span>
+        <div key={itemId} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors duration-150">
+          <span className="font-medium text-gray-800">{getClothingItemName(itemId)}</span>
           <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
-              onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
-              placeholder="Price"
-              className="w-24 h-8"
-            />
+            <div className="flex items-center">
+              <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded mr-2">Express</span>
+              <Input
+                type="number"
+                value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
+                onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
+                placeholder="Price"
+                className="w-24 h-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
-              className="h-8 w-8 p-0 text-red-500"
+              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -629,37 +667,37 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       );
     } else {
       return (
-        <div key={itemId} className="space-y-2 bg-gray-50 rounded-md p-3">
+        <div key={itemId} className="space-y-2 bg-gray-50 rounded-md p-3 hover:bg-gray-100 transition-colors duration-150">
           <div className="flex items-center justify-between">
-            <span className="font-medium">{getClothingItemName(itemId)}</span>
+            <span className="font-medium text-gray-800">{getClothingItemName(itemId)}</span>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => handleRemoveClothingItem(subServiceId, itemId)}
-              className="h-8 w-8 p-0 text-red-500"
+              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="flex items-center space-x-2">
-              <Label className="w-16 text-xs whitespace-nowrap">Standard:</Label>
+              <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded whitespace-nowrap">Standard:</span>
               <Input
                 type="number"
                 value={clothingItemPrices[subServiceId]?.[itemId]?.standard || ''}
                 onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'standard', e.target.value)}
                 placeholder="Price"
-                className="h-8 text-sm"
+                className="h-8 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Label className="w-16 text-xs whitespace-nowrap">Express:</Label>
+              <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded whitespace-nowrap">Express:</span>
               <Input
                 type="number"
                 value={clothingItemPrices[subServiceId]?.[itemId]?.express || ''}
                 onChange={(e) => handleClothingItemPriceChange(subServiceId, itemId, 'express', e.target.value)}
                 placeholder="Price"
-                className="h-8 text-sm"
+                className="h-8 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -670,9 +708,9 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader className="text-center">
-          <DialogTitle className="text-xl font-semibold text-blue-600">Add Service</DialogTitle>
+      <DialogContent className="max-w-[600px] max-h-[80vh] overflow-hidden flex flex-col bg-white shadow-xl border-0">
+        <DialogHeader className="text-center pb-2 border-b">
+          <DialogTitle className="text-2xl font-bold text-blue-600">Add Service</DialogTitle>
           <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
         </DialogHeader>
         
@@ -690,8 +728,8 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         
         <div className="space-y-6 overflow-y-auto pr-2 flex-grow">
           {/* Service Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="service-select" className="font-medium">
+          <div className="space-y-2 mt-2">
+            <Label htmlFor="service-select" className="font-semibold text-gray-800">
               Service Name
             </Label>
             <Select
@@ -699,7 +737,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
               onValueChange={handleServiceChange}
               disabled={!!editingService}
             >
-              <SelectTrigger id="service-select" className="w-full">
+              <SelectTrigger id="service-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
               <SelectContent>
@@ -713,29 +751,29 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           </div>
           
           {/* Sub Services */}
-          <div className="space-y-2">
-            <Label className="font-medium">Sub Services</Label>
+          <div className="space-y-4 pt-2">
+            <Label className="font-semibold text-gray-800">Sub Services</Label>
             
             {/* Added Sub-Services Panels */}
             {selectedSubServices.length > 0 && (
               <div className="space-y-4">
                 {selectedSubServices.map(subServiceId => (
-                  <Card key={subServiceId} className="border border-gray-200">
+                  <Card key={subServiceId} className="border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
                     <CardContent className="p-4 pt-4">
                       <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-medium">Sub Service Name</h3>
+                        <h3 className="font-semibold text-gray-800">Sub Service Name</h3>
                         <Button 
                           variant="ghost" 
                           size="sm" 
                           onClick={() => handleRemoveSubService(subServiceId)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full"
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                       
                       <Select value={subServiceId} disabled>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-gray-300 bg-gray-50">
                           <SelectValue>{getSubServiceName(subServiceId)}</SelectValue>
                         </SelectTrigger>
                       </Select>
@@ -745,27 +783,32 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                       
                       {/* Clothing Items */}
                       <div className="mt-5">
-                        <h4 className="font-medium mb-2">Clothing Items</h4>
-                        
-                        {/* Add Items Button */}
-                        <Button 
-                          type="button"
-                          className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-3"
-                          onClick={() => {
-                            setActiveSubServiceId(subServiceId);
-                            handleOpenAddItems();
-                          }}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Items
-                        </Button>
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-semibold text-gray-800">Clothing Items</h4>
+                          <Button 
+                            type="button"
+                            variant="outline"
+                            className="h-8 py-1 px-3 text-sm border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:border-blue-300"
+                            onClick={() => {
+                              setActiveSubServiceId(subServiceId);
+                              handleOpenAddItems();
+                            }}
+                          >
+                            <Plus className="h-3.5 w-3.5 mr-1" />
+                            Add Items
+                          </Button>
+                        </div>
                         
                         {/* Clothing Items with Prices */}
-                        {(selectedClothingItems[subServiceId] || []).length > 0 && (
+                        {(selectedClothingItems[subServiceId] || []).length > 0 ? (
                           <div className="space-y-2 mt-3">
                             {(selectedClothingItems[subServiceId] || []).map(itemId => 
                               renderClothingItemPriceRow(subServiceId, itemId)
                             )}
+                          </div>
+                        ) : (
+                          <div className="bg-gray-50 rounded-md p-4 text-center text-gray-500 border border-dashed border-gray-300 mt-2">
+                            No clothing items added yet
                           </div>
                         )}
                       </div>
@@ -777,7 +820,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
             
             {/* Add Sub Service Button */}
             <Select onValueChange={handleSubServiceSelect}>
-              <SelectTrigger className="w-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100">
+              <SelectTrigger className="w-full max-w-sm mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
                 <div className="flex items-center">
                   <Plus className="h-4 w-4 mr-2" />
                   <span>Add Sub Service</span>
@@ -796,11 +839,18 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           </div>
         </div>
         
-        <DialogFooter className="mt-4 pt-2 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="mt-4 pt-3 border-t flex justify-end space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-5 py-2 font-medium text-gray-700 hover:bg-gray-100 border-gray-300"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            onClick={handleSave} 
+            className="px-5 py-2 font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+          >
             Save
           </Button>
         </DialogFooter>
