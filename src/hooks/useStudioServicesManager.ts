@@ -15,15 +15,18 @@ export const useStudioServicesManager = (
   const { toast } = useToast();
   const { services: allServices, subServices: allSubServices, clothingItems: allClothingItems } = useServicesData();
   
+  // Edit state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editType, setEditType] = useState<'service' | 'subservice' | 'clothingitem'>('service');
   const [editValue, setEditValue] = useState('');
   const [editIndices, setEditIndices] = useState<{ serviceIndex: number, subServiceIndex?: number, itemId?: string }>({ serviceIndex: 0 });
 
+  // Delete confirmation state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteType, setDeleteType] = useState<'service' | 'subservice' | 'clothingitem'>('service');
   const [deleteIndices, setDeleteIndices] = useState<{ serviceIndex: number, subServiceIndex?: number, itemId?: string }>({ serviceIndex: 0 });
 
+  // Utility function to save updated services to localStorage
   const saveUpdatedServicesToLocalStorage = (updatedServices: StudioService[]) => {
     if (!studioId) return;
     
@@ -49,15 +52,17 @@ export const useStudioServicesManager = (
     }
   };
 
+  // Handle adding a new service that might have been created with a temporary ID
   const handleAddTemporaryService = (serviceData: any) => {
     if (!studioData) return null;
     
+    // Check if this is a temporary service (has serviceName property)
     if (serviceData.serviceName && serviceData.serviceId.startsWith('new-service-')) {
+      // Create a new service with the temporary ID and name
       const newService: StudioService = {
         id: serviceData.serviceId,
         name: serviceData.serviceName,
         active: true,
-        serviceId: serviceData.serviceId,
         subServices: serviceData.subServices.map((subService: any) => ({
           ...subService,
           active: true,
@@ -68,6 +73,7 @@ export const useStudioServicesManager = (
         }))
       };
       
+      // Add to the studio services
       const updatedServices = [...studioData.studioServices, newService];
       setStudioData({
         ...studioData,
@@ -94,10 +100,12 @@ export const useStudioServicesManager = (
     const newStatus = !updatedServices[serviceIndex].active;
     updatedServices[serviceIndex].active = newStatus;
     
+    // Update all subservices to match the service status
     updatedServices[serviceIndex].subServices = updatedServices[serviceIndex].subServices.map(
       subService => ({
         ...subService,
         active: newStatus,
+        // Also update all clothing items to match the service status
         clothingItemsStatus: subService.selectedItems?.reduce((acc, itemId) => {
           acc[itemId] = newStatus;
           return acc;
@@ -129,6 +137,7 @@ export const useStudioServicesManager = (
     const subService = service.subServices[subServiceIndex];
     subService.active = active;
     
+    // Update all clothing items to match the subservice status
     if (subService.selectedItems && subService.selectedItems.length > 0) {
       if (!subService.clothingItemsStatus) {
         subService.clothingItemsStatus = {};
@@ -139,10 +148,12 @@ export const useStudioServicesManager = (
       });
     }
     
+    // If all sub-services are inactive, deactivate the service
     const allSubServicesInactive = service.subServices.every(sub => sub.active === false);
     if (allSubServicesInactive) {
       service.active = false;
     } else if (active && !service.active) {
+      // If at least one sub-service is active, activate the service
       service.active = true;
     }
     
@@ -176,12 +187,15 @@ export const useStudioServicesManager = (
     
     const subService = service.subServices[subServiceIndex];
     
+    // Initialize clothingItemsStatus if it doesn't exist
     if (!subService.clothingItemsStatus) {
       subService.clothingItemsStatus = {};
     }
     
+    // Update status
     subService.clothingItemsStatus[itemId] = active;
     
+    // Check if all clothing items are inactive, then update subservice status
     if (subService.selectedItems && subService.selectedItems.length > 0) {
       const allClothingItemsInactive = subService.selectedItems.every(
         item => subService.clothingItemsStatus![item] === false
@@ -190,12 +204,15 @@ export const useStudioServicesManager = (
       if (allClothingItemsInactive) {
         subService.active = false;
         
+        // Check if all sub-services are inactive, then service should be inactive
         const allSubServicesInactive = service.subServices.every(sub => sub.active === false);
         if (allSubServicesInactive) {
           service.active = false;
         }
       } else if (active && !subService.active) {
+        // If at least one clothing item is active, activate the subservice
         subService.active = true;
+        // Also activate the service if it's inactive
         if (!service.active) {
           service.active = true;
         }
@@ -217,6 +234,7 @@ export const useStudioServicesManager = (
     });
   };
 
+  // Handle edit dialog open
   const handleEditService = (serviceIndex: number) => {
     if (studioData && studioData.studioServices[serviceIndex]) {
       setEditType('service');
@@ -255,6 +273,7 @@ export const useStudioServicesManager = (
     }
   };
 
+  // Handle delete dialog open
   const handleDeleteService = (serviceIndex: number) => {
     if (studioData && studioData.studioServices[serviceIndex]) {
       setDeleteType('service');
@@ -285,6 +304,7 @@ export const useStudioServicesManager = (
     }
   };
 
+  // Handle actual edit
   const handleSaveEdit = () => {
     if (!studioData || !studioData.studioServices) return;
     
@@ -304,6 +324,8 @@ export const useStudioServicesManager = (
       case 'subservice':
         if (updatedServices[editIndices.serviceIndex] && 
             typeof editIndices.subServiceIndex === 'number') {
+          // We can't directly change the ID reference, but we can update the UI name
+          // This is informational only - the actual change would need to happen in the services data
           toast({
             title: "Information",
             description: "Sub-service names are managed globally in the Services section."
@@ -315,6 +337,8 @@ export const useStudioServicesManager = (
         if (updatedServices[editIndices.serviceIndex] && 
             typeof editIndices.subServiceIndex === 'number' &&
             editIndices.itemId) {
+          // We can't directly change the ID reference, but we can update the UI name
+          // This is informational only - the actual change would need to happen in the services data
           toast({
             title: "Information",
             description: "Clothing item names are managed globally in the Services section."
@@ -332,6 +356,7 @@ export const useStudioServicesManager = (
     setEditDialogOpen(false);
   };
 
+  // Handle actual delete
   const handleConfirmDelete = () => {
     if (!studioData || !studioData.studioServices) return;
     
@@ -339,6 +364,7 @@ export const useStudioServicesManager = (
     
     switch (deleteType) {
       case 'service':
+        // Remove the entire service
         updatedServices.splice(deleteIndices.serviceIndex, 1);
         toast({
           title: "Service Deleted",
@@ -350,8 +376,10 @@ export const useStudioServicesManager = (
         if (updatedServices[deleteIndices.serviceIndex] && 
             typeof deleteIndices.subServiceIndex === 'number') {
           
+          // Remove the subservice
           updatedServices[deleteIndices.serviceIndex].subServices.splice(deleteIndices.subServiceIndex, 1);
           
+          // If no subservices remain, make service inactive
           if (updatedServices[deleteIndices.serviceIndex].subServices.length === 0) {
             updatedServices[deleteIndices.serviceIndex].active = false;
             toast({
@@ -374,8 +402,12 @@ export const useStudioServicesManager = (
           
           const subService = updatedServices[deleteIndices.serviceIndex].subServices[deleteIndices.subServiceIndex!];
           
-          subService.selectedItems = subService.selectedItems.filter(id => id !== deleteIndices.itemId);
+          // Remove the item from selectedItems
+          if (subService.selectedItems) {
+            subService.selectedItems = subService.selectedItems.filter(id => id !== deleteIndices.itemId);
+          }
           
+          // Remove any pricing for this item
           if (subService.standardItemPrices) {
             delete subService.standardItemPrices[deleteIndices.itemId!];
           }
@@ -388,6 +420,7 @@ export const useStudioServicesManager = (
             delete subService.itemPrices[deleteIndices.itemId!];
           }
           
+          // Remove from clothingItemsStatus
           if (subService.clothingItemsStatus) {
             delete subService.clothingItemsStatus[deleteIndices.itemId!];
           }
