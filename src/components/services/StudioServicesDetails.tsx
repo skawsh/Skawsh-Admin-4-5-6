@@ -2,6 +2,7 @@
 import React from 'react';
 import { StudioService } from '@/types/services';
 import { Card } from '../ui/card';
+import { Switch } from "@/components/ui/switch";
 
 interface StudioServicesDetailsProps {
   studioServices: StudioService[];
