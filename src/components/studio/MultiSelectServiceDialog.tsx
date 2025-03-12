@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -745,7 +744,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
             )}
             
             <Select onValueChange={handleSubServiceSelect}>
-              <SelectTrigger className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+              <SelectTrigger className="w-full max-w-sm mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
                 <div className="flex items-center">
                   <Plus className="h-4 w-4 mr-2" />
                   <span>Add Sub Service</span>
