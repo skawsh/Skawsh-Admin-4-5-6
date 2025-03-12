@@ -87,9 +87,20 @@ const AddStudio: React.FC = () => {
     console.log('Studio data to submit:', formData);
     console.log('Studio services to submit:', studioServices);
     
+    // Format the studio services to include proper service names
+    const formattedStudioServices = studioServices.map(service => {
+      const serviceName = getServiceNameById(service.serviceId);
+      return {
+        id: service.serviceId,
+        name: serviceName,
+        active: true,
+        serviceId: service.serviceId,
+        subServices: service.subServices
+      };
+    });
+    
     // Generate random values for testing
     const randomRating = Math.floor(Math.random() * 10) / 10 + 4.0; // Random rating between 4.0 and 5.0
-    const randomServices = Math.floor(Math.random() * 30) + 30; // Random services between 30 and 60
     
     // Create a new studio object
     const newStudio = {
@@ -98,9 +109,10 @@ const AddStudio: React.FC = () => {
       studioName: formData.studioName,
       ownerName: `${formData.ownerFirstName} ${formData.ownerLastName}`.trim(),
       contact: formData.primaryNumber,
-      services: studioServices.length > 0 ? studioServices.length : randomServices,
+      services: formattedStudioServices.length,
       rating: randomRating,
-      status: true
+      status: true,
+      studioServices: formattedStudioServices
     };
     
     // Add the new studio to localStorage

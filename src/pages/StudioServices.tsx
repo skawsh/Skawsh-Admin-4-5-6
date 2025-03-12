@@ -24,22 +24,56 @@ const StudioServices: React.FC = () => {
       const savedStudios = localStorage.getItem('laundryStudios');
       
       if (savedStudios && id) {
-        const studios = JSON.parse(savedStudios);
-        const studio = studios.find((s: any) => s.id.toString() === id.toString());
-        
-        if (studio) {
-          setStudioData({
-            studioName: studio.studioName,
-            studioServices: studio.studioServices || []
-          });
-        } else {
+        try {
+          const studios = JSON.parse(savedStudios);
+          const studio = studios.find((s: any) => s.id.toString() === id.toString());
+          
+          if (studio) {
+            console.log("Found studio:", studio);
+            
+            // Check if studioServices exists in the studio object
+            if (studio.studioServices) {
+              console.log("Studio services found:", studio.studioServices);
+              setStudioData({
+                studioName: studio.studioName,
+                studioServices: studio.studioServices
+              });
+            } else {
+              console.log("No studio services found in the studio object");
+              
+              // Check if services data exists but is saved in a different format
+              if (studio.services && Array.isArray(studio.services)) {
+                setStudioData({
+                  studioName: studio.studioName,
+                  studioServices: studio.services
+                });
+              } else {
+                // No services found in any expected format
+                setStudioData({
+                  studioName: studio.studioName,
+                  studioServices: []
+                });
+              }
+            }
+          } else {
+            console.log("Studio not found with ID:", id);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Studio not found"
+            });
+            navigate('/studios');
+          }
+        } catch (error) {
+          console.error("Error parsing studio data:", error);
           toast({
             variant: "destructive",
             title: "Error",
-            description: "Studio not found"
+            description: "Failed to load studio data"
           });
-          navigate('/studios');
         }
+      } else {
+        console.log("No studios data found in localStorage or ID is missing");
       }
       setLoading(false);
     };
@@ -59,16 +93,25 @@ const StudioServices: React.FC = () => {
       
       const savedStudios = localStorage.getItem('laundryStudios');
       if (savedStudios && id) {
-        const studios = JSON.parse(savedStudios);
-        const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
-        
-        if (studioIndex !== -1) {
-          studios[studioIndex].studioServices = updatedServices;
-          localStorage.setItem('laundryStudios', JSON.stringify(studios));
+        try {
+          const studios = JSON.parse(savedStudios);
+          const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
           
+          if (studioIndex !== -1) {
+            studios[studioIndex].studioServices = updatedServices;
+            localStorage.setItem('laundryStudios', JSON.stringify(studios));
+            
+            toast({
+              title: "Service Status Updated",
+              description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'}.`
+            });
+          }
+        } catch (error) {
+          console.error("Error updating service status:", error);
           toast({
-            title: "Service Status Updated",
-            description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'}.`
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update service status"
           });
         }
       }
@@ -83,7 +126,7 @@ const StudioServices: React.FC = () => {
             <Button 
               variant="outline" 
               className="bg-white" 
-              onClick={() => navigate('/studios')}
+              onClick={() => navigate(`/studios/${id}`)}
               size="icon"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -103,7 +146,7 @@ const StudioServices: React.FC = () => {
           <div className="bg-white p-8 rounded-lg border border-gray-100 shadow-sm flex justify-center items-center min-h-[300px]">
             Loading...
           </div>
-        ) : studioData && studioData.studioServices.length > 0 ? (
+        ) : studioData && studioData.studioServices && studioData.studioServices.length > 0 ? (
           <div className="bg-white p-8 rounded-lg border border-gray-100 shadow-sm">
             <StudioServicesDetails
               studioServices={studioData.studioServices}
