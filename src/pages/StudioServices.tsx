@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -174,6 +175,21 @@ const StudioServices: React.FC = () => {
           });
         }
         
+        // Check if this is the only sub-service and auto-update service status
+        if (updatedServices[serviceIndex].subServices.length === 1) {
+          updatedServices[serviceIndex].active = active;
+        } else {
+          // Check if all sub-services are inactive, then service should be inactive
+          const allSubServicesInactive = updatedServices[serviceIndex].subServices.every(
+            sub => sub.active === false
+          );
+          
+          // If all sub-services are inactive, set service to inactive
+          if (allSubServicesInactive) {
+            updatedServices[serviceIndex].active = false;
+          }
+        }
+        
         setStudioData({
           ...studioData,
           studioServices: updatedServices
@@ -182,9 +198,13 @@ const StudioServices: React.FC = () => {
         saveUpdatedServicesToLocalStorage(updatedServices);
         
         const subServiceName = updatedServices[serviceIndex].subServices[subServiceIndex].name;
+        const message = active 
+          ? `${subServiceName} has been activated along with all its clothing items.`
+          : `${subServiceName} has been deactivated along with all its clothing items.${updatedServices[serviceIndex].subServices.length === 1 ? ' Service was also deactivated.' : ''}`;
+        
         toast({
           title: "Sub-Service Status Updated",
-          description: `${subServiceName} has been ${active ? 'activated' : 'deactivated'} along with all its clothing items.`
+          description: message
         });
       }
     }
@@ -212,6 +232,30 @@ const StudioServices: React.FC = () => {
         
         // Update status
         subService.clothingItemsStatus[itemId] = active;
+        
+        // Check if all clothing items are inactive, then update subservice status
+        const allClothingItemsInactive = subService.selectedItems && 
+          subService.selectedItems.every(item => subService.clothingItemsStatus![item] === false);
+        
+        // If all clothing items are inactive and there are items, set subservice to inactive
+        if (allClothingItemsInactive && subService.selectedItems && subService.selectedItems.length > 0) {
+          subService.active = false;
+          
+          // Check if this is the only sub-service and auto-update service status
+          if (updatedServices[serviceIndex].subServices.length === 1) {
+            updatedServices[serviceIndex].active = false;
+          } else {
+            // Check if all sub-services are inactive, then service should be inactive
+            const allSubServicesInactive = updatedServices[serviceIndex].subServices.every(
+              sub => sub.active === false
+            );
+            
+            // If all sub-services are inactive, set service to inactive
+            if (allSubServicesInactive) {
+              updatedServices[serviceIndex].active = false;
+            }
+          }
+        }
         
         setStudioData({
           ...studioData,

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -80,26 +79,18 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
               
               return (
                 <div key={service.id} className="border rounded-lg">
-                  <div className="p-4 bg-gray-50">
+                  <div className="p-4 bg-gray-50 cursor-pointer" onClick={() => toggleServiceExpansion(service.id)}>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-0 h-8 w-8"
-                          onClick={() => toggleServiceExpansion(service.id)}
-                        >
-                          {isExpanded ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
+                        {isExpanded ? 
+                          <ChevronUp className="h-4 w-4" /> : 
+                          <ChevronDown className="h-4 w-4" />
+                        }
                         <div>
                           <h3 className="text-lg font-semibold">{service.name}</h3>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                         <Switch
                           checked={service.active}
                           onCheckedChange={() => onServiceStatusChange(index)}
