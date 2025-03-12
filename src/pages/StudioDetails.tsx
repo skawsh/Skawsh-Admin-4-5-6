@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import { ArrowLeft, Pencil, Package, Plus, Trash } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Pencil } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { useServicesData } from '@/hooks/useServicesData';
+import BasicInfoCard from '@/components/studio/details/BasicInfoCard';
+import AddressCard from '@/components/studio/details/AddressCard';
+import BusinessCard from '@/components/studio/details/BusinessCard';
+import StudioSetupCard from '@/components/studio/details/StudioSetupCard';
+import ServicesCard from '@/components/studio/details/ServicesCard';
+import PaymentCard from '@/components/studio/details/PaymentCard';
 
 interface StudioDetails {
   id: number;
@@ -68,9 +71,6 @@ const StudioDetails: React.FC = () => {
   const { services, subServices, clothingItems } = useServicesData();
   const [studioDetails, setStudioDetails] = useState<StudioDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showAddService, setShowAddService] = useState(false);
-  const [newServiceName, setNewServiceName] = useState('');
-  const [newServicePrice, setNewServicePrice] = useState<number>(0);
 
   useEffect(() => {
     const fetchStudioDetails = () => {
@@ -158,6 +158,17 @@ const StudioDetails: React.FC = () => {
     fetchStudioDetails();
   }, [id, navigate, toast]);
 
+  const handleServiceStatusChange = (serviceIndex: number) => {
+    if (studioDetails?.studioServices) {
+      const updatedServices = [...studioDetails.studioServices];
+      updatedServices[serviceIndex].active = !updatedServices[serviceIndex].active;
+      setStudioDetails({
+        ...studioDetails,
+        studioServices: updatedServices,
+      });
+    }
+  };
+
   if (loading) {
     return (
       <Layout activeSection="studios">
@@ -213,214 +224,26 @@ const StudioDetails: React.FC = () => {
           </Button>
         </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-gray-600 mb-1">Owner Name</p>
-                <p className="text-lg font-medium">{studioDetails.ownerName}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Studio Name</p>
-                <p className="text-lg font-medium">{studioDetails.studioName}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Email</p>
-                <p className="text-lg font-medium">{studioDetails.email}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Primary Number</p>
-                <p className="text-lg font-medium">{studioDetails.contact}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Secondary Number</p>
-                <p className="text-lg font-medium">{studioDetails.secondaryContact || "N/A"}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <BasicInfoCard
+          ownerName={studioDetails.ownerName}
+          studioName={studioDetails.studioName}
+          email={studioDetails.email}
+          contact={studioDetails.contact}
+          secondaryContact={studioDetails.secondaryContact}
+        />
 
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Address Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-gray-600 mb-1">Street</p>
-                <p className="text-lg font-medium">{studioDetails.address.street}</p>
-              </div>
-              <div className="md:col-span-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-gray-600 mb-1">City</p>
-                    <p className="text-lg font-medium">{studioDetails.address.city}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 mb-1">State</p>
-                    <p className="text-lg font-medium">{studioDetails.address.state}</p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Latitude</p>
-                <p className="text-lg font-medium">{studioDetails.address.latitude || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Longitude</p>
-                <p className="text-lg font-medium">{studioDetails.address.longitude || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Postal Code</p>
-                <p className="text-lg font-medium">{studioDetails.address.postalCode}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <AddressCard {...studioDetails.address} />
 
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Business Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-gray-600 mb-1">Business Registration Number</p>
-                <p className="text-lg font-medium">{studioDetails.business.registrationNumber}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">GST/VAT Number</p>
-                <p className="text-lg font-medium">{studioDetails.business.gstVatNumber}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">PAN Number</p>
-                <p className="text-lg font-medium">{studioDetails.business.panNumber}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Opening Time</p>
-                <p className="text-lg font-medium">{studioDetails.business.openingTime}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Closing Time</p>
-                <p className="text-lg font-medium">{studioDetails.business.closingTime}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Price Adjustment %</p>
-                <p className="text-lg font-medium">{studioDetails.business.priceAdjustment}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <BusinessCard {...studioDetails.business} />
 
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Studio Setup</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-gray-600 mb-1">Number of Employees</p>
-                <p className="text-lg font-medium">{studioDetails.studio.employees}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Daily Capacity (In KG's)</p>
-                <p className="text-lg font-medium">{studioDetails.studio.dailyCapacity}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Special Equipment</p>
-                <p className="text-lg font-medium">{studioDetails.studio.specialEquipment || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Selected Wash Category</p>
-                <div className="space-y-1">
-                  {studioDetails.studio.washCategory.map((category, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-gray-800"></div>
-                      <span>{category}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StudioSetupCard {...studioDetails.studio} />
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Package className="h-6 w-6" />
-                Studio Services
-              </h2>
-            </div>
+        <ServicesCard
+          services={studioDetails.studioServices || []}
+          onServiceStatusChange={handleServiceStatusChange}
+        />
 
-            {studioDetails?.studioServices && studioDetails.studioServices.length > 0 ? (
-              <div className="space-y-4">
-                {studioDetails.studioServices.map((service, index) => (
-                  <div key={service.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">{service.name}</h3>
-                        <p className="text-sm text-gray-500">Price: ₹{service.price}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Switch
-                          checked={service.active}
-                          onCheckedChange={() => {
-                            const updatedServices = [...studioDetails.studioServices];
-                            updatedServices[index].active = !service.active;
-                            setStudioDetails({
-                              ...studioDetails,
-                              studioServices: updatedServices,
-                            });
-                          }}
-                        />
-                        <Badge variant={service.active ? "default" : "outline"}>
-                          {service.active ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                No services have been added to this studio yet.
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold mb-6">Payment Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-gray-600 mb-1">Account Holder Name</p>
-                <p className="text-lg font-medium">{studioDetails.payment.accountHolderName}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Bank Name</p>
-                <p className="text-lg font-medium">{studioDetails.payment.bankName}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Account Number</p>
-                <p className="text-lg font-medium">{studioDetails.payment.accountNumber}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">IFSC Code</p>
-                <p className="text-lg font-medium">{studioDetails.payment.ifscCode}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Branch Name</p>
-                <p className="text-lg font-medium">{studioDetails.payment.branchName}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">UPI ID</p>
-                <p className="text-lg font-medium">{studioDetails.payment.upiId}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">Selected Payment Schedule</p>
-                <p className="text-lg font-medium">{studioDetails.payment.paymentSchedule}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <PaymentCard {...studioDetails.payment} />
       </div>
     </Layout>
   );
