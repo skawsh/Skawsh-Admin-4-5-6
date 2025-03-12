@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -266,51 +265,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           }
         };
       }
-    });
-  };
-
-  // Remove a clothing item
-  const handleRemoveClothingItem = (subServiceId: string, itemId: string) => {
-    setSelectedClothingItems(prev => {
-      const items = prev[subServiceId] || [];
-      return {
-        ...prev,
-        [subServiceId]: items.filter(id => id !== itemId)
-      };
-    });
-    
-    // Also remove its prices
-    setClothingItemPrices(prev => {
-      const subServicePrices = prev[subServiceId] || {};
-      const { [itemId]: _, ...rest } = subServicePrices;
-      return {
-        ...prev,
-        [subServiceId]: rest
-      };
-    });
-  };
-
-  // Handle clothing item price change
-  const handleClothingItemPriceChange = (
-    subServiceId: string, 
-    itemId: string, 
-    type: 'standard' | 'express',
-    value: string
-  ) => {
-    setClothingItemPrices(prev => {
-      const subServicePrices = prev[subServiceId] || {};
-      const itemPrices = subServicePrices[itemId] || { standard: '', express: '' };
-      
-      return {
-        ...prev,
-        [subServiceId]: {
-          ...subServicePrices,
-          [itemId]: {
-            ...itemPrices,
-            [type]: value
-          }
-        }
-      };
     });
   };
 
@@ -821,6 +775,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         clothingItems={clothingItems}
         selectedItems={activeSubServiceId ? (selectedClothingItems[activeSubServiceId] || []) : []}
         onAddItem={handleAddItemFromPopup}
+        washCategory={washCategory}
       />
     </Dialog>
   );

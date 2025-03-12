@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Plus } from 'lucide-react';
+import { Label } from "@/components/ui/label";
 import { ClothingItem } from '@/types/services';
+import { Plus } from 'lucide-react';
 
 interface AddItemPopupProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface AddItemPopupProps {
   clothingItems: ClothingItem[];
   selectedItems: string[];
   onAddItem: (itemId: string, price: string) => void;
+  washCategory?: 'standard' | 'express' | 'both';
 }
 
 const AddItemPopup: React.FC<AddItemPopupProps> = ({
@@ -21,138 +23,164 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
   clothingItems,
   selectedItems,
   onAddItem,
+  washCategory = 'both'
 }) => {
-  // State to manage multiple items
-  const [itemRows, setItemRows] = useState<Array<{id: string, price: string}>>([
-    { id: "", price: "" }
+  const [itemRows, setItemRows] = useState<Array<{ itemId: string, price: string, expressPrice?: string }>>([
+    { itemId: '', price: '', expressPrice: '' }
   ]);
-  
-  // Reset form when dialog opens
+
+  // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setItemRows([{ id: "", price: "" }]);
+      setItemRows([{ itemId: '', price: '', expressPrice: '' }]);
     }
   }, [isOpen]);
 
-  // Add a new empty row
-  const addNewRow = () => {
-    setItemRows([...itemRows, { id: "", price: "" }]);
+  const handleItemChange = (index: number, itemId: string) => {
+    const newRows = [...itemRows];
+    newRows[index].itemId = itemId;
+    setItemRows(newRows);
   };
 
-  // Update item ID in a specific row
-  const updateItemId = (index: number, value: string) => {
-    const updatedRows = [...itemRows];
-    updatedRows[index].id = value;
-    setItemRows(updatedRows);
-  };
-
-  // Update price in a specific row
-  const updateItemPrice = (index: number, value: string) => {
-    const updatedRows = [...itemRows];
-    updatedRows[index].price = value;
-    setItemRows(updatedRows);
-  };
-
-  // Remove a specific row
-  const removeRow = (index: number) => {
-    if (itemRows.length > 1) {
-      const updatedRows = itemRows.filter((_, i) => i !== index);
-      setItemRows(updatedRows);
+  const handlePriceChange = (index: number, value: string, priceType: 'standard' | 'express' = 'standard') => {
+    const newRows = [...itemRows];
+    if (priceType === 'express') {
+      newRows[index].expressPrice = value;
     } else {
-      // If it's the last row, just clear it
-      setItemRows([{ id: "", price: "" }]);
+      newRows[index].price = value;
     }
+    setItemRows(newRows);
   };
 
-  // Handle save/done
-  const handleSave = () => {
-    // Filter out incomplete rows and add all valid items
-    const validItems = itemRows.filter(item => item.id && item.price);
-    validItems.forEach(item => {
-      onAddItem(item.id, item.price);
+  const handleAddRow = () => {
+    setItemRows([...itemRows, { itemId: '', price: '', expressPrice: '' }]);
+  };
+
+  const handleDone = () => {
+    // Add all valid items
+    itemRows.forEach(row => {
+      if (row.itemId && (row.price || row.expressPrice)) {
+        if (washCategory === 'standard') {
+          onAddItem(row.itemId, row.price);
+        } else if (washCategory === 'express') {
+          onAddItem(row.itemId, row.expressPrice || '');
+        } else {
+          // For 'both', we'll pass the standard price and the component will handle both prices
+          onAddItem(row.itemId, row.price);
+        }
+      }
     });
     
-    // Close popup
     onOpenChange(false);
   };
 
-  // Get all selected items (both already selected and currently in rows)
-  const getAllSelectedItemIds = () => {
-    const rowItemIds = itemRows.map(row => row.id).filter(id => id !== "");
-    return [...selectedItems, ...rowItemIds];
-  };
+  // Filter out already selected items
+  const availableItems = clothingItems.filter(item => 
+    item.active && !selectedItems.includes(item.id)
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
-        <h2 className="text-xl font-semibold mb-6">Add Clothing Items</h2>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add Clothing Items</DialogTitle>
+        </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-4 py-4">
           {itemRows.map((row, index) => (
-            <div key={index} className="p-4 border rounded-lg">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Clothing Item</label>
-                  <Select value={row.id} onValueChange={(value) => updateItemId(index, value)}>
+            <div key={index} className="flex flex-col space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex-grow">
+                  <Select value={row.itemId} onValueChange={(value) => handleItemChange(index, value)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select..." />
+                      <SelectValue placeholder="Select item" />
                     </SelectTrigger>
                     <SelectContent>
-                      {clothingItems
-                        .filter(item => 
-                          item.active && 
-                          (!getAllSelectedItemIds().includes(item.id) || item.id === row.id)
-                        )
-                        .map(item => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.name}
-                          </SelectItem>
-                        ))
-                      }
+                      {availableItems.map(item => (
+                        <SelectItem 
+                          key={item.id} 
+                          value={item.id}
+                          disabled={itemRows.some(r => r.itemId === item.id && r.itemId !== row.itemId)}
+                        >
+                          {item.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 
-                <div className="relative">
-                  <label className="block text-sm font-medium mb-2">Price</label>
-                  <div className="relative">
+                {washCategory === 'standard' && (
+                  <div className="w-24">
                     <Input
                       type="number"
-                      placeholder="Price (per item)"
                       value={row.price}
-                      onChange={(e) => updateItemPrice(index, e.target.value)}
+                      onChange={(e) => handlePriceChange(index, e.target.value)}
+                      placeholder="Price"
                     />
-                    <button 
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500"
-                      onClick={() => removeRow(index)}
-                    >
-                      <X size={16} />
-                    </button>
                   </div>
-                </div>
+                )}
+                
+                {washCategory === 'express' && (
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      value={row.expressPrice || ''}
+                      onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
+                      placeholder="Price"
+                    />
+                  </div>
+                )}
+                
+                {washCategory === 'both' && (
+                  <div className="flex gap-2">
+                    <div className="w-24">
+                      <Input
+                        type="number"
+                        value={row.price}
+                        onChange={(e) => handlePriceChange(index, e.target.value)}
+                        placeholder="Standard"
+                      />
+                    </div>
+                    <div className="w-24">
+                      <Input
+                        type="number"
+                        value={row.expressPrice || ''}
+                        onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
+                        placeholder="Express"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
+              
+              {washCategory === 'both' && (
+                <div className="flex text-xs pl-[calc(100%-24rem)]">
+                  <div className="w-24 text-center">Standard</div>
+                  <div className="w-24 ml-2 text-center">Express</div>
+                </div>
+              )}
             </div>
           ))}
           
           <Button 
             type="button" 
-            className="w-full bg-blue-600 hover:bg-blue-700"
-            onClick={addNewRow}
+            variant="outline" 
+            className="w-full" 
+            onClick={handleAddRow}
           >
-            <Plus size={16} className="mr-2" /> Add more items
+            <Plus className="h-4 w-4 mr-2" />
+            Add More Items
           </Button>
-          
-          <div className="flex justify-end mt-4">
-            <Button
-              type="button"
-              className="bg-neutral-900 hover:bg-neutral-800"
-              onClick={handleSave}
-              disabled={!itemRows.some(row => row.id && row.price)}
-            >
-              Done
-            </Button>
-          </div>
         </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleDone}>
+            Done
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
