@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -186,5 +187,251 @@ const Studios: React.FC = () => {
   const inactiveStudios = studiosData.filter(s => !s.status).length;
   const avgSackValue = 396;
 
- 
+  const handleStatusToggle = (id: number, currentStatus: boolean) => {
+    const updatedStudios = studiosData.map(studio => 
+      studio.id === id ? { ...studio, status: !currentStatus } : studio
+    );
+    
+    setStudiosData(updatedStudios);
+    localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
+    
+    toast({
+      title: `Studio ${currentStatus ? 'Deactivated' : 'Activated'}`,
+      description: `The studio has been ${currentStatus ? 'deactivated' : 'activated'} successfully.`,
+    });
+  };
 
+  const handleDeleteStudio = (id: number) => {
+    const updatedStudios = studiosData.filter(studio => studio.id !== id);
+    setStudiosData(updatedStudios);
+    localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
+    
+    toast({
+      title: "Studio Deleted",
+      description: "The studio has been deleted successfully.",
+    });
+  };
+
+  const handleAddNew = () => {
+    navigate('/studios/add');
+  };
+
+  const handleViewEditStudio = (id: number) => {
+    navigate(`/studios/edit/${id}`);
+  };
+
+  return (
+    <Layout>
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex flex-col gap-6">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold">Studios</h1>
+              <p className="text-gray-500">Manage all your laundry partners</p>
+            </div>
+            <Button onClick={handleAddNew} className="shrink-0">
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Studio
+            </Button>
+          </div>
+          
+          {/* Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <BarChart2 className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Total Studios</p>
+                  <h3 className="text-2xl font-bold">{totalStudios}</h3>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <Filter className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Active Studios</p>
+                  <h3 className="text-2xl font-bold">{activeStudios}</h3>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="bg-red-100 p-3 rounded-lg">
+                  <Filter className="h-6 w-6 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Inactive Studios</p>
+                  <h3 className="text-2xl font-bold">{inactiveStudios}</h3>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="bg-purple-100 p-3 rounded-lg">
+                  <BarChart className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Avg. Sack Value</p>
+                  <h3 className="text-2xl font-bold">₹{avgSackValue}</h3>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input 
+                placeholder="Search studios..." 
+                className="pl-10" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+              <Select 
+                value={statusFilter || ''} 
+                onValueChange={(value) => setStatusFilter(value || null)}
+              >
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select 
+                value={ratingFilter || ''} 
+                onValueChange={(value) => setRatingFilter(value || null)}
+              >
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Filter by rating" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Ratings</SelectItem>
+                  <SelectItem value="above4.5">Above 4.5</SelectItem>
+                  <SelectItem value="4to4.5">4.0 - 4.5</SelectItem>
+                  <SelectItem value="below4">Below 4.0</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                className="w-full md:w-auto"
+              >
+                <ArrowUpDown className="h-4 w-4 mr-2" />
+                {sortDirection === 'asc' ? 'Oldest First' : 'Newest First'}
+              </Button>
+            </div>
+          </div>
+          
+          {/* Studios Table */}
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Studio ID</TableHead>
+                  <TableHead>Studio Name</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Services</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudios.length > 0 ? (
+                  filteredStudios.map((studio) => (
+                    <TableRow key={studio.id}>
+                      <TableCell className="font-medium">{studio.studioId}</TableCell>
+                      <TableCell>{studio.studioName}</TableCell>
+                      <TableCell>{studio.ownerName}</TableCell>
+                      <TableCell>{studio.contact}</TableCell>
+                      <TableCell>{studio.services}</TableCell>
+                      <TableCell className="flex items-center">
+                        <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
+                        {studio.rating.toFixed(1)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Switch 
+                            checked={studio.status} 
+                            onCheckedChange={() => handleStatusToggle(studio.id, studio.status)}
+                          />
+                          <span className={studio.status ? "text-green-600" : "text-gray-400"}>
+                            {studio.status ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="cursor-pointer">
+                              <CreditCard className="h-4 w-4 mr-2" />
+                              Payments
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="cursor-pointer"
+                              onClick={() => handleViewEditStudio(studio.id)}
+                            >
+                              <Settings className="h-4 w-4 mr-2" />
+                              View/Edit Studio Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer">
+                              <Package className="h-4 w-4 mr-2" />
+                              View/Edit Services
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer">
+                              <BarChart className="h-4 w-4 mr-2" />
+                              View Analytics
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="cursor-pointer text-red-600"
+                              onClick={() => handleDeleteStudio(studio.id)}
+                            >
+                              <Trash className="h-4 w-4 mr-2" />
+                              Delete Studio
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8">
+                      No studios found. Try adjusting your filters.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default Studios;
