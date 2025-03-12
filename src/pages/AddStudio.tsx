@@ -1,22 +1,30 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import { ArrowLeft, Save, Plus } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import AddServiceDialog from "@/components/studio/AddServiceDialog";
 import { useServicesData } from '@/hooks/useServicesData';
+
+interface StudioService {
+  serviceId: string;
+  subServices: any[];
+}
 
 const AddStudio: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { services, subServices, clothingItems } = useServicesData();
   const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
-  const [studioServices, setStudioServices] = useState<any[]>([]);
+  const [studioServices, setStudioServices] = useState<StudioService[]>([]);
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   
   // Form state
   const [formData, setFormData] = useState({
@@ -74,6 +82,7 @@ const AddStudio: React.FC = () => {
     
     // Here you would typically send the data to an API
     console.log('Studio data to submit:', formData);
+    console.log('Studio services to submit:', studioServices);
     
     // Show success toast
     toast({
@@ -86,11 +95,65 @@ const AddStudio: React.FC = () => {
   };
 
   const handleServiceAdded = (data: any) => {
-    setStudioServices([...studioServices, data]);
+    const newService = {
+      serviceId: data.serviceId,
+      subServices: data.subServices
+    };
+    
+    setStudioServices([...studioServices, newService]);
+    
+    // Expand the newly added service by default
+    setExpandedServices(prev => ({
+      ...prev,
+      [data.serviceId]: true
+    }));
+    
     toast({
       title: "Service added",
       description: "The service has been added to the studio.",
     });
+  };
+
+  const toggleServiceExpansion = (serviceId: string) => {
+    setExpandedServices(prev => ({
+      ...prev,
+      [serviceId]: !prev[serviceId]
+    }));
+  };
+
+  const handleEditService = (serviceIndex: number) => {
+    // This would open the edit dialog with pre-filled data
+    console.log("Edit service:", studioServices[serviceIndex]);
+    toast({
+      title: "Edit Service",
+      description: "Edit functionality will be implemented soon.",
+    });
+  };
+
+  const handleDeleteService = (serviceIndex: number) => {
+    const updatedServices = [...studioServices];
+    updatedServices.splice(serviceIndex, 1);
+    setStudioServices(updatedServices);
+    
+    toast({
+      title: "Service Deleted",
+      description: "The service has been removed from the studio.",
+    });
+  };
+
+  const getServiceNameById = (id: string) => {
+    const service = services.find(s => s.id === id);
+    return service ? service.name : 'Unknown Service';
+  };
+
+  const getSubServiceNameById = (id: string) => {
+    const subService = subServices.find(s => s.id === id);
+    return subService ? subService.name : 'Unknown Sub-service';
+  };
+
+  const getClothingItemNameById = (id: string) => {
+    const item = clothingItems.find(i => i.id === id);
+    return item ? item.name : 'Unknown Item';
   };
 
   return (
@@ -562,16 +625,104 @@ const AddStudio: React.FC = () => {
           <Button 
             type="button"
             variant="outline"
-            className="bg-blue-700 text-white hover:bg-blue-800 transition"
+            className="bg-blue-700 text-white hover:bg-blue-800 transition mb-6"
             onClick={() => setIsAddServiceDialogOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Services
           </Button>
 
-          {studioServices.length > 0 && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-500">{studioServices.length} service(s) added</p>
+          {studioServices.length > 0 ? (
+            <div className="space-y-4">
+              {studioServices.map((studioService, index) => {
+                const serviceName = getServiceNameById(studioService.serviceId);
+                const isExpanded = expandedServices[studioService.serviceId] || false;
+                
+                return (
+                  <Card key={`${studioService.serviceId}-${index}`} className="border-gray-200">
+                    <CardHeader className="bg-gray-50 rounded-t-lg flex flex-row items-center justify-between p-4">
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0" 
+                          onClick={() => toggleServiceExpansion(studioService.serviceId)}
+                        >
+                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </Button>
+                        <CardTitle className="text-lg font-bold text-gray-800">{serviceName}</CardTitle>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-blue-600 hover:text-blue-800"
+                          onClick={() => handleEditService(index)}
+                        >
+                          <Pencil size={16} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-800"
+                          onClick={() => handleDeleteService(index)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    
+                    {isExpanded && (
+                      <CardContent className="p-4">
+                        <div className="space-y-6">
+                          {studioService.subServices.map((subService, subIndex) => {
+                            const subServiceName = getSubServiceNameById(subService.name);
+                            
+                            return (
+                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4">
+                                <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
+                                
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                  <div>
+                                    <span className="text-sm text-gray-500">Price per KG:</span>
+                                    <span className="ml-2 font-medium">₹{subService.pricePerKg || '0'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-sm text-gray-500">Price per Item:</span>
+                                    <span className="ml-2 font-medium">₹{subService.pricePerItem || '0'}</span>
+                                  </div>
+                                </div>
+                                
+                                {subService.selectedItems && subService.selectedItems.length > 0 && (
+                                  <div>
+                                    <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      {subService.selectedItems.map((itemId: string) => (
+                                        <Badge 
+                                          key={itemId} 
+                                          variant="outline" 
+                                          className="bg-blue-50 text-blue-700 border-blue-200"
+                                        >
+                                          {getClothingItemNameById(itemId)}: ₹{subService.itemPrices[itemId] || '0'}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-8 text-center">
+              <p className="text-gray-500">No services added yet. Click the button above to add services.</p>
             </div>
           )}
         </Card>
