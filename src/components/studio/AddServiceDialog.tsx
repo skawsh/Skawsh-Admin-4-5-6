@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface SubServiceItem {
   pricePerKg: string;
   pricePerItem: string;
   selectedItems: string[];
+  itemPrices: Record<string, string>; // Store prices for each clothing item
 }
 
 interface AddServiceDialogProps {
@@ -55,7 +57,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       name: "",
       pricePerKg: "",
       pricePerItem: "",
-      selectedItems: []
+      selectedItems: [],
+      itemPrices: {}
     }
   ]);
   
@@ -63,6 +66,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   
   const [isAddItemsDialogOpen, setIsAddItemsDialogOpen] = useState<Record<string, boolean>>({});
   const [itemName, setItemName] = useState("");
+  const [selectedClothingItem, setSelectedClothingItem] = useState<string>("");
 
   useEffect(() => {
     if (!isOpen) {
@@ -73,7 +77,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
         name: "",
         pricePerKg: "",
         pricePerItem: "",
-        selectedItems: []
+        selectedItems: [],
+        itemPrices: {}
       }]);
       setSelectedSubServiceNames({});
       setIsAddItemsDialogOpen({});
@@ -86,7 +91,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       name: "",
       pricePerKg: "",
       pricePerItem: "",
-      selectedItems: []
+      selectedItems: [],
+      itemPrices: {}
     };
     
     setSubServiceItems([...subServiceItems, newItem]);
@@ -109,10 +115,25 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
     setIsAddItemsDialogOpen(newDialogOpen);
   };
 
-  const handleSubServiceChange = (id: string, field: keyof SubServiceItem, value: string | string[]) => {
+  const handleSubServiceChange = (id: string, field: keyof SubServiceItem, value: any) => {
     setSubServiceItems(subServiceItems.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
+  };
+
+  const handleItemPriceChange = (subServiceItemId: string, clothingItemId: string, price: string) => {
+    setSubServiceItems(subServiceItems.map(item => {
+      if (item.id === subServiceItemId) {
+        return {
+          ...item,
+          itemPrices: {
+            ...item.itemPrices,
+            [clothingItemId]: price
+          }
+        };
+      }
+      return item;
+    }));
   };
 
   const handleServiceSelect = (serviceId: string) => {
@@ -139,21 +160,49 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       ...prev,
       [id]: isOpen
     }));
+    // Reset selected clothing item when dialog opens
+    setSelectedClothingItem("");
   };
 
-  const handleClothingItemToggle = (subServiceItemId: string, clothingItemId: string) => {
+  const handleAddClothingItem = (subServiceItemId: string) => {
+    if (!selectedClothingItem) return;
+    
+    const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
+    
+    if (subServiceItem && !subServiceItem.selectedItems.includes(selectedClothingItem)) {
+      const updatedItems = [...subServiceItem.selectedItems, selectedClothingItem];
+      handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
+      
+      // Initialize price for this item
+      handleItemPriceChange(subServiceItemId, selectedClothingItem, "");
+      
+      // Reset selected item
+      setSelectedClothingItem("");
+    }
+  };
+
+  const handleRemoveClothingItem = (subServiceItemId: string, clothingItemId: string) => {
     const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
     
     if (subServiceItem) {
-      const selectedItems = [...subServiceItem.selectedItems];
+      // Remove from selected items
+      const updatedItems = subServiceItem.selectedItems.filter(id => id !== clothingItemId);
+      handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
       
-      if (selectedItems.includes(clothingItemId)) {
-        const updatedItems = selectedItems.filter(id => id !== clothingItemId);
-        handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
-      } else {
-        selectedItems.push(clothingItemId);
-        handleSubServiceChange(subServiceItemId, 'selectedItems', selectedItems);
-      }
+      // Remove price entry
+      const updatedPrices = { ...subServiceItem.itemPrices };
+      delete updatedPrices[clothingItemId];
+      
+      setSubServiceItems(subServiceItems.map(item => {
+        if (item.id === subServiceItemId) {
+          return {
+            ...item,
+            selectedItems: updatedItems,
+            itemPrices: updatedPrices
+          };
+        }
+        return item;
+      }));
     }
   };
 
@@ -164,6 +213,10 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
 
   const getSelectedSubServiceName = (id: string) => {
     return selectedSubServiceNames[id] || "";
+  };
+
+  const getClothingItemById = (id: string) => {
+    return safeClothingItems.find(item => item.id === id);
   };
 
   const handleSave = () => {
@@ -181,7 +234,8 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       name: "",
       pricePerKg: "",
       pricePerItem: "",
-      selectedItems: []
+      selectedItems: [],
+      itemPrices: {}
     }]);
     setSelectedSubServiceNames({});
     onOpenChange(false);
@@ -289,32 +343,86 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                       open={!!isAddItemsDialogOpen[subServiceItem.id]} 
                       onOpenChange={(open) => toggleAddItemsDialog(subServiceItem.id, open)}
                     >
-                      <DialogContent>
+                      <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle>Select Clothing Items</DialogTitle>
-                          <DialogDescription>
-                            Choose clothing items for this subservice
-                          </DialogDescription>
+                          <DialogTitle>Add Clothing Items</DialogTitle>
                         </DialogHeader>
-                        <ScrollArea className="h-60 w-full">
-                          <div className="p-2">
-                            {safeClothingItems.map((item) => (
-                              <div key={item.id} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
-                                <Checkbox 
-                                  id={`item-${subServiceItem.id}-${item.id}`} 
-                                  checked={subServiceItem.selectedItems.includes(item.id)}
-                                  onCheckedChange={() => handleClothingItemToggle(subServiceItem.id, item.id)}
-                                />
-                                <Label 
-                                  htmlFor={`item-${subServiceItem.id}-${item.id}`}
-                                  className="flex-1 cursor-pointer"
-                                >
-                                  {item.name}
-                                </Label>
+                        
+                        <div className="space-y-4 p-2">
+                          {subServiceItem.selectedItems.length > 0 && (
+                            <ScrollArea className="max-h-60">
+                              {subServiceItem.selectedItems.map((itemId) => {
+                                const item = getClothingItemById(itemId);
+                                return item ? (
+                                  <div key={itemId} className="p-4 border rounded-lg mb-4">
+                                    <div className="grid grid-cols-[1fr,1fr,auto] gap-4 items-center">
+                                      <div>
+                                        <label className="text-base font-medium mb-2 block">Clothing Item</label>
+                                        <div className="border rounded-md px-3 py-2 bg-gray-50">
+                                          {item.name}
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <label className="text-base font-medium mb-2 block">Price</label>
+                                        <Input
+                                          placeholder="Price (per item)"
+                                          value={subServiceItem.itemPrices[itemId] || ""}
+                                          onChange={(e) => handleItemPriceChange(subServiceItem.id, itemId, e.target.value)}
+                                        />
+                                      </div>
+                                      <div className="pt-8">
+                                        <Button
+                                          type="button"
+                                          variant="destructive"
+                                          className="h-10"
+                                          onClick={() => handleRemoveClothingItem(subServiceItem.id, itemId)}
+                                        >
+                                          Remove
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })}
+                            </ScrollArea>
+                          )}
+                          
+                          <div className="p-4 border rounded-lg">
+                            <div className="grid grid-cols-[1fr,1fr,auto] gap-4 items-end">
+                              <div>
+                                <label className="text-base font-medium mb-2 block">Clothing Item</label>
+                                <Select value={selectedClothingItem} onValueChange={setSelectedClothingItem}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {safeClothingItems
+                                      .filter(item => !subServiceItem.selectedItems.includes(item.id))
+                                      .map((item) => (
+                                        <SelectItem key={item.id} value={item.id}>
+                                          {item.name}
+                                        </SelectItem>
+                                      ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
-                            ))}
+                              <div>
+                                <label className="text-base font-medium mb-2 block">Price</label>
+                                <Input placeholder="Price (per item)" disabled />
+                              </div>
+                              <Button 
+                                type="button"
+                                variant="blue"
+                                className="bg-blue-500"
+                                onClick={() => handleAddClothingItem(subServiceItem.id)}
+                                disabled={!selectedClothingItem}
+                              >
+                                Add Category
+                              </Button>
+                            </div>
                           </div>
-                        </ScrollArea>
+                        </div>
+                        
                         <DialogFooter>
                           <Button onClick={() => toggleAddItemsDialog(subServiceItem.id, false)}>
                             Done
@@ -386,3 +494,4 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
 };
 
 export default AddServiceDialog;
+
