@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -379,7 +378,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         data.expressPricePerKg = kgPrice; // Use same price for express in this UI
         data.expressPricePerItem = itemPrice; // Use same price for express in this UI
         
-        if (washCategory === 'express') {
+        if (washCategory === 'express' || washCategory === 'both') {
           data.pricePerKg = kgPrice;
           data.pricePerItem = itemPrice;
         }
@@ -389,7 +388,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
           const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '0';
-          if (washCategory === 'express') {
+          if (washCategory === 'express' || washCategory === 'both') {
             data.itemPrices = data.itemPrices || {};
             data.itemPrices[itemId] = price;
           }
@@ -521,18 +520,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                           <Plus className="h-4 w-4 mr-2" />
                           Add Items
                         </Button>
-                        
-                        {/* Selected Clothing Items */}
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {(selectedClothingItems[subServiceId] || []).map(itemId => {
-                            const price = clothingItemPrices[subServiceId]?.[itemId]?.standard || '';
-                            return (
-                              <Badge key={itemId} variant="secondary" className="p-2">
-                                {getClothingItemName(itemId)} - ₹{price || 0}
-                              </Badge>
-                            );
-                          })}
-                        </div>
                         
                         {/* Clothing Items with Prices */}
                         {(selectedClothingItems[subServiceId] || []).length > 0 && (
