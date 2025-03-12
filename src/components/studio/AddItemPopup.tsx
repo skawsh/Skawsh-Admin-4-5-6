@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { X, Plus } from 'lucide-react';
 import { ClothingItem } from '@/types/services';
 
 interface AddItemPopupProps {
@@ -22,33 +22,53 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
   selectedItems,
   onAddItem,
 }) => {
-  const [selectedItemId, setSelectedItemId] = useState<string>("");
-  const [itemPrice, setItemPrice] = useState<string>("");
-  const [tempItems, setTempItems] = useState<Array<{id: string, price: string}>>([]);
+  // State to manage multiple items
+  const [itemRows, setItemRows] = useState<Array<{id: string, price: string}>>([
+    { id: "", price: "" }
+  ]);
   
   // Reset form when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setSelectedItemId("");
-      setItemPrice("");
-      setTempItems([]);
+      setItemRows([{ id: "", price: "" }]);
     }
   }, [isOpen]);
 
-  const handleAdd = () => {
-    if (selectedItemId && itemPrice) {
-      // Add to temporary items array
-      setTempItems(prev => [...prev, {id: selectedItemId, price: itemPrice}]);
-      
-      // Reset form fields for next item
-      setSelectedItemId("");
-      setItemPrice("");
+  // Add a new empty row
+  const addNewRow = () => {
+    setItemRows([...itemRows, { id: "", price: "" }]);
+  };
+
+  // Update item ID in a specific row
+  const updateItemId = (index: number, value: string) => {
+    const updatedRows = [...itemRows];
+    updatedRows[index].id = value;
+    setItemRows(updatedRows);
+  };
+
+  // Update price in a specific row
+  const updateItemPrice = (index: number, value: string) => {
+    const updatedRows = [...itemRows];
+    updatedRows[index].price = value;
+    setItemRows(updatedRows);
+  };
+
+  // Remove a specific row
+  const removeRow = (index: number) => {
+    if (itemRows.length > 1) {
+      const updatedRows = itemRows.filter((_, i) => i !== index);
+      setItemRows(updatedRows);
+    } else {
+      // If it's the last row, just clear it
+      setItemRows([{ id: "", price: "" }]);
     }
   };
-  
+
+  // Handle save/done
   const handleSave = () => {
-    // Add all temp items to parent component
-    tempItems.forEach(item => {
+    // Filter out incomplete rows and add all valid items
+    const validItems = itemRows.filter(item => item.id && item.price);
+    validItems.forEach(item => {
       onAddItem(item.id, item.price);
     });
     
@@ -56,91 +76,81 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
     onOpenChange(false);
   };
 
-  // Filter out already selected items and items already in temp list
-  const availableItems = clothingItems.filter(
-    item => item.active && 
-    !selectedItems.includes(item.id) &&
-    !tempItems.some(temp => temp.id === item.id)
-  );
+  // Get all selected items (both already selected and currently in rows)
+  const getAllSelectedItemIds = () => {
+    const rowItemIds = itemRows.map(row => row.id).filter(id => id !== "");
+    return [...selectedItems, ...rowItemIds];
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-6">
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clothing-item" className="font-medium">Clothing Item</Label>
-              <Select value={selectedItemId} onValueChange={setSelectedItemId}>
-                <SelectTrigger id="clothing-item">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableItems.map(item => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="item-price" className="font-medium">Price</Label>
-              <Input
-                id="item-price"
-                type="number"
-                placeholder="Price"
-                value={itemPrice}
-                onChange={(e) => setItemPrice(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          {/* Show list of temporarily added items */}
-          {tempItems.length > 0 && (
-            <div className="bg-gray-50 p-3 rounded-md">
-              <h4 className="text-sm font-medium mb-2">Selected Items:</h4>
-              <div className="space-y-1">
-                {tempItems.map((item, index) => {
-                  const clothingItem = clothingItems.find(ci => ci.id === item.id);
-                  return (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <span>{clothingItem?.name}</span>
-                      <span>₹{item.price}</span>
-                    </div>
-                  );
-                })}
+        <h2 className="text-xl font-semibold mb-6">Add Clothing Items</h2>
+        
+        <div className="space-y-4">
+          {itemRows.map((row, index) => (
+            <div key={index} className="p-4 border rounded-lg">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Clothing Item</label>
+                  <Select value={row.id} onValueChange={(value) => updateItemId(index, value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clothingItems
+                        .filter(item => 
+                          item.active && 
+                          (!getAllSelectedItemIds().includes(item.id) || item.id === row.id)
+                        )
+                        .map(item => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.name}
+                          </SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="relative">
+                  <label className="block text-sm font-medium mb-2">Price</label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      placeholder="Price (per item)"
+                      value={row.price}
+                      onChange={(e) => updateItemPrice(index, e.target.value)}
+                    />
+                    <button 
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500"
+                      onClick={() => removeRow(index)}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
+          ))}
           
-          <div className="flex justify-between">
+          <Button 
+            type="button" 
+            className="w-full bg-blue-600 hover:bg-blue-700"
+            onClick={addNewRow}
+          >
+            <Plus size={16} className="mr-2" /> Add more items
+          </Button>
+          
+          <div className="flex justify-end mt-4">
             <Button
               type="button"
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={handleAdd}
-              disabled={!selectedItemId || !itemPrice}
+              className="bg-neutral-900 hover:bg-neutral-800"
+              onClick={handleSave}
+              disabled={!itemRows.some(row => row.id && row.price)}
             >
-              Add More Items
+              Done
             </Button>
-            
-            <div className="space-x-2">
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => onOpenChange(false)}
-              >
-                Remove
-              </Button>
-              
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={tempItems.length === 0}
-              >
-                Save
-              </Button>
-            </div>
           </div>
         </div>
       </DialogContent>
