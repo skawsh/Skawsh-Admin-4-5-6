@@ -52,6 +52,47 @@ export const useStudioServicesManager = (
     }
   };
 
+  // Handle adding a new service that might have been created with a temporary ID
+  const handleAddTemporaryService = (serviceData: any) => {
+    if (!studioData) return null;
+    
+    // Check if this is a temporary service (has serviceName property)
+    if (serviceData.serviceName && serviceData.serviceId.startsWith('new-service-')) {
+      // Create a new service with the temporary ID and name
+      const newService: StudioService = {
+        id: serviceData.serviceId,
+        name: serviceData.serviceName,
+        active: true,
+        subServices: serviceData.subServices.map((subService: any) => ({
+          ...subService,
+          active: true,
+          clothingItemsStatus: subService.selectedItems?.reduce((acc: Record<string, boolean>, itemId: string) => {
+            acc[itemId] = true;
+            return acc;
+          }, {})
+        }))
+      };
+      
+      // Add to the studio services
+      const updatedServices = [...studioData.studioServices, newService];
+      setStudioData({
+        ...studioData,
+        studioServices: updatedServices
+      });
+      
+      saveUpdatedServicesToLocalStorage(updatedServices);
+      
+      toast({
+        title: "Service Added",
+        description: `${serviceData.serviceName} has been added successfully.`
+      });
+      
+      return newService;
+    }
+    
+    return null;
+  };
+
   const handleServiceStatusChange = (serviceIndex: number) => {
     if (!studioData || !studioData.studioServices) return;
     
@@ -425,6 +466,7 @@ export const useStudioServicesManager = (
     handleDeleteClothingItem,
     handleSaveEdit,
     handleConfirmDelete,
-    saveUpdatedServicesToLocalStorage
+    saveUpdatedServicesToLocalStorage,
+    handleAddTemporaryService
   };
 };
