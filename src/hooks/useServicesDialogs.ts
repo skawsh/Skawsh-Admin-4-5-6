@@ -22,6 +22,11 @@ export const useServicesDialogs = (
   const [newSubServiceName, setNewSubServiceName] = useState('');
   const [newClothingItemName, setNewClothingItemName] = useState('');
   
+  // For multi-select functionality
+  const [selectedSubServices, setSelectedSubServices] = useState<string[]>([]);
+  const [selectedClothingItems, setSelectedClothingItems] = useState<string[]>([]);
+  const [clothingItemPrices, setClothingItemPrices] = useState<Record<string, { standard: string, express: string }>>({});
+  
   const { toast } = useToast();
 
   const handleAddButtonClick = () => {
@@ -131,6 +136,44 @@ export const useServicesDialogs = (
     }
   };
 
+  // New functions for multi-select
+  const handleSelectSubService = (selectedValues: string[]) => {
+    setSelectedSubServices(selectedValues);
+  };
+
+  const handleSelectClothingItem = (selectedValues: string[]) => {
+    setSelectedClothingItems(selectedValues);
+    
+    // Initialize prices for newly added items
+    const newPrices = { ...clothingItemPrices };
+    selectedValues.forEach(itemId => {
+      if (!newPrices[itemId]) {
+        newPrices[itemId] = { standard: '', express: '' };
+      }
+    });
+    setClothingItemPrices(newPrices);
+  };
+
+  const handleClothingItemPriceChange = (
+    itemId: string, 
+    type: 'standard' | 'express', 
+    value: string
+  ) => {
+    setClothingItemPrices(prev => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId],
+        [type]: value
+      }
+    }));
+  };
+
+  const resetMultiSelects = () => {
+    setSelectedSubServices([]);
+    setSelectedClothingItems([]);
+    setClothingItemPrices({});
+  };
+
   return {
     isAddServiceOpen,
     setIsAddServiceOpen,
@@ -154,6 +197,16 @@ export const useServicesDialogs = (
     handleAddSubService,
     handleAddClothingItem,
     handleEditClick,
-    handleEditSave
+    handleEditSave,
+    // Multi-select related exports
+    selectedSubServices,
+    setSelectedSubServices,
+    handleSelectSubService,
+    selectedClothingItems,
+    setSelectedClothingItems,
+    handleSelectClothingItem,
+    clothingItemPrices,
+    handleClothingItemPriceChange,
+    resetMultiSelects
   };
 };

@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogDescription } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 interface AddItemDialogProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ interface AddItemDialogProps {
   onChange?: (value: string) => void;
   onSave: () => void;
   children?: ReactNode;
+  // Optional footer buttons for more customization
+  footerButtons?: ReactNode;
 }
 
 const AddItemDialog: React.FC<AddItemDialogProps> = ({
@@ -26,11 +29,12 @@ const AddItemDialog: React.FC<AddItemDialogProps> = ({
   value,
   onChange,
   onSave,
-  children
+  children,
+  footerButtons
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
@@ -47,18 +51,24 @@ const AddItemDialog: React.FC<AddItemDialogProps> = ({
           )}
         </div>
         <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              onChange && onChange('');
-              onOpenChange(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button onClick={onSave}>
-            Save
-          </Button>
+          {footerButtons ? (
+            footerButtons
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  onChange && onChange('');
+                  onOpenChange(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={onSave}>
+                Save
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

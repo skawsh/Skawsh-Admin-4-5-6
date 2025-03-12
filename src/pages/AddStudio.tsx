@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -8,9 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import AddServiceDialog from "@/components/studio/AddServiceDialog";
+import MultiSelectServiceDialog from "@/components/studio/MultiSelectServiceDialog";
 import { useServicesData } from '@/hooks/useServicesData';
 
 interface StudioService {
@@ -111,124 +109,26 @@ const AddStudio: React.FC = () => {
         const updatedServices = [...studioServices];
         const existingService = updatedServices[existingServiceIndex];
         
+        const mergedSubServices = [...existingService.subServices];
+        
         data.subServices.forEach((newSubService: any) => {
-          const existingSubServiceIndex = existingService.subServices.findIndex(
+          const existingSubServiceIndex = mergedSubServices.findIndex(
             (subSrv: any) => subSrv.name === newSubService.name
           );
           
           if (existingSubServiceIndex >= 0) {
-            const existingSubService = existingService.subServices[existingSubServiceIndex];
-            
-            if (formData.washCategory === 'standard') {
-              if (newSubService.standardPricePerKg) {
-                existingSubService.standardPricePerKg = newSubService.standardPricePerKg;
-                existingSubService.pricePerKg = newSubService.standardPricePerKg;
-              }
-              
-              if (newSubService.standardPricePerItem) {
-                existingSubService.standardPricePerItem = newSubService.standardPricePerItem;
-                existingSubService.pricePerItem = newSubService.standardPricePerItem;
-              }
-              
-              if (newSubService.standardItemPrices) {
-                existingSubService.standardItemPrices = {
-                  ...(existingSubService.standardItemPrices || {}),
-                  ...newSubService.standardItemPrices
-                };
-                existingSubService.itemPrices = {
-                  ...(existingSubService.itemPrices || {}),
-                  ...newSubService.standardItemPrices
-                };
-              }
-            } else if (formData.washCategory === 'express') {
-              if (newSubService.expressPricePerKg) {
-                existingSubService.expressPricePerKg = newSubService.expressPricePerKg;
-                existingSubService.pricePerKg = newSubService.expressPricePerKg;
-              }
-              
-              if (newSubService.expressPricePerItem) {
-                existingSubService.expressPricePerItem = newSubService.expressPricePerItem;
-                existingSubService.pricePerItem = newSubService.expressPricePerItem;
-              }
-              
-              if (newSubService.expressItemPrices) {
-                existingSubService.expressItemPrices = {
-                  ...(existingSubService.expressItemPrices || {}),
-                  ...newSubService.expressItemPrices
-                };
-                existingSubService.itemPrices = {
-                  ...(existingSubService.itemPrices || {}),
-                  ...newSubService.expressItemPrices
-                };
-              }
-            } else if (formData.washCategory === 'both') {
-              if (newSubService.standardPricePerKg) {
-                existingSubService.standardPricePerKg = newSubService.standardPricePerKg;
-                existingSubService.pricePerKg = newSubService.standardPricePerKg;
-              }
-              
-              if (newSubService.expressPricePerKg) {
-                existingSubService.expressPricePerKg = newSubService.expressPricePerKg;
-              }
-              
-              if (newSubService.standardPricePerItem) {
-                existingSubService.standardPricePerItem = newSubService.standardPricePerItem;
-                existingSubService.pricePerItem = newSubService.standardPricePerItem;
-              }
-              
-              if (newSubService.expressPricePerItem) {
-                existingSubService.expressPricePerItem = newSubService.expressPricePerItem;
-              }
-              
-              if (newSubService.standardItemPrices) {
-                existingSubService.standardItemPrices = {
-                  ...(existingSubService.standardItemPrices || {}),
-                  ...newSubService.standardItemPrices
-                };
-                existingSubService.itemPrices = {
-                  ...(existingSubService.itemPrices || {}),
-                  ...newSubService.standardItemPrices
-                };
-              }
-              
-              if (newSubService.expressItemPrices) {
-                existingSubService.expressItemPrices = {
-                  ...(existingSubService.expressItemPrices || {}),
-                  ...newSubService.expressItemPrices
-                };
-              }
-            } else {
-              if (newSubService.pricePerKg) {
-                existingSubService.pricePerKg = newSubService.pricePerKg;
-              }
-              
-              if (newSubService.pricePerItem) {
-                existingSubService.pricePerItem = newSubService.pricePerItem;
-              }
-              
-              if (newSubService.itemPrices) {
-                existingSubService.itemPrices = {
-                  ...(existingSubService.itemPrices || {}),
-                  ...newSubService.itemPrices
-                };
-              }
-            }
-            
-            const updatedSelectedItems = [...existingSubService.selectedItems];
-            
-            newSubService.selectedItems.forEach((itemId: string) => {
-              if (!updatedSelectedItems.includes(itemId)) {
-                updatedSelectedItems.push(itemId);
-              }
-            });
-            
-            existingSubService.selectedItems = updatedSelectedItems;
+            mergedSubServices[existingSubServiceIndex] = {
+              ...mergedSubServices[existingSubServiceIndex],
+              ...newSubService
+            };
           } else {
-            existingService.subServices.push(newSubService);
+            mergedSubServices.push(newSubService);
           }
         });
         
+        existingService.subServices = mergedSubServices;
         setStudioServices(updatedServices);
+        
         toast({
           title: "Service updated",
           description: "The service has been updated with new information.",
@@ -240,6 +140,7 @@ const AddStudio: React.FC = () => {
         };
         
         setStudioServices([...studioServices, newService]);
+        
         toast({
           title: "Service added",
           description: "The service has been added to the studio.",
@@ -298,101 +199,6 @@ const AddStudio: React.FC = () => {
   const getClothingItemNameById = (id: string) => {
     const item = clothingItems.find(i => i.id === id);
     return item ? item.name : 'Unknown Item';
-  };
-
-  const renderPriceWithWashCategory = (subService: any, itemId: string) => {
-    if (formData.washCategory === 'standard') {
-      return `₹${subService.standardItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}`;
-    } else if (formData.washCategory === 'express') {
-      return `₹${subService.expressItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}`;
-    } else if (formData.washCategory === 'both') {
-      const standardPrice = subService.standardItemPrices?.[itemId];
-      const expressPrice = subService.expressItemPrices?.[itemId];
-      
-      if (standardPrice && expressPrice) {
-        return (
-          <>
-            Std: ₹{standardPrice} / Exp: ₹{expressPrice}
-          </>
-        );
-      } else if (standardPrice) {
-        return `Std: ₹${standardPrice}`;
-      } else if (expressPrice) {
-        return `Exp: ₹${expressPrice}`;
-      } else {
-        return `₹${subService.itemPrices?.[itemId] || '0'}`;
-      }
-    } else {
-      return `₹${subService.itemPrices?.[itemId] || '0'}`;
-    }
-  };
-
-  const renderSubServicePricing = (subService: any) => {
-    if (formData.washCategory === 'standard') {
-      return (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <span className="text-sm text-gray-500">Standard Price per KG:</span>
-            <span className="ml-2 font-medium">₹{subService.standardPricePerKg || subService.pricePerKg || '0'}</span>
-          </div>
-          <div>
-            <span className="text-sm text-gray-500">Standard Price per Item:</span>
-            <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
-          </div>
-        </div>
-      );
-    } else if (formData.washCategory === 'express') {
-      return (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <span className="text-sm text-gray-500">Express Price per KG:</span>
-            <span className="ml-2 font-medium">₹{subService.expressPricePerKg || subService.pricePerKg || '0'}</span>
-          </div>
-          <div>
-            <span className="text-sm text-gray-500">Express Price per Item:</span>
-            <span className="ml-2 font-medium">₹{subService.expressPricePerItem || subService.pricePerItem || '0'}</span>
-          </div>
-        </div>
-      );
-    } else if (formData.washCategory === 'both') {
-      return (
-        <div className="space-y-2 mb-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm text-gray-500">Standard Price per KG:</span>
-              <span className="ml-2 font-medium">₹{subService.standardPricePerKg || subService.pricePerKg || '0'}</span>
-            </div>
-            <div>
-              <span className="text-sm text-gray-500">Standard Price per Item:</span>
-              <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm text-gray-500">Express Price per KG:</span>
-              <span className="ml-2 font-medium">₹{subService.expressPricePerKg || '0'}</span>
-            </div>
-            <div>
-              <span className="text-sm text-gray-500">Express Price per Item:</span>
-              <span className="ml-2 font-medium">₹{subService.expressPricePerItem || '0'}</span>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <span className="text-sm text-gray-500">Price per KG:</span>
-            <span className="ml-2 font-medium">₹{subService.pricePerKg || '0'}</span>
-          </div>
-          <div>
-            <span className="text-sm text-gray-500">Price per Item:</span>
-            <span className="ml-2 font-medium">₹{subService.pricePerItem || '0'}</span>
-          </div>
-        </div>
-      );
-    }
   };
 
   return (
@@ -918,7 +724,58 @@ const AddStudio: React.FC = () => {
                               <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-white shadow-sm">
                                 <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
                                 
-                                {renderSubServicePricing(subService)}
+                                <div className="space-y-4 mb-4">
+                                  {formData.washCategory === 'standard' && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <span className="text-sm text-gray-500">Standard Price per KG:</span>
+                                        <span className="ml-2 font-medium">₹{subService.standardPricePerKg || subService.pricePerKg || '0'}</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-sm text-gray-500">Standard Price per Item:</span>
+                                        <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {formData.washCategory === 'express' && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <span className="text-sm text-gray-500">Express Price per KG:</span>
+                                        <span className="ml-2 font-medium">₹{subService.expressPricePerKg || subService.pricePerKg || '0'}</span>
+                                      </div>
+                                      <div>
+                                        <span className="text-sm text-gray-500">Express Price per Item:</span>
+                                        <span className="ml-2 font-medium">₹{subService.expressPricePerItem || subService.pricePerItem || '0'}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {formData.washCategory === 'both' && (
+                                    <div className="space-y-2">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <span className="text-sm text-gray-500">Standard Price per KG:</span>
+                                          <span className="ml-2 font-medium">₹{subService.standardPricePerKg || subService.pricePerKg || '0'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-sm text-gray-500">Standard Price per Item:</span>
+                                          <span className="ml-2 font-medium">₹{subService.standardPricePerItem || subService.pricePerItem || '0'}</span>
+                                        </div>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <span className="text-sm text-gray-500">Express Price per KG:</span>
+                                          <span className="ml-2 font-medium">₹{subService.expressPricePerKg || '0'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-sm text-gray-500">Express Price per Item:</span>
+                                          <span className="ml-2 font-medium">₹{subService.expressPricePerItem || '0'}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                                 
                                 {subService.selectedItems && subService.selectedItems.length > 0 && (
                                   <div>
@@ -972,15 +829,15 @@ const AddStudio: React.FC = () => {
           )}
         </Card>
 
-        <AddServiceDialog
+        <MultiSelectServiceDialog
           isOpen={isAddServiceDialogOpen}
           onOpenChange={setIsAddServiceDialogOpen}
           services={services}
           subServices={subServices}
           clothingItems={clothingItems}
-          onServiceAdded={handleServiceAdded}
-          editingService={editingService}
           washCategory={formData.washCategory}
+          onSave={handleServiceAdded}
+          editingService={editingService}
         />
       </form>
     </Layout>
@@ -988,3 +845,4 @@ const AddStudio: React.FC = () => {
 };
 
 export default AddStudio;
+

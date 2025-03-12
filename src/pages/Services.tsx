@@ -12,6 +12,10 @@ import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
 import { useToast } from '@/hooks/use-toast';
+import MultiSelect from '@/components/ui/multi-select';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 
 const Services: React.FC = () => {
   const { toast } = useToast();
@@ -64,7 +68,15 @@ const Services: React.FC = () => {
     handleAddSubService,
     handleAddClothingItem,
     handleEditClick,
-    handleEditSave
+    handleEditSave,
+    // Multi-select related imports
+    selectedSubServices,
+    handleSelectSubService,
+    selectedClothingItems,
+    handleSelectClothingItem,
+    clothingItemPrices,
+    handleClothingItemPriceChange,
+    resetMultiSelects
   } = useServicesDialogs(
     activeTab,
     addService,
@@ -82,6 +94,21 @@ const Services: React.FC = () => {
   }, []);
 
   const tabInfo = getTabInfo();
+
+  // Convert services, subServices, and clothingItems to options format for MultiSelect
+  const subServiceOptions = subServices
+    .filter(subService => subService.active)
+    .map(subService => ({
+      value: subService.id,
+      label: subService.name
+    }));
+
+  const clothingItemOptions = clothingItems
+    .filter(item => item.active)
+    .map(item => ({
+      value: item.id,
+      label: item.name
+    }));
 
   return (
     <Layout activeSection="services">
@@ -129,7 +156,10 @@ const Services: React.FC = () => {
         </div>
         <AddItemDialog 
           isOpen={isAddServiceOpen}
-          onOpenChange={setIsAddServiceOpen}
+          onOpenChange={(open) => {
+            setIsAddServiceOpen(open);
+            if (!open) resetMultiSelects();
+          }}
           title="Add New Service"
           placeholder="Enter service name"
           value={newServiceName}
@@ -138,7 +168,10 @@ const Services: React.FC = () => {
         />
         <AddItemDialog 
           isOpen={isAddSubServiceOpen}
-          onOpenChange={setIsAddSubServiceOpen}
+          onOpenChange={(open) => {
+            setIsAddSubServiceOpen(open);
+            if (!open) resetMultiSelects();
+          }}
           title="Add New Sub-service"
           placeholder="Enter sub-service name"
           value={newSubServiceName}
@@ -147,7 +180,10 @@ const Services: React.FC = () => {
         />
         <AddItemDialog 
           isOpen={isAddClothingItemOpen}
-          onOpenChange={setIsAddClothingItemOpen}
+          onOpenChange={(open) => {
+            setIsAddClothingItemOpen(open);
+            if (!open) resetMultiSelects();
+          }}
           title="Add New Clothing Item"
           placeholder="Enter clothing item name"
           value={newClothingItemName}
@@ -156,7 +192,10 @@ const Services: React.FC = () => {
         />
         <EditItemDialog 
           isOpen={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
+          onOpenChange={(open) => {
+            setIsEditDialogOpen(open);
+            if (!open) resetMultiSelects();
+          }}
           itemType={activeTab === 'sub-services' ? 'sub-service' : 
                    activeTab === 'clothing-items' ? 'clothing-item' : 'service'}
           value={editItemName}
