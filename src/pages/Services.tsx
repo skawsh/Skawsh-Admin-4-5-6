@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import TabNavigation from '../components/services/TabNavigation';
@@ -9,11 +8,13 @@ import ServicesHeader from '../components/services/ServicesHeader';
 import AddItemDialog from '../components/services/AddItemDialog';
 import EditItemDialog from '../components/services/EditItemDialog';
 import ServicesCard from '@/components/studio/details/ServicesCard';
+import StudioServicesDetails from '../components/services/StudioServicesDetails';
 import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
 import { useToast } from '@/hooks/use-toast';
 import { StudioService } from '@/types/services';
+import { Switch } from "@/components/ui/switch";
 
 const Services: React.FC = () => {
   const { toast } = useToast();
@@ -118,6 +119,11 @@ const Services: React.FC = () => {
           }
         });
         localStorage.setItem('laundryStudios', JSON.stringify(studios));
+        
+        toast({
+          title: "Service Status Updated",
+          description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'}.`
+        });
       }
     }
   };
@@ -151,9 +157,8 @@ const Services: React.FC = () => {
               />
               {studioServices.length > 0 && (
                 <div className="mt-8 pt-8 border-t">
-                  <h2 className="text-xl font-bold mb-6">Studio Services</h2>
-                  <ServicesCard
-                    services={studioServices}
+                  <StudioServicesDetails
+                    studioServices={studioServices}
                     onServiceStatusChange={handleStudioServiceStatusChange}
                   />
                 </div>
