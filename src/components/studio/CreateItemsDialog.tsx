@@ -29,14 +29,20 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
   const [subServiceName, setSubServiceName] = useState<string>("");
   const [clothingItemName, setClothingItemName] = useState<string>("");
   
+  // Local state to track newly created items, so we can show them immediately
+  const [localServices, setLocalServices] = useState<Service[]>(services);
+  const [localSubServices, setLocalSubServices] = useState<SubService[]>(subServices);
+  const [localClothingItems, setLocalClothingItems] = useState<ClothingItem[]>(clothingItems);
+  
   const { toast } = useToast();
   const { addService, addSubService, addClothingItem } = useServicesData();
 
-  const generateId = (type: string): string => {
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000);
-    return `${type}-${timestamp}-${random}`;
-  };
+  // Update local state when props change
+  React.useEffect(() => {
+    setLocalServices(services);
+    setLocalSubServices(subServices);
+    setLocalClothingItems(clothingItems);
+  }, [services, subServices, clothingItems]);
 
   const handleCreateService = () => {
     if (serviceName.trim() === "") {
@@ -52,6 +58,16 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
     const success = addService(serviceName.trim());
     
     if (success) {
+      // Update the local state to show the new service immediately
+      // The actual ID will be different, but will be refreshed when the dialog reopens
+      const newService: Service = {
+        id: `temp-${Date.now()}`,
+        name: serviceName.trim(),
+        active: true
+      };
+      
+      setLocalServices([...localServices, newService]);
+      
       toast({
         title: "Success",
         description: `Service "${serviceName}" has been created`
@@ -74,6 +90,15 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
     const success = addSubService(subServiceName.trim());
     
     if (success) {
+      // Update the local state to show the new sub-service immediately
+      const newSubService: SubService = {
+        id: `temp-${Date.now()}`,
+        name: subServiceName.trim(),
+        active: true
+      };
+      
+      setLocalSubServices([...localSubServices, newSubService]);
+      
       toast({
         title: "Success",
         description: `Sub-service "${subServiceName}" has been created`
@@ -96,6 +121,15 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
     const success = addClothingItem(clothingItemName.trim());
     
     if (success) {
+      // Update the local state to show the new clothing item immediately
+      const newClothingItem: ClothingItem = {
+        id: `temp-${Date.now()}`,
+        name: clothingItemName.trim(),
+        active: true
+      };
+      
+      setLocalClothingItems([...localClothingItems, newClothingItem]);
+      
       toast({
         title: "Success",
         description: `Clothing item "${clothingItemName}" has been created`
@@ -146,11 +180,11 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
               Create Service
             </Button>
             
-            {services.length > 0 && (
+            {localServices.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-medium text-gray-700 mb-2">Existing Services</h4>
                 <div className="max-h-[150px] overflow-y-auto bg-gray-50 rounded p-2 border">
-                  {services.filter(s => s.active).map(service => (
+                  {localServices.filter(s => s.active).map(service => (
                     <div key={service.id} className="py-1 px-2 border-b last:border-b-0">
                       {service.name}
                     </div>
@@ -179,11 +213,11 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
               Create Sub Service
             </Button>
             
-            {subServices.length > 0 && (
+            {localSubServices.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-medium text-gray-700 mb-2">Existing Sub Services</h4>
                 <div className="max-h-[150px] overflow-y-auto bg-gray-50 rounded p-2 border">
-                  {subServices.filter(s => s.active).map(subService => (
+                  {localSubServices.filter(s => s.active).map(subService => (
                     <div key={subService.id} className="py-1 px-2 border-b last:border-b-0">
                       {subService.name}
                     </div>
@@ -212,11 +246,11 @@ const CreateItemsDialog: React.FC<CreateItemsDialogProps> = ({
               Create Clothing Item
             </Button>
             
-            {clothingItems.length > 0 && (
+            {localClothingItems.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-medium text-gray-700 mb-2">Existing Clothing Items</h4>
                 <div className="max-h-[150px] overflow-y-auto bg-gray-50 rounded p-2 border">
-                  {clothingItems.filter(c => c.active).map(clothingItem => (
+                  {localClothingItems.filter(c => c.active).map(clothingItem => (
                     <div key={clothingItem.id} className="py-1 px-2 border-b last:border-b-0">
                       {clothingItem.name}
                     </div>
