@@ -98,23 +98,34 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
           {itemRows.map((row, index) => (
             <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 transition-all">
               <div className="space-y-4">
-                <div className="flex flex-col">
-                  <Select value={row.itemId} onValueChange={(value) => handleItemChange(index, value)}>
-                    <SelectTrigger className="w-full rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                      <SelectValue placeholder="Select item" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableItems.map(item => (
-                        <SelectItem 
-                          key={item.id} 
-                          value={item.id}
-                          disabled={itemRows.some(r => r.itemId === item.id && r.itemId !== row.itemId)}
-                        >
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                {/* Position the remove button outside and to the right of the dropdown */}
+                <div className="flex items-start mb-2">
+                  <div className="flex-grow">
+                    <Select value={row.itemId} onValueChange={(value) => handleItemChange(index, value)}>
+                      <SelectTrigger className="w-full rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <SelectValue placeholder="Select item" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableItems.map(item => (
+                          <SelectItem 
+                            key={item.id} 
+                            value={item.id}
+                            disabled={itemRows.some(r => r.itemId === item.id && r.itemId !== row.itemId)}
+                          >
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveRow(index)}
+                    className="ml-2 h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full flex-shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
@@ -149,15 +160,6 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                   )}
                 </div>
               </div>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleRemoveRow(index)}
-                className="absolute top-2 right-2 h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
           ))}
           
