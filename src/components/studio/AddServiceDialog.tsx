@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash, FileText } from "lucide-react";
+import { Plus, Trash, FileText, X } from "lucide-react";
 import { Service, SubService, ClothingItem } from "@/types/services";
 import { 
   Select,
@@ -34,6 +33,12 @@ interface AddServiceDialogProps {
   subServices: SubService[];
   clothingItems: ClothingItem[];
   onServiceAdded: (data: any) => void;
+}
+
+interface ClothingItemRow {
+  id: string;
+  clothingItemId: string;
+  price: string;
 }
 
 const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
@@ -68,6 +73,10 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   const [itemName, setItemName] = useState("");
   const [selectedClothingItem, setSelectedClothingItem] = useState<string>("");
 
+  const [itemRows, setItemRows] = useState<ClothingItemRow[]>([
+    { id: Date.now().toString(), clothingItemId: "", price: "" }
+  ]);
+
   useEffect(() => {
     if (!isOpen) {
       setSelectedService("");
@@ -82,6 +91,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       }]);
       setSelectedSubServiceNames({});
       setIsAddItemsDialogOpen({});
+      setItemRows([{ id: Date.now().toString(), clothingItemId: "", price: "" }]);
     }
   }, [isOpen]);
 
@@ -160,59 +170,72 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       ...prev,
       [id]: isOpen
     }));
-    // Reset selected clothing item when dialog opens
-    setSelectedClothingItem("");
-  };
-
-  const handleAddClothingItem = (subServiceItemId: string) => {
-    if (!selectedClothingItem) return;
     
-    const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
-    
-    if (subServiceItem && !subServiceItem.selectedItems.includes(selectedClothingItem)) {
-      const updatedItems = [...subServiceItem.selectedItems, selectedClothingItem];
-      handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
-      
-      // Initialize price for this item
-      handleItemPriceChange(subServiceItemId, selectedClothingItem, "");
-      
-      // Reset selected item
-      setSelectedClothingItem("");
+    if (isOpen) {
+      const subServiceItem = subServiceItems.find(item => item.id === id);
+      if (subServiceItem && subServiceItem.selectedItems.length > 0) {
+        const existingRows = subServiceItem.selectedItems.map(itemId => ({
+          id: `${itemId}-${Date.now()}`,
+          clothingItemId: itemId,
+          price: subServiceItem.itemPrices[itemId] || ""
+        }));
+        setItemRows(existingRows);
+      } else {
+        setItemRows([{ id: Date.now().toString(), clothingItemId: "", price: "" }]);
+      }
     }
   };
 
-  const handleRemoveClothingItem = (subServiceItemId: string, clothingItemId: string) => {
+  const handleRowClothingItemChange = (rowId: string, clothingItemId: string) => {
+    setItemRows(rows => 
+      rows.map(row => 
+        row.id === rowId ? { ...row, clothingItemId } : row
+      )
+    );
+  };
+
+  const handleRowPriceChange = (rowId: string, price: string) => {
+    setItemRows(rows => 
+      rows.map(row => 
+        row.id === rowId ? { ...row, price } : row
+      )
+    );
+  };
+
+  const handleAddMoreItems = () => {
+    setItemRows([...itemRows, { id: Date.now().toString(), clothingItemId: "", price: "" }]);
+  };
+
+  const handleRemoveRow = (rowId: string) => {
+    setItemRows(rows => rows.filter(row => row.id !== rowId));
+  };
+
+  const handleDoneAddingItems = (subServiceItemId: string) => {
     const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
+    if (!subServiceItem) return;
+
+    const validRows = itemRows.filter(row => row.clothingItemId && row.price);
     
-    if (subServiceItem) {
-      // Remove from selected items
-      const updatedItems = subServiceItem.selectedItems.filter(id => id !== clothingItemId);
-      handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
-      
-      // Remove price entry
-      const updatedPrices = { ...subServiceItem.itemPrices };
-      delete updatedPrices[clothingItemId];
-      
-      setSubServiceItems(subServiceItems.map(item => {
-        if (item.id === subServiceItemId) {
-          return {
-            ...item,
-            selectedItems: updatedItems,
-            itemPrices: updatedPrices
-          };
-        }
-        return item;
-      }));
-    }
-  };
+    const newSelectedItems = validRows.map(row => row.clothingItemId);
+    const newItemPrices: Record<string, string> = {};
+    
+    validRows.forEach(row => {
+      newItemPrices[row.clothingItemId] = row.price;
+    });
 
-  const getSelectedClothingItemsCount = (subServiceItemId: string) => {
-    const subServiceItem = subServiceItems.find(item => item.id === subServiceItemId);
-    return subServiceItem ? subServiceItem.selectedItems.length : 0;
-  };
+    setSubServiceItems(items => 
+      items.map(item => 
+        item.id === subServiceItemId 
+          ? { 
+              ...item, 
+              selectedItems: newSelectedItems,
+              itemPrices: newItemPrices 
+            } 
+          : item
+      )
+    );
 
-  const getSelectedSubServiceName = (id: string) => {
-    return selectedSubServiceNames[id] || "";
+    toggleAddItemsDialog(subServiceItemId, false);
   };
 
   const getClothingItemById = (id: string) => {
@@ -349,82 +372,71 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                         </DialogHeader>
                         
                         <div className="space-y-4 p-2">
-                          {subServiceItem.selectedItems.length > 0 && (
-                            <ScrollArea className="max-h-60">
-                              {subServiceItem.selectedItems.map((itemId) => {
-                                const item = getClothingItemById(itemId);
-                                return item ? (
-                                  <div key={itemId} className="p-4 border rounded-lg mb-4">
-                                    <div className="grid grid-cols-[1fr,1fr,auto] gap-4 items-center">
-                                      <div>
-                                        <label className="text-base font-medium mb-2 block">Clothing Item</label>
-                                        <div className="border rounded-md px-3 py-2 bg-gray-50">
-                                          {item.name}
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <label className="text-base font-medium mb-2 block">Price</label>
-                                        <Input
-                                          placeholder="Price (per item)"
-                                          value={subServiceItem.itemPrices[itemId] || ""}
-                                          onChange={(e) => handleItemPriceChange(subServiceItem.id, itemId, e.target.value)}
-                                        />
-                                      </div>
-                                      <div className="pt-8">
-                                        <Button
-                                          type="button"
-                                          variant="destructive"
-                                          className="h-10"
-                                          onClick={() => handleRemoveClothingItem(subServiceItem.id, itemId)}
-                                        >
-                                          Remove
-                                        </Button>
-                                      </div>
-                                    </div>
+                          <ScrollArea className="max-h-60 overflow-y-auto">
+                            <div className="space-y-4">
+                              {itemRows.map((row) => (
+                                <div key={row.id} className="p-4 border rounded-lg flex items-end gap-4">
+                                  <div className="flex-1">
+                                    <label className="text-base font-medium mb-2 block">Clothing Item</label>
+                                    <Select 
+                                      value={row.clothingItemId} 
+                                      onValueChange={(value) => handleRowClothingItemChange(row.id, value)}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select..." />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {safeClothingItems
+                                          .filter(item => 
+                                            item.id === row.clothingItemId || 
+                                            !itemRows.some(r => r.id !== row.id && r.clothingItemId === item.id)
+                                          )
+                                          .map((item) => (
+                                            <SelectItem key={item.id} value={item.id}>
+                                              {item.name}
+                                            </SelectItem>
+                                          ))}
+                                      </SelectContent>
+                                    </Select>
                                   </div>
-                                ) : null;
-                              })}
-                            </ScrollArea>
-                          )}
-                          
-                          <div className="p-4 border rounded-lg">
-                            <div className="grid grid-cols-[1fr,1fr,auto] gap-4 items-end">
-                              <div>
-                                <label className="text-base font-medium mb-2 block">Clothing Item</label>
-                                <Select value={selectedClothingItem} onValueChange={setSelectedClothingItem}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select..." />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {safeClothingItems
-                                      .filter(item => !subServiceItem.selectedItems.includes(item.id))
-                                      .map((item) => (
-                                        <SelectItem key={item.id} value={item.id}>
-                                          {item.name}
-                                        </SelectItem>
-                                      ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <label className="text-base font-medium mb-2 block">Price</label>
-                                <Input placeholder="Price (per item)" disabled />
-                              </div>
-                              <Button 
-                                type="button"
-                                variant="blue"
-                                className="bg-blue-500"
-                                onClick={() => handleAddClothingItem(subServiceItem.id)}
-                                disabled={!selectedClothingItem}
-                              >
-                                Add Category
-                              </Button>
+                                  <div className="flex-1">
+                                    <label className="text-base font-medium mb-2 block">Price</label>
+                                    <Input 
+                                      placeholder="Price (per item)" 
+                                      value={row.price} 
+                                      onChange={(e) => handleRowPriceChange(row.id, e.target.value)}
+                                    />
+                                  </div>
+                                  <Button 
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-red-500 mt-7"
+                                    onClick={() => handleRemoveRow(row.id)}
+                                  >
+                                    <X className="h-5 w-5" />
+                                  </Button>
+                                </div>
+                              ))}
                             </div>
-                          </div>
+                          </ScrollArea>
+                          
+                          <Button 
+                            type="button"
+                            variant="blue"
+                            className="w-full"
+                            onClick={handleAddMoreItems}
+                          >
+                            <Plus className="mr-1 h-4 w-4" />
+                            Add more items
+                          </Button>
                         </div>
                         
                         <DialogFooter>
-                          <Button onClick={() => toggleAddItemsDialog(subServiceItem.id, false)}>
+                          <Button 
+                            onClick={() => handleDoneAddingItems(subServiceItem.id)}
+                            className="bg-gray-900 hover:bg-gray-800"
+                          >
                             Done
                           </Button>
                         </DialogFooter>
@@ -437,7 +449,7 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                           const item = safeClothingItems.find(i => i.id === itemId);
                           return item ? (
                             <Badge key={itemId} variant="outline" className="bg-blue-50">
-                              {item.name}
+                              {item.name} - ₹{subServiceItem.itemPrices[itemId] || '0'}
                             </Badge>
                           ) : null;
                         })}
@@ -494,4 +506,3 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
 };
 
 export default AddServiceDialog;
-
