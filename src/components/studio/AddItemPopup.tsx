@@ -1,12 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ClothingItem } from '@/types/services';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Search } from 'lucide-react';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from '@/lib/utils';
 
 interface AddItemPopupProps {
   isOpen: boolean;
@@ -28,11 +31,17 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
   const [itemRows, setItemRows] = useState<Array<{ itemId: string, standardPrice: string, expressPrice: string }>>([
     { itemId: '', standardPrice: '', expressPrice: '' }
   ]);
+  
+  // Search state for each row
+  const [openDropdowns, setOpenDropdowns] = useState<Record<number, boolean>>({});
+  const [searchValues, setSearchValues] = useState<Record<number, string>>({});
 
   // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
       setItemRows([{ itemId: '', standardPrice: '', expressPrice: '' }]);
+      setOpenDropdowns({});
+      setSearchValues({});
     }
   }, [isOpen]);
 
@@ -40,6 +49,12 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
     const newRows = [...itemRows];
     newRows[index].itemId = itemId;
     setItemRows(newRows);
+    
+    // Close the dropdown after selection
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [index]: false
+    }));
   };
 
   const handlePriceChange = (index: number, value: string, priceType: 'standard' | 'express' = 'standard') => {
@@ -76,10 +91,35 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
     onOpenChange(false);
   };
 
-  // Filter out already selected items
-  const availableItems = clothingItems.filter(item => 
-    item.active && !selectedItems.includes(item.id)
-  );
+  const toggleDropdown = (index: number, isOpen: boolean) => {
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [index]: isOpen
+    }));
+  };
+
+  const handleSearch = (index: number, value: string) => {
+    setSearchValues(prev => ({
+      ...prev,
+      [index]: value
+    }));
+  };
+
+  // Filter out already selected items and apply search filter
+  const getFilteredItems = (index: number) => {
+    const currentSearch = searchValues[index] || '';
+    
+    return clothingItems.filter(item => 
+      // Must be active
+      item.active && 
+      // Not already selected in other rows
+      !itemRows.some((row, idx) => idx !== index && row.itemId === item.id) &&
+      // Not already in selectedItems (unless it's the current value for this row)
+      (!selectedItems.includes(item.id) || itemRows[index].itemId === item.id) &&
+      // Match search term (case insensitive)
+      item.name.toLowerCase().includes(currentSearch.toLowerCase())
+    );
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -89,73 +129,101 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
         </DialogHeader>
         
         <div className="space-y-6 py-5">
-          {itemRows.map((row, index) => (
-            <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 transition-all">
-              <div className="space-y-4">
-                {/* Position the remove button outside and to the right of the dropdown */}
-                <div className="flex items-start mb-2">
-                  <div className="flex-grow">
-                    <Select value={row.itemId} onValueChange={(value) => handleItemChange(index, value)}>
-                      <SelectTrigger className="w-full rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                        <SelectValue placeholder="Select item" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableItems.map(item => (
-                          <SelectItem 
-                            key={item.id} 
-                            value={item.id}
-                            disabled={itemRows.some(r => r.itemId === item.id && r.itemId !== row.itemId)}
+          {itemRows.map((row, index) => {
+            const filteredItems = getFilteredItems(index);
+            
+            return (
+              <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 transition-all">
+                <div className="space-y-4">
+                  {/* Position the remove button outside and to the right of the dropdown */}
+                  <div className="flex items-start mb-2">
+                    <div className="flex-grow">
+                      <Popover 
+                        open={openDropdowns[index] || false}
+                        onOpenChange={(open) => toggleDropdown(index, open)}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openDropdowns[index] || false}
+                            className="w-full justify-between rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           >
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                            {row.itemId ? clothingItems.find(item => item.id === row.itemId)?.name || "Select item" : "Select item"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput 
+                              placeholder="Search items..." 
+                              value={searchValues[index] || ''}
+                              onValueChange={(value) => handleSearch(index, value)}
+                              className="h-9"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No items found</CommandEmpty>
+                              <CommandGroup>
+                                {filteredItems.map(item => (
+                                  <CommandItem
+                                    key={item.id}
+                                    value={item.id}
+                                    onSelect={() => handleItemChange(index, item.id)}
+                                    className="flex items-center"
+                                  >
+                                    {item.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleRemoveRow(index)}
+                      className="ml-2 h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => handleRemoveRow(index)}
-                    className="ml-2 h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full flex-shrink-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  {(washCategory === 'standard' || washCategory === 'both') && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
-                        <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded mr-2">Standard</span>
-                      </Label>
-                      <Input
-                        type="number"
-                        value={row.standardPrice}
-                        onChange={(e) => handlePriceChange(index, e.target.value, 'standard')}
-                        placeholder="Price"
-                        className="rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      />
-                    </div>
-                  )}
                   
-                  {(washCategory === 'express' || washCategory === 'both') && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
-                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded mr-2">Express</span>
-                      </Label>
-                      <Input
-                        type="number"
-                        value={row.expressPrice}
-                        onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
-                        placeholder="Price"
-                        className="rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      />
-                    </div>
-                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    {(washCategory === 'standard' || washCategory === 'both') && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium flex items-center">
+                          <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded mr-2">Standard</span>
+                        </Label>
+                        <Input
+                          type="number"
+                          value={row.standardPrice}
+                          onChange={(e) => handlePriceChange(index, e.target.value, 'standard')}
+                          placeholder="Price"
+                          className="rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+                    )}
+                    
+                    {(washCategory === 'express' || washCategory === 'both') && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium flex items-center">
+                          <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded mr-2">Express</span>
+                        </Label>
+                        <Input
+                          type="number"
+                          value={row.expressPrice}
+                          onChange={(e) => handlePriceChange(index, e.target.value, 'express')}
+                          placeholder="Price"
+                          className="rounded-md border-gray-200 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           
           <Button 
             type="button" 
