@@ -66,7 +66,6 @@ const Studios: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [studiosData, setStudiosData] = useState<Studio[]>([]);
 
-  // Sample data
   const defaultStudios: Studio[] = [
     {
       id: 1,
@@ -150,7 +149,6 @@ const Studios: React.FC = () => {
     }
   ];
 
-  // Load studios from localStorage on component mount
   useEffect(() => {
     const savedStudios = localStorage.getItem('laundryStudios');
     
@@ -162,21 +160,17 @@ const Studios: React.FC = () => {
     }
   }, []);
 
-  // Filtering and sorting logic
   const filteredStudios = studiosData.filter((studio) => {
-    // Search filter
     const matchesSearch = searchTerm === '' || 
       studio.studioName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       studio.studioId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       studio.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       studio.contact.includes(searchTerm);
     
-    // Status filter
     const matchesStatus = statusFilter === null || 
       (statusFilter === 'active' && studio.status) ||
       (statusFilter === 'inactive' && !studio.status);
     
-    // Rating filter
     const matchesRating = ratingFilter === null ||
       (ratingFilter === 'above4.5' && studio.rating >= 4.5) ||
       (ratingFilter === '4to4.5' && studio.rating >= 4 && studio.rating < 4.5) ||
@@ -187,11 +181,10 @@ const Studios: React.FC = () => {
     return sortDirection === 'asc' ? a.id - b.id : b.id - a.id;
   });
 
-  // Calculate stats
   const totalStudios = studiosData.length;
   const activeStudios = studiosData.filter(s => s.status).length;
   const inactiveStudios = studiosData.filter(s => !s.status).length;
-  const avgSackValue = 396; // Example value from the image
+  const avgSackValue = 396;
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -218,16 +211,10 @@ const Studios: React.FC = () => {
       title: "Payments",
       description: `Viewing payments for ${studio.studioName}`,
     });
-    // Implement payments view/navigation logic here
   };
 
   const handleViewEditStudioClick = (studio: Studio) => {
-    toast({
-      title: "Edit Studio",
-      description: `Editing details for ${studio.studioName}`,
-    });
-    // Implement navigation to studio edit page
-    // navigate(`/studios/edit/${studio.id}`);
+    navigate(`/studios/${studio.id}`);
   };
 
   const handleViewEditServicesClick = (studio: Studio) => {
@@ -235,8 +222,6 @@ const Studios: React.FC = () => {
       title: "Edit Services",
       description: `Editing services for ${studio.studioName}`,
     });
-    // Implement navigation to services edit page
-    // navigate(`/studios/${studio.id}/services`);
   };
 
   const handleViewAnalyticsClick = (studio: Studio) => {
@@ -244,12 +229,9 @@ const Studios: React.FC = () => {
       title: "Analytics",
       description: `Viewing analytics for ${studio.studioName}`,
     });
-    // Implement navigation to studio analytics page
-    // navigate(`/studios/${studio.id}/analytics`);
   };
 
   const handleDeleteStudioClick = (studio: Studio) => {
-    // Show a confirmation before deleting
     if (window.confirm(`Are you sure you want to delete ${studio.studioName}?`)) {
       const updatedStudios = studiosData.filter(s => s.id !== studio.id);
       setStudiosData(updatedStudios);
@@ -265,7 +247,6 @@ const Studios: React.FC = () => {
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
-        {/* Header Section - Updated to match design */}
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Laundry Studios</h1>
@@ -297,7 +278,6 @@ const Studios: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-6">
@@ -333,7 +313,6 @@ const Studios: React.FC = () => {
           </Card>
         </div>
 
-        {/* Action Buttons and Filters */}
         <div className="flex flex-wrap justify-between gap-4">
           <div className="flex items-center gap-3">
             <p className="text-gray-500">Filter by:</p>
@@ -390,7 +369,6 @@ const Studios: React.FC = () => {
           </div>
         </div>
 
-        {/* Studios Table */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
