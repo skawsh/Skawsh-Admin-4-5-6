@@ -888,23 +888,25 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Select onValueChange={handleSubServiceSelect} className="flex-1">
-                  <SelectTrigger className="w-full max-w-full mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
-                    <div className="flex items-center">
-                      <Plus className="h-4 w-4 mr-2" />
-                      <span>Select a sub-service</span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subServices
-                      .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
-                      .map(subService => (
-                        <SelectItem key={subService.id} value={subService.id}>
-                          {subService.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <div className="w-full">
+                  <Select onValueChange={handleSubServiceSelect}>
+                    <SelectTrigger className="max-w-full mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
+                      <div className="flex items-center">
+                        <Plus className="h-4 w-4 mr-2" />
+                        <span>Select a sub-service</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subServices
+                        .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+                        .map(subService => (
+                          <SelectItem key={subService.id} value={subService.id}>
+                            {subService.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 
                 <Button 
                   type="button" 

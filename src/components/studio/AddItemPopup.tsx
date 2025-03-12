@@ -74,28 +74,29 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
               Select Item
             </Label>
             <div className="flex gap-2">
-              <Select
-                value={selectedItemId}
-                onValueChange={setSelectedItemId}
-                className="flex-1"
-              >
-                <SelectTrigger id="item-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <SelectValue placeholder="Select an item" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableItems.length > 0 ? (
-                    availableItems.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        {item.name}
+              <div className="flex-1">
+                <Select
+                  value={selectedItemId}
+                  onValueChange={setSelectedItemId}
+                >
+                  <SelectTrigger id="item-select" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <SelectValue placeholder="Select an item" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableItems.length > 0 ? (
+                      availableItems.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-items" disabled>
+                        No available items
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-items" disabled>
-                      No available items
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
               
               {addNewItem && (
                 <Button 
