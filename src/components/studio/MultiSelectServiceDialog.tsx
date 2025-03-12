@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   onSave,
   editingService = null,
 }) => {
+  // State for form data
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [selectedSubServices, setSelectedSubServices] = useState<string[]>([]);
   const [pricePerKg, setPricePerKg] = useState<Record<string, { standard: string, express: string }>>({});
@@ -39,9 +41,14 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const [selectedClothingItems, setSelectedClothingItems] = useState<Record<string, string[]>>({});
   const [clothingItemPrices, setClothingItemPrices] = useState<Record<string, Record<string, { standard: string, express: string }>>>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  
+  // Current active sub-service for adding items
   const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
+  
+  // State for Add Items popup
   const [isAddItemsOpen, setIsAddItemsOpen] = useState(false);
 
+  // Reset form when dialog opens
   useEffect(() => {
     if (isOpen) {
       if (!editingService) {
@@ -66,18 +73,24 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const populateFormWithEditingData = () => {
     if (!editingService) return;
 
+    // Set service ID
     setSelectedServiceId(editingService.serviceId);
+
+    // Extract sub-service IDs
     const subServiceIds = editingService.subServices.map((subService: any) => subService.name);
     setSelectedSubServices(subServiceIds);
 
+    // Create records for pricing data
     const newPricePerKg: Record<string, { standard: string, express: string }> = {};
     const newPricePerItem: Record<string, { standard: string, express: string }> = {};
     const newSelectedClothingItems: Record<string, string[]> = {};
     const newClothingItemPrices: Record<string, Record<string, { standard: string, express: string }>> = {};
 
+    // Populate data for each sub-service
     editingService.subServices.forEach((subService: any) => {
       const subServiceId = subService.name;
       
+      // Set pricing data
       newPricePerKg[subServiceId] = {
         standard: subService.standardPricePerKg || subService.pricePerKg || '',
         express: subService.expressPricePerKg || ''
@@ -88,6 +101,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         express: subService.expressPricePerItem || ''
       };
       
+      // Set clothing items and prices
       if (subService.selectedItems && subService.selectedItems.length > 0) {
         newSelectedClothingItems[subServiceId] = [...subService.selectedItems];
         
@@ -101,25 +115,30 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       }
     });
 
+    // Update state
     setPricePerKg(newPricePerKg);
     setPricePerItem(newPricePerItem);
     setSelectedClothingItems(newSelectedClothingItems);
     setClothingItemPrices(newClothingItemPrices);
     
+    // Set first sub-service as active if any
     if (subServiceIds.length > 0) {
       setActiveSubServiceId(subServiceIds[0]);
     }
   };
 
+  // Handle service selection
   const handleServiceChange = (value: string) => {
     setSelectedServiceId(value);
   };
 
+  // Handle sub-service selection
   const handleSubServiceSelect = (subServiceId: string) => {
     if (!selectedSubServices.includes(subServiceId)) {
       const newSelectedSubServices = [...selectedSubServices, subServiceId];
       setSelectedSubServices(newSelectedSubServices);
       
+      // Initialize pricing for new sub-service
       setPricePerKg(prev => ({
         ...prev,
         [subServiceId]: { standard: '', express: '' }
@@ -140,19 +159,23 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         [subServiceId]: {}
       }));
       
+      // Set as active sub-service
       setActiveSubServiceId(subServiceId);
     }
   };
 
+  // Remove a sub-service
   const handleRemoveSubService = (subServiceId: string) => {
     setSelectedSubServices(prev => prev.filter(id => id !== subServiceId));
     
+    // If removing active sub-service, set another one as active
     if (activeSubServiceId === subServiceId) {
       const remaining = selectedSubServices.filter(id => id !== subServiceId);
       setActiveSubServiceId(remaining.length > 0 ? remaining[0] : null);
     }
   };
 
+  // Handle price per kg change
   const handlePricePerKgChange = (
     subServiceId: string, 
     type: 'standard' | 'express',
@@ -167,6 +190,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }));
   };
 
+  // Handle price per item change
   const handlePricePerItemChange = (
     subServiceId: string, 
     type: 'standard' | 'express',
@@ -181,6 +205,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }));
   };
 
+  // Handle clothing item price changes
   const handleClothingItemPriceChange = (
     subServiceId: string,
     itemId: string,
@@ -199,6 +224,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }));
   };
 
+  // Remove clothing item
   const handleRemoveClothingItem = (subServiceId: string, itemId: string) => {
     setSelectedClothingItems(prev => {
       const updatedItems = { ...prev };
@@ -218,13 +244,15 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     });
   };
 
+  // Open the Add Items popup
   const handleOpenAddItems = () => {
     if (activeSubServiceId) {
       setIsAddItemsOpen(true);
     }
   };
 
-  const handleAddItemFromPopup = (itemId: string, standardPrice: string, expressPrice: string) => {
+  // Handle clothing item selection from the Add Items popup
+  const handleAddItemFromPopup = (itemId: string, price: string) => {
     if (!activeSubServiceId) return;
     
     setSelectedClothingItems(prev => {
@@ -241,19 +269,44 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     setClothingItemPrices(prev => {
       const subServicePrices = prev[activeSubServiceId] || {};
       
-      return {
-        ...prev,
-        [activeSubServiceId]: {
-          ...subServicePrices,
-          [itemId]: {
-            standard: standardPrice,
-            express: expressPrice
+      if (washCategory === 'standard') {
+        return {
+          ...prev,
+          [activeSubServiceId]: {
+            ...subServicePrices,
+            [itemId]: {
+              standard: price,
+              express: ''
+            }
           }
-        }
-      };
+        };
+      } else if (washCategory === 'express') {
+        return {
+          ...prev,
+          [activeSubServiceId]: {
+            ...subServicePrices,
+            [itemId]: {
+              standard: '',
+              express: price
+            }
+          }
+        };
+      } else {
+        return {
+          ...prev,
+          [activeSubServiceId]: {
+            ...subServicePrices,
+            [itemId]: {
+              standard: price,
+              express: price
+            }
+          }
+        };
+      }
     });
   };
 
+  // Helper functions
   const getSubServiceName = (id: string) => {
     const subService = subServices.find(s => s.id === id);
     return subService ? subService.name : id;
@@ -264,6 +317,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     return item ? item.name : id;
   };
 
+  // Form validation
   const validateForm = () => {
     const errors = [];
     
@@ -275,6 +329,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
       errors.push('Please select at least one sub-service');
     }
     
+    // Validation based on wash category
     let hasPricing = false;
     
     selectedSubServices.forEach(subServiceId => {
@@ -286,6 +341,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           hasPricing = true;
         }
         
+        // Check standard clothing item prices
         const hasStandardItemPrices = (selectedClothingItems[subServiceId] || []).some(itemId => {
           const price = clothingItemPrices[subServiceId]?.[itemId]?.standard;
           return price && price !== '0';
@@ -304,6 +360,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           hasPricing = true;
         }
         
+        // Check express clothing item prices
         const hasExpressItemPrices = (selectedClothingItems[subServiceId] || []).some(itemId => {
           const price = clothingItemPrices[subServiceId]?.[itemId]?.express;
           return price && price !== '0';
@@ -323,17 +380,20 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     return errors.length === 0;
   };
 
+  // Save form data
   const handleSave = () => {
     if (!validateForm()) {
       return;
     }
     
+    // Prepare data for saving - maintain the same data structure as before
     const subServicesData = selectedSubServices.map(subServiceId => {
       const data: any = {
         name: subServiceId,
         selectedItems: selectedClothingItems[subServiceId] || []
       };
       
+      // Add pricing based on wash category
       if (washCategory === 'standard' || washCategory === 'both') {
         const standardKgPrice = pricePerKg[subServiceId]?.standard || '0';
         const standardItemPrice = pricePerItem[subServiceId]?.standard || '0';
@@ -341,6 +401,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         data.standardPricePerKg = standardKgPrice;
         data.standardPricePerItem = standardItemPrice;
         
+        // Add standard item prices
         data.standardItemPrices = {};
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
@@ -352,6 +413,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           data.pricePerKg = standardKgPrice;
           data.pricePerItem = standardItemPrice;
           
+          // Add default item prices
           data.itemPrices = {};
           
           (selectedClothingItems[subServiceId] || []).forEach(itemId => {
@@ -368,6 +430,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         data.expressPricePerKg = expressKgPrice;
         data.expressPricePerItem = expressItemPrice;
         
+        // Add express item prices
         data.expressItemPrices = {};
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
@@ -379,6 +442,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           data.pricePerKg = expressKgPrice;
           data.pricePerItem = expressItemPrice;
           
+          // Add default item prices
           data.itemPrices = {};
           
           (selectedClothingItems[subServiceId] || []).forEach(itemId => {
@@ -388,10 +452,12 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         }
       }
       
+      // For "both" category, use standard prices as default
       if (washCategory === 'both') {
         data.pricePerKg = pricePerKg[subServiceId]?.standard || '0';
         data.pricePerItem = pricePerItem[subServiceId]?.standard || '0';
         
+        // Add default item prices
         data.itemPrices = {};
         
         (selectedClothingItems[subServiceId] || []).forEach(itemId => {
@@ -412,6 +478,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     onOpenChange(false);
   };
 
+  // Render price fields based on wash category
   const renderPriceFields = (subServiceId: string) => {
     if (washCategory === 'standard') {
       return (
@@ -544,6 +611,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }
   };
 
+  // Render clothing item row with prices based on wash category
   const renderClothingItemPriceRow = (subServiceId: string, itemId: string) => {
     if (washCategory === 'standard') {
       return (
@@ -646,6 +714,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           <p className="text-gray-500 text-sm mt-1">Add a new service with its subservices and items</p>
         </DialogHeader>
         
+        {/* Error messages */}
         {formErrors.length > 0 && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
             <h4 className="font-semibold mb-1">Please fix the following issues:</h4>
@@ -658,6 +727,7 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
         )}
         
         <div className="space-y-6 overflow-y-auto pr-2 flex-grow">
+          {/* Service Selection */}
           <div className="space-y-2 mt-2">
             <Label htmlFor="service-select" className="font-semibold text-gray-800">
               Service Name
@@ -680,9 +750,11 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
             </Select>
           </div>
           
+          {/* Sub Services */}
           <div className="space-y-4 pt-2">
             <Label className="font-semibold text-gray-800">Sub Services</Label>
             
+            {/* Added Sub-Services Panels */}
             {selectedSubServices.length > 0 && (
               <div className="space-y-4">
                 {selectedSubServices.map(subServiceId => (
@@ -706,8 +778,10 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                         </SelectTrigger>
                       </Select>
                       
+                      {/* Render price fields based on wash category */}
                       {renderPriceFields(subServiceId)}
                       
+                      {/* Clothing Items */}
                       <div className="mt-5">
                         <div className="flex justify-between items-center mb-2">
                           <h4 className="font-semibold text-gray-800">Clothing Items</h4>
@@ -725,5 +799,74 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                           </Button>
                         </div>
                         
-                        {(
+                        {/* Clothing Items with Prices */}
+                        {(selectedClothingItems[subServiceId] || []).length > 0 ? (
+                          <div className="space-y-2 mt-3">
+                            {(selectedClothingItems[subServiceId] || []).map(itemId => 
+                              renderClothingItemPriceRow(subServiceId, itemId)
+                            )}
+                          </div>
+                        ) : (
+                          <div className="bg-gray-50 rounded-md p-4 text-center text-gray-500 border border-dashed border-gray-300 mt-2">
+                            No clothing items added yet
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            
+            {/* Add Sub Service Button */}
+            <Select onValueChange={handleSubServiceSelect}>
+              <SelectTrigger className="w-full max-w-sm mx-auto bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-100 font-medium transition-colors">
+                <div className="flex items-center">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span>Add Sub Service</span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {subServices
+                  .filter(subService => subService.active && !selectedSubServices.includes(subService.id))
+                  .map(subService => (
+                    <SelectItem key={subService.id} value={subService.id}>
+                      {subService.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        <DialogFooter className="mt-4 pt-3 border-t flex justify-end space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-5 py-2 font-medium text-gray-700 hover:bg-gray-100 border-gray-300"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            className="px-5 py-2 font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
 
+      {/* Add Items Popup */}
+      <AddItemPopup
+        isOpen={isAddItemsOpen}
+        onOpenChange={setIsAddItemsOpen}
+        clothingItems={clothingItems}
+        selectedItems={activeSubServiceId ? (selectedClothingItems[activeSubServiceId] || []) : []}
+        onAddItem={handleAddItemFromPopup}
+        washCategory={washCategory}
+      />
+    </Dialog>
+  );
+};
+
+export default MultiSelectServiceDialog;
