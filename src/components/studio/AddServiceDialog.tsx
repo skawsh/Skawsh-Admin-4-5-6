@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -62,7 +61,6 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
   
   const [selectedSubServiceNames, setSelectedSubServiceNames] = useState<Record<string, string>>({});
   
-  // New state for the Add Items dialog
   const [isAddItemsDialogOpen, setIsAddItemsDialogOpen] = useState<Record<string, boolean>>({});
   const [itemName, setItemName] = useState("");
 
@@ -150,11 +148,9 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
       const selectedItems = [...subServiceItem.selectedItems];
       
       if (selectedItems.includes(clothingItemId)) {
-        // Remove if already selected
         const updatedItems = selectedItems.filter(id => id !== clothingItemId);
         handleSubServiceChange(subServiceItemId, 'selectedItems', updatedItems);
       } else {
-        // Add if not selected
         selectedItems.push(clothingItemId);
         handleSubServiceChange(subServiceItemId, 'selectedItems', selectedItems);
       }
@@ -276,25 +272,19 @@ const AddServiceDialog: React.FC<AddServiceDialogProps> = ({
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-base font-medium">
-                      Clothing Items
-                    </label>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      className="w-full justify-between bg-white border-gray-300"
-                      onClick={() => toggleAddItemsDialog(subServiceItem.id, true)}
-                    >
-                      <span>
-                        {getSelectedClothingItemsCount(subServiceItem.id) > 0 
-                          ? `${getSelectedClothingItemsCount(subServiceItem.id)} items selected` 
-                          : "Add Items"}
-                      </span>
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                  <div className="space-y-3">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="text-base font-medium mb-3">Clothing Items</h4>
+                      <Button 
+                        type="button" 
+                        variant="blue" 
+                        onClick={() => toggleAddItemsDialog(subServiceItem.id, true)}
+                        className="w-auto"
+                      >
+                        Add Items
+                      </Button>
+                    </div>
                     
-                    {/* Add Items Dialog */}
                     <Dialog 
                       open={!!isAddItemsDialogOpen[subServiceItem.id]} 
                       onOpenChange={(open) => toggleAddItemsDialog(subServiceItem.id, open)}
