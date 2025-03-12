@@ -155,12 +155,6 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                                     <span className="font-medium">₹{subService.expressItemPrices[itemId]}</span>
                                   </div>
                                 )}
-                                {subService.itemPrices && subService.itemPrices[itemId] !== undefined && (
-                                  <div className="flex flex-col">
-                                    <span className="text-sm text-gray-500">Price:</span>
-                                    <span className="font-medium">₹{subService.itemPrices[itemId]}</span>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           );

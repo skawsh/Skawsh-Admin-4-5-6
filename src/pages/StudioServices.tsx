@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -123,7 +122,21 @@ const StudioServices: React.FC = () => {
   const handleServiceStatusChange = (serviceIndex: number) => {
     if (studioData && studioData.studioServices) {
       const updatedServices = [...studioData.studioServices];
-      updatedServices[serviceIndex].active = !updatedServices[serviceIndex].active;
+      const newStatus = !updatedServices[serviceIndex].active;
+      updatedServices[serviceIndex].active = newStatus;
+      
+      // Update all subservices to match the service status
+      updatedServices[serviceIndex].subServices = updatedServices[serviceIndex].subServices.map(
+        subService => ({
+          ...subService,
+          active: newStatus,
+          // Also update all clothing items to match the service status
+          clothingItemsStatus: subService.selectedItems?.reduce((acc, itemId) => {
+            acc[itemId] = newStatus;
+            return acc;
+          }, {} as {[key: string]: boolean}) || subService.clothingItemsStatus
+        })
+      );
       
       setStudioData({
         ...studioData,
@@ -134,7 +147,7 @@ const StudioServices: React.FC = () => {
       
       toast({
         title: "Service Status Updated",
-        description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'}.`
+        description: `${updatedServices[serviceIndex].name} has been ${updatedServices[serviceIndex].active ? 'activated' : 'deactivated'} along with all its sub-services and clothing items.`
       });
     }
   };
@@ -147,7 +160,19 @@ const StudioServices: React.FC = () => {
           updatedServices[serviceIndex].subServices && 
           updatedServices[serviceIndex].subServices[subServiceIndex]) {
         
-        updatedServices[serviceIndex].subServices[subServiceIndex].active = active;
+        const subService = updatedServices[serviceIndex].subServices[subServiceIndex];
+        subService.active = active;
+        
+        // Update all clothing items to match the subservice status
+        if (subService.selectedItems && subService.selectedItems.length > 0) {
+          if (!subService.clothingItemsStatus) {
+            subService.clothingItemsStatus = {};
+          }
+          
+          subService.selectedItems.forEach(itemId => {
+            subService.clothingItemsStatus![itemId] = active;
+          });
+        }
         
         setStudioData({
           ...studioData,
@@ -159,7 +184,7 @@ const StudioServices: React.FC = () => {
         const subServiceName = updatedServices[serviceIndex].subServices[subServiceIndex].name;
         toast({
           title: "Sub-Service Status Updated",
-          description: `${subServiceName} has been ${active ? 'activated' : 'deactivated'}.`
+          description: `${subServiceName} has been ${active ? 'activated' : 'deactivated'} along with all its clothing items.`
         });
       }
     }

@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Package, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useServicesData } from '@/hooks/useServicesData';
 
 interface SubService {
   name: string;
@@ -17,6 +18,7 @@ interface SubService {
   expressItemPrices?: { [key: string]: number };
   itemPrices?: { [key: string]: number };
   active?: boolean;
+  clothingItemsStatus?: { [key: string]: boolean };
 }
 
 interface StudioService {
@@ -38,6 +40,7 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
   onServiceStatusChange
 }) => {
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+  const { services: allServices, subServices: allSubServices, clothingItems } = useServicesData();
 
   const toggleServiceExpansion = (serviceId: string) => {
     setExpandedServices(prev => ({
@@ -48,6 +51,16 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
 
   const formatPrice = (price?: number) => {
     return price !== undefined ? `₹${price}` : 'N/A';
+  };
+
+  const getSubServiceName = (id: string) => {
+    const subService = allSubServices.find(s => s.id === id);
+    return subService ? subService.name : id;
+  };
+
+  const getClothingItemName = (id: string) => {
+    const item = clothingItems.find(i => i.id === id);
+    return item ? item.name : id;
   };
 
   return (
@@ -104,7 +117,7 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
                         {service.subServices.map((subService, subIndex) => (
                           <div key={`${service.id}-${subIndex}`} className="border rounded p-4">
                             <div className="flex justify-between items-center mb-3">
-                              <h4 className="font-medium">{subService.name}</h4>
+                              <h4 className="font-medium">{getSubServiceName(subService.name)}</h4>
                               <Badge variant={subService.active !== false ? "default" : "outline"}>
                                 {subService.active !== false ? "Active" : "Inactive"}
                               </Badge>
@@ -145,31 +158,35 @@ const ServicesCard: React.FC<ServicesCardProps> = ({
                                 <div className="mt-4">
                                   <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {subService.selectedItems.map((itemId) => (
-                                      <div key={itemId} className="border rounded p-3 bg-gray-50">
-                                        <p className="font-medium mb-2">{itemId}</p>
-                                        <div className="grid grid-cols-2 gap-2 text-sm">
-                                          {subService.standardItemPrices && (
-                                            <div>
-                                              <span className="text-gray-500">Standard: </span>
-                                              <span>₹{subService.standardItemPrices[itemId] || 'N/A'}</span>
-                                            </div>
-                                          )}
-                                          {subService.expressItemPrices && (
-                                            <div>
-                                              <span className="text-gray-500">Express: </span>
-                                              <span>₹{subService.expressItemPrices[itemId] || 'N/A'}</span>
-                                            </div>
-                                          )}
-                                          {subService.itemPrices && (
-                                            <div>
-                                              <span className="text-gray-500">Price: </span>
-                                              <span>₹{subService.itemPrices[itemId] || 'N/A'}</span>
-                                            </div>
-                                          )}
+                                    {subService.selectedItems.map((itemId) => {
+                                      const itemName = getClothingItemName(itemId);
+                                      const itemActive = subService.clothingItemsStatus?.[itemId] !== false;
+                                      
+                                      return (
+                                        <div key={itemId} className="border rounded p-3 bg-gray-50">
+                                          <div className="flex justify-between items-center mb-2">
+                                            <p className="font-medium text-gray-700">{itemName}</p>
+                                            <Badge variant={itemActive ? "default" : "outline"}>
+                                              {itemActive ? "Active" : "Inactive"}
+                                            </Badge>
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-2 text-sm">
+                                            {subService.standardItemPrices && subService.standardItemPrices[itemId] !== undefined && (
+                                              <div>
+                                                <span className="text-gray-500">Standard: </span>
+                                                <span>₹{subService.standardItemPrices[itemId]}</span>
+                                              </div>
+                                            )}
+                                            {subService.expressItemPrices && subService.expressItemPrices[itemId] !== undefined && (
+                                              <div>
+                                                <span className="text-gray-500">Express: </span>
+                                                <span>₹{subService.expressItemPrices[itemId]}</span>
+                                              </div>
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    ))}
+                                      );
+                                    })}
                                   </div>
                                 </div>
                               )}
