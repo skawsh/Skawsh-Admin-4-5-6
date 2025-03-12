@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import MultiSelect from '@/components/ui/multi-select';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import AddItemPopup from './AddItemPopup';
 
 interface MultiSelectServiceDialogProps {
   isOpen: boolean;
@@ -43,6 +44,9 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   
   // Current active sub-service for adding items
   const [activeSubServiceId, setActiveSubServiceId] = useState<string | null>(null);
+  
+  // State for Add Items popup
+  const [isAddItemsOpen, setIsAddItemsOpen] = useState(false);
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -201,29 +205,43 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
     }));
   };
 
-  // Handle clothing item selection for a sub-service
-  const handleClothingItemSelect = (subServiceId: string, itemId: string) => {
-    const items = selectedClothingItems[subServiceId] || [];
+  // Open the Add Items popup
+  const handleOpenAddItems = () => {
+    if (activeSubServiceId) {
+      setIsAddItemsOpen(true);
+    }
+  };
+
+  // Handle clothing item selection from the Add Items popup
+  const handleAddItemFromPopup = (itemId: string, price: string) => {
+    if (!activeSubServiceId) return;
     
-    if (!items.includes(itemId)) {
-      const newItems = [...items, itemId];
-      setSelectedClothingItems(prev => ({
-        ...prev,
-        [subServiceId]: newItems
-      }));
-      
-      // Initialize price for the item
-      setClothingItemPrices(prev => {
-        const subServicePrices = prev[subServiceId] || {};
+    // Add the item to selected items
+    setSelectedClothingItems(prev => {
+      const items = prev[activeSubServiceId] || [];
+      if (!items.includes(itemId)) {
         return {
           ...prev,
-          [subServiceId]: {
-            ...subServicePrices,
-            [itemId]: { standard: '', express: '' }
-          }
+          [activeSubServiceId]: [...items, itemId]
         };
-      });
-    }
+      }
+      return prev;
+    });
+    
+    // Set the price for the item
+    setClothingItemPrices(prev => {
+      const subServicePrices = prev[activeSubServiceId] || {};
+      return {
+        ...prev,
+        [activeSubServiceId]: {
+          ...subServicePrices,
+          [itemId]: {
+            standard: price,
+            express: price // For simplicity in the new UI, set both to the same value
+          }
+        }
+      };
+    });
   };
 
   // Remove a clothing item
@@ -279,12 +297,6 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
   const getClothingItemName = (id: string) => {
     const item = clothingItems.find(i => i.id === id);
     return item ? item.name : id;
-  };
-
-  // Add a new sub-service panel
-  const addSubServicePanel = () => {
-    // In this simpler UI, we just open the sub-service dropdown
-    // It will be added when selected
   };
 
   // Form validation
@@ -498,23 +510,17 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
                         <h4 className="font-medium mb-2">Clothing Items</h4>
                         
                         {/* Add Items Button */}
-                        <Select onValueChange={(value) => handleClothingItemSelect(subServiceId, value)}>
-                          <SelectTrigger className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-3">
-                            <div className="flex items-center">
-                              <Plus className="h-4 w-4 mr-2" />
-                              <span>Add Items</span>
-                            </div>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {clothingItems
-                              .filter(item => item.active && !(selectedClothingItems[subServiceId] || []).includes(item.id))
-                              .map(item => (
-                                <SelectItem key={item.id} value={item.id}>
-                                  {item.name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
+                        <Button 
+                          type="button"
+                          className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-3"
+                          onClick={() => {
+                            setActiveSubServiceId(subServiceId);
+                            handleOpenAddItems();
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Items
+                        </Button>
                         
                         {/* Selected Clothing Items */}
                         <div className="flex flex-wrap gap-2 mb-3">
@@ -592,6 +598,15 @@ const MultiSelectServiceDialog: React.FC<MultiSelectServiceDialogProps> = ({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Add Items Popup */}
+      <AddItemPopup
+        isOpen={isAddItemsOpen}
+        onOpenChange={setIsAddItemsOpen}
+        clothingItems={clothingItems}
+        selectedItems={activeSubServiceId ? (selectedClothingItems[activeSubServiceId] || []) : []}
+        onAddItem={handleAddItemFromPopup}
+      />
     </Dialog>
   );
 };
