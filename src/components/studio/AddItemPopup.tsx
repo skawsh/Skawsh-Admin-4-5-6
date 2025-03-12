@@ -24,25 +24,43 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
 }) => {
   const [selectedItemId, setSelectedItemId] = useState<string>("");
   const [itemPrice, setItemPrice] = useState<string>("");
+  const [tempItems, setTempItems] = useState<Array<{id: string, price: string}>>([]);
   
   // Reset form when dialog opens
   useEffect(() => {
     if (isOpen) {
       setSelectedItemId("");
       setItemPrice("");
+      setTempItems([]);
     }
   }, [isOpen]);
 
   const handleAdd = () => {
     if (selectedItemId && itemPrice) {
-      onAddItem(selectedItemId, itemPrice);
-      onOpenChange(false);
+      // Add to temporary items array
+      setTempItems(prev => [...prev, {id: selectedItemId, price: itemPrice}]);
+      
+      // Reset form fields for next item
+      setSelectedItemId("");
+      setItemPrice("");
     }
   };
+  
+  const handleSave = () => {
+    // Add all temp items to parent component
+    tempItems.forEach(item => {
+      onAddItem(item.id, item.price);
+    });
+    
+    // Close popup
+    onOpenChange(false);
+  };
 
-  // Filter out already selected items
+  // Filter out already selected items and items already in temp list
   const availableItems = clothingItems.filter(
-    item => item.active && !selectedItems.includes(item.id)
+    item => item.active && 
+    !selectedItems.includes(item.id) &&
+    !tempItems.some(temp => temp.id === item.id)
   );
 
   return (
@@ -78,22 +96,51 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
             </div>
           </div>
           
+          {/* Show list of temporarily added items */}
+          {tempItems.length > 0 && (
+            <div className="bg-gray-50 p-3 rounded-md">
+              <h4 className="text-sm font-medium mb-2">Selected Items:</h4>
+              <div className="space-y-1">
+                {tempItems.map((item, index) => {
+                  const clothingItem = clothingItems.find(ci => ci.id === item.id);
+                  return (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <span>{clothingItem?.name}</span>
+                      <span>₹{item.price}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          
           <div className="flex justify-between">
             <Button
               type="button"
               className="bg-blue-600 hover:bg-blue-700"
               onClick={handleAdd}
+              disabled={!selectedItemId || !itemPrice}
             >
-              Add Category
+              Add More Items
             </Button>
             
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => onOpenChange(false)}
-            >
-              Remove
-            </Button>
+            <div className="space-x-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => onOpenChange(false)}
+              >
+                Remove
+              </Button>
+              
+              <Button
+                type="button"
+                onClick={handleSave}
+                disabled={tempItems.length === 0}
+              >
+                Save
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
