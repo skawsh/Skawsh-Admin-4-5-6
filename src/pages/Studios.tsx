@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { Filter, BarChart2, Plus, Star, Search, ChevronDown, MoreHorizontal, ArrowUpDown } from 'lucide-react';
@@ -43,9 +43,10 @@ const Studios: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [ratingFilter, setRatingFilter] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [studiosData, setStudiosData] = useState<Studio[]>([]);
 
   // Sample data
-  const studiosData: Studio[] = [
+  const defaultStudios: Studio[] = [
     {
       id: 1,
       studioId: 'STU10001',
@@ -128,6 +129,19 @@ const Studios: React.FC = () => {
     }
   ];
 
+  // Load studios from localStorage on component mount
+  useEffect(() => {
+    const savedStudios = localStorage.getItem('laundryStudios');
+    
+    if (savedStudios) {
+      setStudiosData(JSON.parse(savedStudios));
+    } else {
+      // Use default data if nothing is saved
+      setStudiosData(defaultStudios);
+      localStorage.setItem('laundryStudios', JSON.stringify(defaultStudios));
+    }
+  }, []);
+
   // Filtering and sorting logic
   const filteredStudios = studiosData.filter((studio) => {
     // Search filter
@@ -168,6 +182,15 @@ const Studios: React.FC = () => {
 
   const toggleSort = () => {
     setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  };
+
+  const handleStatusToggle = (studioId: number, newStatus: boolean) => {
+    const updatedStudios = studiosData.map(studio => 
+      studio.id === studioId ? { ...studio, status: newStatus } : studio
+    );
+    
+    setStudiosData(updatedStudios);
+    localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
   };
 
   return (
@@ -298,8 +321,6 @@ const Studios: React.FC = () => {
           </div>
         </div>
 
-        {/* Removed the duplicate action buttons section */}
-
         {/* Studios Table */}
         <div className="rounded-md border">
           <Table>
@@ -334,10 +355,7 @@ const Studios: React.FC = () => {
                   <TableCell>
                     <Switch
                       checked={studio.status}
-                      onCheckedChange={() => {
-                        // This would update the status in a real app
-                        console.log(`Toggled status for ${studio.studioName}`);
-                      }}
+                      onCheckedChange={(checked) => handleStatusToggle(studio.id, checked)}
                     />
                   </TableCell>
                   <TableCell className="text-right">

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -86,12 +87,61 @@ const AddStudio: React.FC = () => {
     console.log('Studio data to submit:', formData);
     console.log('Studio services to submit:', studioServices);
     
+    // Generate random values for testing
+    const randomRating = Math.floor(Math.random() * 10) / 10 + 4.0; // Random rating between 4.0 and 5.0
+    const randomServices = Math.floor(Math.random() * 30) + 30; // Random services between 30 and 60
+    
+    // Create a new studio object
+    const newStudio = {
+      id: generateNewStudioId(),
+      studioId: generateStudioIdString(),
+      studioName: formData.studioName,
+      ownerName: `${formData.ownerFirstName} ${formData.ownerLastName}`.trim(),
+      contact: formData.primaryNumber,
+      services: studioServices.length > 0 ? studioServices.length : randomServices,
+      rating: randomRating,
+      status: true
+    };
+    
+    // Add the new studio to localStorage
+    const savedStudios = localStorage.getItem('laundryStudios');
+    let studios = savedStudios ? JSON.parse(savedStudios) : [];
+    
+    studios.push(newStudio);
+    localStorage.setItem('laundryStudios', JSON.stringify(studios));
+    
     toast({
       title: "Studio saved",
       description: "The studio has been successfully created.",
     });
     
     navigate('/studios');
+  };
+
+  // Generate a new numeric ID for the studio
+  const generateNewStudioId = (): number => {
+    const savedStudios = localStorage.getItem('laundryStudios');
+    if (!savedStudios) return 1;
+    
+    const studios = JSON.parse(savedStudios);
+    const highestId = studios.reduce((max: number, studio: any) => 
+      studio.id > max ? studio.id : max, 0);
+    
+    return highestId + 1;
+  };
+
+  // Generate a studio ID string (e.g., STU10009)
+  const generateStudioIdString = (): string => {
+    const savedStudios = localStorage.getItem('laundryStudios');
+    if (!savedStudios) return 'STU10001';
+    
+    const studios = JSON.parse(savedStudios);
+    const highestIdNum = studios.reduce((max: number, studio: any) => {
+      const idNum = parseInt(studio.studioId.replace('STU', ''), 10);
+      return idNum > max ? idNum : max;
+    }, 10000);
+    
+    return `STU${highestIdNum + 1}`;
   };
 
   const handleServiceAdded = (data: any) => {
