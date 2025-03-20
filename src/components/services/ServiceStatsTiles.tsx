@@ -68,7 +68,7 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
       {stats.map((stat, index) => (
         <Card 
           key={index} 
