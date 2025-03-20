@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Service, SubService, ClothingItem } from '@/types/services';
-import { Package, Check, XCircle, FolderTree } from 'lucide-react';
+import { Package, Check, XCircle, FolderTree, Shirt, Clock } from 'lucide-react';
 
 interface ServiceStatsTilesProps {
   services: Service[];
@@ -21,6 +21,8 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
   
   const activeSubServices = subServices.filter(subService => subService.active).length;
   const inactiveSubServices = subServices.length - activeSubServices;
+  
+  const activeClothingItems = clothingItems.filter(item => item.active).length;
 
   const stats = [
     { 
@@ -33,14 +35,14 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
     { 
       label: 'Active Services', 
       value: activeServices, 
-      icon: <Check className="h-6 w-6 text-green-500" />,
+      icon: <Check className="h-6 w-6" />,
       bgGradient: 'bg-gradient-green',
       iconColor: 'text-green-500'
     },
     { 
       label: 'Inactive Services', 
       value: inactiveServices, 
-      icon: <XCircle className="h-6 w-6 text-red-500" />,
+      icon: <XCircle className="h-6 w-6" />,
       bgGradient: 'bg-gradient-red',
       iconColor: 'text-red-500'
     },
@@ -54,21 +56,35 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
     { 
       label: 'Active Sub-services', 
       value: activeSubServices, 
-      icon: <Check className="h-6 w-6 text-green-500" />,
+      icon: <Check className="h-6 w-6" />,
       bgGradient: 'bg-gradient-emerald',
-      iconColor: 'text-green-500'
+      iconColor: 'text-emerald-500'
     },
     { 
       label: 'Inactive Sub-services', 
       value: inactiveSubServices, 
-      icon: <XCircle className="h-6 w-6 text-red-500" />,
+      icon: <XCircle className="h-6 w-6" />,
       bgGradient: 'bg-gradient-orange',
-      iconColor: 'text-red-500'
+      iconColor: 'text-orange-500'
+    },
+    { 
+      label: 'Clothing Items', 
+      value: clothingItems.length, 
+      icon: <Shirt className="h-6 w-6" />,
+      bgGradient: 'bg-gradient-indigo',
+      iconColor: 'text-indigo-500'
+    },
+    { 
+      label: 'Active Clothing Items', 
+      value: activeClothingItems, 
+      icon: <Clock className="h-6 w-6" />,
+      bgGradient: 'bg-gradient-teal',
+      iconColor: 'text-teal-500'
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
       {stats.map((stat, index) => (
         <Card 
           key={index} 
