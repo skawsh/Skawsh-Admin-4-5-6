@@ -272,7 +272,7 @@ const AddStudio: React.FC = () => {
 
   return (
     <Layout activeSection="studios" noScroll={true}>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto h-full pb-10">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sticky top-0 z-10 bg-white pb-4 border-b">
           <div className="flex items-center gap-3">
             <Button 
