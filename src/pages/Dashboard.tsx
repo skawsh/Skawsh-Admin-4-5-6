@@ -179,7 +179,7 @@ const Dashboard: React.FC = () => {
                     >
                       <div>
                         <p className="font-medium">{service.name}</p>
-                        <p className="text-sm text-gray-500">{service.description || 'No description'}</p>
+                        <p className="text-sm text-gray-500">Service ID: {service.id.substring(0, 8)}</p>
                       </div>
                       <div className="text-right">
                         <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${service.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
