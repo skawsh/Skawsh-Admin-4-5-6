@@ -45,6 +45,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --laundry-blue: #4385f5;
+    --laundry-blue-dark: #3774d6;
+    --laundry-blue-light: #6ea1f8;
+    --laundry-gray-light: #f5f7fb;
   }
 
   .dark {
@@ -105,15 +110,15 @@
   }
 
   .nav-item.active {
-    @apply bg-laundry-blue text-white;
+    @apply bg-gradient-to-r from-laundry-blue to-blue-600 text-white shadow-md;
   }
 
   .nav-item.active:hover {
-    @apply bg-laundry-blue-light text-white;
+    @apply bg-gradient-to-r from-blue-600 to-laundry-blue text-white;
   }
 
   .glass-card {
-    @apply bg-white bg-opacity-80 backdrop-blur-sm border border-gray-100 shadow-sm rounded-lg;
+    @apply bg-white bg-opacity-95 backdrop-blur-sm border border-gray-100 shadow-md rounded-lg transition-all duration-300 hover:shadow-lg;
   }
 
   .tab-button {

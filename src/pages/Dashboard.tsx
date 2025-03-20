@@ -26,7 +26,7 @@ const Dashboard: React.FC = () => {
           
           <div className="glass-card p-6 space-y-2 hover:shadow-md transition-all">
             <h3 className="text-sm font-medium text-gray-500">Monthly Revenue</h3>
-            <p className="text-3xl font-bold">$24,568</p>
+            <p className="text-3xl font-bold">₹24,568</p>
             <p className="text-sm text-green-600">+18% from last month</p>
           </div>
         </div>
@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
                     <p className="text-sm text-gray-500">Standard Wash • 2 items</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">$24.99</p>
+                    <p className="font-medium">₹24.99</p>
                     <p className="text-sm text-gray-500">2 hours ago</p>
                   </div>
                 </div>
@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-laundry-blue h-2 rounded-full"
+                      className="bg-gradient-to-r from-laundry-blue to-blue-600 h-2 rounded-full"
                       style={{ width: `${service.percentage}%` }}
                     ></div>
                   </div>

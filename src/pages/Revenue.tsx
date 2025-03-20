@@ -14,6 +14,7 @@ const Revenue: React.FC = () => {
         <div className="glass-card p-8 min-h-[300px] flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600">Revenue management section is under development.</p>
+            <p className="text-gray-500 mt-2">Track your earnings in ₹ (Indian Rupees)</p>
           </div>
         </div>
       </div>

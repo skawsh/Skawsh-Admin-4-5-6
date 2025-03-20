@@ -17,10 +17,10 @@ const AddButtonsBar: React.FC<AddButtonsBarProps> = ({
   return (
     <div className="flex justify-end mb-4">
       <Button 
-        className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white"
+        className="flex items-center gap-2 bg-gradient-to-r from-laundry-blue to-blue-600 hover:from-blue-600 hover:to-laundry-blue text-white shadow-md transition-all duration-300 rounded-md"
         onClick={onAddButtonClick}
       >
-        <Plus size={18} />
+        <Plus size={18} className="animate-pulse" />
         <span>{addButtonText}</span>
       </Button>
     </div>

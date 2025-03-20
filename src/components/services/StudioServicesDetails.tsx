@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StudioService, SubService } from '@/types/services';
 import { Card } from '@/components/ui/card';
@@ -38,7 +37,6 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
   const [expandedServices, setExpandedServices] = useState<{[key: string]: boolean}>({});
   const { toast } = useToast();
   
-  // Helper functions to get names from IDs
   const getSubServiceName = (id: string) => {
     const subService = subServices.find(s => s.id === id);
     return subService ? subService.name : id;
@@ -63,13 +61,13 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
         const isExpanded = expandedServices[service.id] === true; // Default to collapsed
         
         return (
-          <Card key={service.id} className="p-6 mb-6">
+          <Card key={service.id} className="p-6 mb-6 hover:shadow-md transition-all">
             <div className="space-y-4">
               <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleServiceExpansion(service.id)}>
                 <div className="flex items-center gap-3">
                   {isExpanded ? 
-                    <ChevronUp className="h-5 w-5 text-gray-500" /> : 
-                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                    <ChevronUp className="h-5 w-5 text-laundry-blue" /> : 
+                    <ChevronDown className="h-5 w-5 text-laundry-blue" />
                   }
                   <h3 className="text-lg font-semibold">{service.name}</h3>
                   <Badge variant={service.active ? "success" : "secondary"}>
@@ -113,7 +111,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
               {isExpanded && (
                 <div className="pl-4 space-y-6 mt-4">
                   {service.subServices.map((subService, subIndex) => (
-                    <div key={subIndex} className="border p-4 rounded-lg bg-gray-50">
+                    <div key={subIndex} className="border p-4 rounded-lg bg-gray-50 hover:shadow-sm transition-all">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium text-lg">{getSubServiceName(subService.name)}</h4>
@@ -158,7 +156,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                       {/* Pricing Grid */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         {/* Per KG Pricing */}
-                        <div className="border rounded-md p-3 bg-white">
+                        <div className="border rounded-md p-3 bg-white shadow-sm">
                           <h5 className="font-medium mb-2 text-gray-700">Per KG Pricing</h5>
                           <div className="grid grid-cols-2 gap-3">
                             {subService.standardPricePerKg !== undefined && (
@@ -177,7 +175,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                         </div>
                         
                         {/* Per Item Pricing */}
-                        <div className="border rounded-md p-3 bg-white">
+                        <div className="border rounded-md p-3 bg-white shadow-sm">
                           <h5 className="font-medium mb-2 text-gray-700">Per Item Pricing</h5>
                           <div className="grid grid-cols-2 gap-3">
                             {subService.standardPricePerItem !== undefined && (
@@ -205,7 +203,7 @@ const StudioServicesDetails: React.FC<StudioServicesDetailsProps> = ({
                               const itemActive = subService.clothingItemsStatus?.[itemId] !== false;
                               
                               return (
-                                <div key={itemIndex} className="flex flex-col border rounded-md p-3 bg-white">
+                                <div key={itemIndex} className="flex flex-col border rounded-md p-3 bg-white shadow-sm">
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
                                       <div className="font-medium">{getClothingItemName(itemId)}</div>

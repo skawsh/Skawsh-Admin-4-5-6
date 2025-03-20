@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,6 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
     { itemId: '', standardPrice: '', expressPrice: '' }
   ]);
 
-  // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
       setItemRows([{ itemId: '', standardPrice: '', expressPrice: '' }]);
@@ -65,10 +63,8 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
   };
 
   const handleDone = () => {
-    // Add all valid items
     itemRows.forEach(row => {
       if (row.itemId && (row.standardPrice || row.expressPrice)) {
-        // Always pass both standard and express prices, component calling this will handle both
         onAddItem(row.itemId, row.standardPrice, row.expressPrice);
       }
     });
@@ -76,7 +72,6 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
     onOpenChange(false);
   };
 
-  // Filter out already selected items
   const availableItems = clothingItems.filter(item => 
     item.active && !selectedItems.includes(item.id)
   );
@@ -90,9 +85,8 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
         
         <div className="space-y-6 py-5">
           {itemRows.map((row, index) => (
-            <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 transition-all">
+            <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 hover:shadow-md transition-all">
               <div className="space-y-4">
-                {/* Position the remove button outside and to the right of the dropdown */}
                 <div className="flex items-start mb-2">
                   <div className="flex-grow">
                     <Select value={row.itemId} onValueChange={(value) => handleItemChange(index, value)}>
@@ -127,6 +121,7 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                     <div className="space-y-2">
                       <Label className="text-sm font-medium flex items-center">
                         <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded mr-2">Standard</span>
+                        <span className="text-gray-500">₹</span>
                       </Label>
                       <Input
                         type="number"
@@ -142,6 +137,7 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
                     <div className="space-y-2">
                       <Label className="text-sm font-medium flex items-center">
                         <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded mr-2">Express</span>
+                        <span className="text-gray-500">₹</span>
                       </Label>
                       <Input
                         type="number"
@@ -178,7 +174,7 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
           </Button>
           <Button 
             onClick={handleDone}
-            className="rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            className="rounded-md bg-gradient-to-r from-laundry-blue to-blue-600 hover:from-blue-600 hover:to-laundry-blue text-white transition-colors"
           >
             Done
           </Button>

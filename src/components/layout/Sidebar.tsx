@@ -41,14 +41,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection }) => {
 
   return (
     <div 
-      className={`relative flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out ${
+      className={`relative flex flex-col bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out ${
         collapsed ? 'w-[70px]' : 'w-[250px]'
       }`}
     >
       <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} p-4 border-b border-gray-100`}>
         {!collapsed && (
-          <Link to="/" className="text-xl font-semibold text-laundry-blue transition-all hover:text-laundry-blue-dark">
-            Laundry Link
+          <Link to="/" className="text-xl font-bold text-laundry-blue transition-all hover:text-laundry-blue-dark">
+            Admin Panel
           </Link>
         )}
         <button 
@@ -78,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection }) => {
       <div className="p-4 border-t border-gray-100">
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-laundry-blue text-white font-medium">
+            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-laundry-blue to-blue-600 text-white font-medium shadow-md">
               A
             </div>
             <div className="overflow-hidden">
@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection }) => {
           </div>
         ) : (
           <div className="flex items-center justify-center">
-            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-laundry-blue text-white font-medium">
+            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-laundry-blue to-blue-600 text-white font-medium shadow-md">
               A
             </div>
           </div>
