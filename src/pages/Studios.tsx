@@ -255,7 +255,7 @@ const Studios: React.FC = () => {
               className="bg-white"
             >
               <BarChart2 className="mr-2 h-4 w-4" />
-              Overall Analytics
+              Onboard Requests
             </Button>
             <Button 
               className="bg-blue-700 hover:bg-blue-800"
@@ -464,3 +464,4 @@ const Studios: React.FC = () => {
 };
 
 export default Studios;
+
