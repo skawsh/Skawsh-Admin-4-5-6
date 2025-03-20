@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Package, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Building2, Package, ShoppingBag, ArrowRight, Check, XCircle, FolderTree } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,7 +9,7 @@ import { useServicesData } from '@/hooks/useServicesData';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { services } = useServicesData();
+  const { services, subServices } = useServicesData();
   const [studios, setStudios] = useState<any[]>([]);
   
   // Load studios from localStorage
@@ -25,8 +24,15 @@ const Dashboard: React.FC = () => {
   // Calculate stats
   const totalStudios = studios.length;
   const activeStudios = studios.filter(studio => studio.status).length;
+  const inactiveStudios = totalStudios - activeStudios;
+  
   const totalServices = services.length;
   const activeServices = services.filter(service => service.active).length;
+  const inactiveServices = totalServices - activeServices;
+  
+  const totalSubServices = subServices.length;
+  const activeSubServices = subServices.filter(subService => subService.active).length;
+  const inactiveSubServices = totalSubServices - activeSubServices;
 
   return (
     <Layout activeSection="dashboard">
@@ -54,6 +60,140 @@ const Dashboard: React.FC = () => {
             <h3 className="text-sm font-medium text-gray-500">Monthly Revenue</h3>
             <p className="text-3xl font-bold">₹24,568</p>
             <p className="text-sm text-green-600">+18% from last month</p>
+          </div>
+        </div>
+
+        {/* Studios Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Studios</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-blue-500">
+                  <Building2 className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Total Studios</p>
+                  <p className="text-2xl font-bold text-gray-800">{totalStudios}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-green-50 border-green-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-green-500">
+                  <Check className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Active Studios</p>
+                  <p className="text-2xl font-bold text-gray-800">{activeStudios}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-red-50 border-red-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-red-500">
+                  <XCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Inactive Studios</p>
+                  <p className="text-2xl font-bold text-gray-800">{inactiveStudios}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-purple-50 border-purple-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-purple-500">
+                  <ShoppingBag className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Avg. Sack Value</p>
+                  <p className="text-2xl font-bold text-gray-800">₹396</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+        
+        {/* Services and Sub-services Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Services and Sub-services</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Services Section */}
+            <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-blue-500">
+                  <Package className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Total Services</p>
+                  <p className="text-2xl font-bold text-gray-800">{totalServices}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-green-50 border-green-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-green-500">
+                  <Check className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Active Services</p>
+                  <p className="text-2xl font-bold text-gray-800">{activeServices}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-red-50 border-red-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-red-500">
+                  <XCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Inactive Services</p>
+                  <p className="text-2xl font-bold text-gray-800">{inactiveServices}</p>
+                </div>
+              </div>
+            </Card>
+            
+            {/* Sub-services Section */}
+            <Card className="p-6 bg-purple-50 border-purple-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-purple-500">
+                  <FolderTree className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Total Sub-services</p>
+                  <p className="text-2xl font-bold text-gray-800">{totalSubServices}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-emerald-50 border-emerald-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-emerald-500">
+                  <Check className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Active Sub-services</p>
+                  <p className="text-2xl font-bold text-gray-800">{activeSubServices}</p>
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-orange-50 border-orange-100 shadow-sm">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-white rounded-lg text-orange-500">
+                  <XCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-gray-600 text-sm">Inactive Sub-services</p>
+                  <p className="text-2xl font-bold text-gray-800">{inactiveSubServices}</p>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
         
