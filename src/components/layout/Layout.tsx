@@ -17,7 +17,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeSection, noScroll = fal
       <div className="flex flex-col flex-1 overflow-hidden">
         <TopBar />
         {noScroll ? (
-          <main className="flex-1 p-6 animate-section-transition">
+          <main className="flex-1 overflow-y-auto p-6 animate-section-transition">
             {children}
           </main>
         ) : (
