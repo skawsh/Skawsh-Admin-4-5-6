@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Service, SubService, ClothingItem } from '@/types/services';
-import { Package, Check, XCircle, FolderTree, Shirt, Clock } from 'lucide-react';
+import { Package, Check, XCircle, FolderTree } from 'lucide-react';
 
 interface ServiceStatsTilesProps {
   services: Service[];
@@ -21,8 +21,6 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
   
   const activeSubServices = subServices.filter(subService => subService.active).length;
   const inactiveSubServices = subServices.length - activeSubServices;
-  
-  const activeClothingItems = clothingItems.filter(item => item.active).length;
 
   const stats = [
     { 
@@ -67,24 +65,10 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
       bgGradient: 'bg-gradient-orange',
       iconColor: 'text-orange-500'
     },
-    { 
-      label: 'Clothing Items', 
-      value: clothingItems.length, 
-      icon: <Shirt className="h-6 w-6" />,
-      bgGradient: 'bg-gradient-indigo',
-      iconColor: 'text-indigo-500'
-    },
-    { 
-      label: 'Active Clothing Items', 
-      value: activeClothingItems, 
-      icon: <Clock className="h-6 w-6" />,
-      bgGradient: 'bg-gradient-teal',
-      iconColor: 'text-teal-500'
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
       {stats.map((stat, index) => (
         <Card 
           key={index} 
