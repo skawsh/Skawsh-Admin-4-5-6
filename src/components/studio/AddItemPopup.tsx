@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -83,9 +84,9 @@ const AddItemPopup: React.FC<AddItemPopupProps> = ({
           <DialogTitle className="text-xl font-bold text-gray-800">Add Clothing Items</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6 py-5">
+        <div className="space-y-6 py-5 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
           {itemRows.map((row, index) => (
-            <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 hover:shadow-md transition-all">
+            <div key={index} className="relative bg-gradient-blue rounded-lg p-4 border border-gray-100 shadow-sm hover:border-gray-200 hover:shadow-md transition-all">
               <div className="space-y-4">
                 <div className="flex items-start mb-2">
                   <div className="flex-grow">

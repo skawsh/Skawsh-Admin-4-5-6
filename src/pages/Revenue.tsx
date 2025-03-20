@@ -2,7 +2,7 @@
 import React from 'react';
 import Layout from '../components/layout/Layout';
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart, Calendar, CreditCard, DollarSign, PieChart, TrendingUp } from 'lucide-react';
+import { BarChart, Calendar, CreditCard, IndianRupee, PieChart, TrendingUp } from 'lucide-react';
 
 const Revenue: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const Revenue: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <Card className="overflow-hidden bg-gradient-blue card-hover-effect">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -26,13 +26,13 @@ const Revenue: React.FC = () => {
                   </p>
                 </div>
                 <div className="bg-blue-500 p-3 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-white" />
+                  <IndianRupee className="h-6 w-6 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <Card className="overflow-hidden bg-gradient-purple card-hover-effect">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -50,7 +50,7 @@ const Revenue: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <Card className="overflow-hidden bg-gradient-green card-hover-effect">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -70,7 +70,7 @@ const Revenue: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <Card className="bg-gradient-amber card-hover-effect">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-800">Revenue Breakdown</h3>
@@ -84,7 +84,7 @@ const Revenue: React.FC = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <Card className="bg-gradient-rose card-hover-effect">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-800">Monthly Trends</h3>

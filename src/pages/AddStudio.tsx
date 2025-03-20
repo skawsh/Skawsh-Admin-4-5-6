@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -87,7 +86,6 @@ const AddStudio: React.FC = () => {
     console.log('Studio data to submit:', formData);
     console.log('Studio services to submit:', studioServices);
     
-    // Format the studio services to include proper service names
     const formattedStudioServices = studioServices.map(service => {
       const serviceName = getServiceNameById(service.serviceId);
       return {
@@ -99,10 +97,8 @@ const AddStudio: React.FC = () => {
       };
     });
     
-    // Generate random values for testing
-    const randomRating = Math.floor(Math.random() * 10) / 10 + 4.0; // Random rating between 4.0 and 5.0
+    const randomRating = Math.floor(Math.random() * 10) / 10 + 4.0;
     
-    // Create a new studio object
     const newStudio = {
       id: generateNewStudioId(),
       studioId: generateStudioIdString(),
@@ -115,7 +111,6 @@ const AddStudio: React.FC = () => {
       studioServices: formattedStudioServices
     };
     
-    // Add the new studio to localStorage
     const savedStudios = localStorage.getItem('laundryStudios');
     let studios = savedStudios ? JSON.parse(savedStudios) : [];
     
@@ -130,7 +125,6 @@ const AddStudio: React.FC = () => {
     navigate('/studios');
   };
 
-  // Generate a new numeric ID for the studio
   const generateNewStudioId = (): number => {
     const savedStudios = localStorage.getItem('laundryStudios');
     if (!savedStudios) return 1;
@@ -142,7 +136,6 @@ const AddStudio: React.FC = () => {
     return highestId + 1;
   };
 
-  // Generate a studio ID string (e.g., STU10009)
   const generateStudioIdString = (): string => {
     const savedStudios = localStorage.getItem('laundryStudios');
     if (!savedStudios) return 'STU10001';
@@ -275,8 +268,8 @@ const AddStudio: React.FC = () => {
 
   return (
     <Layout activeSection="studios">
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+      <form onSubmit={handleSubmit} className="scrollable-form">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sticky top-0 z-10 bg-white pb-4 border-b">
           <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
@@ -300,8 +293,8 @@ const AddStudio: React.FC = () => {
           </Button>
         </div>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Basic Information</h2>
+        <Card className="form-card bg-gradient-blue">
+          <h2 className="section-title">Basic Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -388,8 +381,8 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Address Details</h2>
+        <Card className="form-card bg-gradient-purple">
+          <h2 className="section-title">Address Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2 md:col-span-2">
@@ -472,8 +465,8 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Business Details</h2>
+        <Card className="form-card bg-gradient-green">
+          <h2 className="section-title">Business Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -556,8 +549,8 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Studio Setup</h2>
+        <Card className="form-card bg-gradient-amber">
+          <h2 className="section-title">Studio Setup</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -625,8 +618,8 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Payment Details</h2>
+        <Card className="form-card bg-gradient-cyan">
+          <h2 className="section-title">Payment Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -729,8 +722,8 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-6">Services</h2>
+        <Card className="form-card bg-gradient-fuchsia">
+          <h2 className="section-title">Services</h2>
           
           <Button 
             type="button"
@@ -752,7 +745,7 @@ const AddStudio: React.FC = () => {
                 const isExpanded = expandedServices[studioService.serviceId] || false;
                 
                 return (
-                  <Card key={`${studioService.serviceId}-${index}`} className="border border-gray-200 shadow-sm">
+                  <Card key={`${studioService.serviceId}-${index}`} className="border border-gray-200 shadow-sm bg-white">
                     <CardHeader className="bg-gray-50 rounded-t-lg flex flex-row items-center justify-between p-4">
                       <div className="flex items-center gap-2">
                         <Button 
@@ -793,7 +786,7 @@ const AddStudio: React.FC = () => {
                             const subServiceName = getSubServiceNameById(subService.name);
                             
                             return (
-                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-white shadow-sm">
+                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-gradient-cyan shadow-sm">
                                 <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
                                 
                                 <div className="space-y-4 mb-4">
@@ -917,3 +910,4 @@ const AddStudio: React.FC = () => {
 };
 
 export default AddStudio;
+

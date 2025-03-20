@@ -96,9 +96,14 @@
     @apply border-border;
   }
 
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
     @apply bg-background text-foreground font-inter;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
   }
 
   .nav-item {
@@ -170,7 +175,95 @@
   @apply bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200;
 }
 
+.bg-gradient-pink {
+  @apply bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200;
+}
+
+.bg-gradient-indigo {
+  @apply bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200;
+}
+
+.bg-gradient-teal {
+  @apply bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200;
+}
+
+.bg-gradient-red {
+  @apply bg-gradient-to-br from-red-50 to-red-100 border-red-200;
+}
+
+.bg-gradient-lime {
+  @apply bg-gradient-to-br from-lime-50 to-lime-100 border-lime-200;
+}
+
+.bg-gradient-emerald {
+  @apply bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200;
+}
+
+.bg-gradient-fuchsia {
+  @apply bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 border-fuchsia-200;
+}
+
+.bg-gradient-orange {
+  @apply bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200;
+}
+
+.bg-gradient-yellow {
+  @apply bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200;
+}
+
 .card-shadow {
   @apply shadow-md hover:shadow-lg transition-all duration-300;
 }
 
+/* Fix to prevent scrolling issues in long forms */
+.scrollable-form {
+  @apply max-h-[calc(100vh-8rem)] overflow-y-auto pb-8 pr-2 scrollbar-thin;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.scrollable-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-form::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-form::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+/* Card Animations */
+.card-hover-effect {
+  @apply transition-all duration-300;
+}
+
+.card-hover-effect:hover {
+  @apply shadow-lg transform -translate-y-1;
+}
+
+/* Form Card Styling */
+.form-card {
+  @apply p-6 mb-6 shadow-md rounded-lg border border-gray-100 transition-all duration-300 bg-white;
+}
+
+.form-card:hover {
+  @apply shadow-lg border-gray-200;
+}
+
+/* Tile Grid Styling */
+.tile-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.stat-tile {
+  @apply rounded-lg p-6 shadow-md border transition-all duration-300 card-hover-effect;
+}
+
+/* Section Title Styling */
+.section-title {
+  @apply text-2xl font-bold mb-6 text-gray-800 border-b pb-2;
+}

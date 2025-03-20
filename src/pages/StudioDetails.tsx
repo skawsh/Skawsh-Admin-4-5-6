@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -187,8 +188,8 @@ const StudioDetails: React.FC = () => {
 
   return (
     <Layout activeSection="studios">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 scrollable-form">
+        <div className="flex items-center justify-between sticky top-0 z-10 bg-white pb-4 border-b">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -217,21 +218,31 @@ const StudioDetails: React.FC = () => {
           </Button>
         </div>
 
-        <BasicInfoCard
-          ownerName={studioDetails.ownerName}
-          studioName={studioDetails.studioName}
-          email={studioDetails.email}
-          contact={studioDetails.contact}
-          secondaryContact={studioDetails.secondaryContact}
-        />
+        <div className="card-hover-effect bg-gradient-blue rounded-lg overflow-hidden">
+          <BasicInfoCard
+            ownerName={studioDetails.ownerName}
+            studioName={studioDetails.studioName}
+            email={studioDetails.email}
+            contact={studioDetails.contact}
+            secondaryContact={studioDetails.secondaryContact}
+          />
+        </div>
 
-        <AddressCard {...studioDetails.address} />
+        <div className="card-hover-effect bg-gradient-purple rounded-lg overflow-hidden">
+          <AddressCard {...studioDetails.address} />
+        </div>
 
-        <BusinessCard {...studioDetails.business} />
+        <div className="card-hover-effect bg-gradient-green rounded-lg overflow-hidden">
+          <BusinessCard {...studioDetails.business} />
+        </div>
 
-        <StudioSetupCard {...studioDetails.studio} />
+        <div className="card-hover-effect bg-gradient-amber rounded-lg overflow-hidden">
+          <StudioSetupCard {...studioDetails.studio} />
+        </div>
 
-        <PaymentCard {...studioDetails.payment} />
+        <div className="card-hover-effect bg-gradient-cyan rounded-lg overflow-hidden">
+          <PaymentCard {...studioDetails.payment} />
+        </div>
       </div>
     </Layout>
   );

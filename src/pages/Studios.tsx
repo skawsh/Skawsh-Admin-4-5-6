@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -275,8 +276,8 @@ const Studios: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+        <div className="tile-grid">
+          <Card className="stat-tile bg-gradient-blue">
             <CardContent className="p-6">
               <div className="space-y-1">
                 <p className="text-gray-500 text-sm">Total Studios</p>
@@ -284,7 +285,7 @@ const Studios: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="stat-tile bg-gradient-green">
             <CardContent className="p-6">
               <div className="space-y-1">
                 <p className="text-gray-500 text-sm">Active Studios</p>
@@ -292,7 +293,7 @@ const Studios: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="stat-tile bg-gradient-rose">
             <CardContent className="p-6">
               <div className="space-y-1">
                 <p className="text-gray-500 text-sm">Inactive Studios</p>
@@ -300,7 +301,7 @@ const Studios: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="stat-tile bg-gradient-purple">
             <CardContent className="p-6">
               <div className="space-y-1">
                 <p className="text-gray-500 text-sm">Avg. Sack Value</p>
