@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { ArrowLeft, Plus } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { ArrowLeft } from 'lucide-react';
 import SearchBar from './SearchBar';
 
 interface ServicesHeaderProps {
@@ -20,11 +19,9 @@ const ServicesHeader: React.FC<ServicesHeaderProps> = ({
   title,
   description,
   searchPlaceholder,
-  addButtonText,
   searchTerm,
   onSearchChange,
-  onClearSearch,
-  onAddButtonClick
+  onClearSearch
 }) => {
   return (
     <>
@@ -45,14 +42,6 @@ const ServicesHeader: React.FC<ServicesHeaderProps> = ({
           onSearchChange={onSearchChange}
           onClearSearch={onClearSearch}
         />
-        
-        <Button 
-          className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white"
-          onClick={onAddButtonClick}
-        >
-          <Plus size={18} />
-          <span>{addButtonText}</span>
-        </Button>
       </div>
     </>
   );

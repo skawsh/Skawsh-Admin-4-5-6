@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import TabNavigation from '../components/services/TabNavigation';
@@ -10,6 +11,7 @@ import EditItemDialog from '../components/services/EditItemDialog';
 import ServicesCard from '@/components/studio/details/ServicesCard';
 import StudioServicesDetails from '../components/services/StudioServicesDetails';
 import ServiceStatsTiles from '../components/services/ServiceStatsTiles';
+import AddButtonsBar from '../components/services/AddButtonsBar';
 import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
@@ -143,13 +145,19 @@ const Services: React.FC = () => {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           onClearSearch={clearSearch}
-          onAddButtonClick={handleAddButtonClick}
+          onAddButtonClick={() => {}} // We're removing add button functionality from header
         />
 
         <ServiceStatsTiles 
           services={services} 
           subServices={subServices} 
           clothingItems={clothingItems} 
+        />
+
+        <AddButtonsBar
+          activeTab={activeTab}
+          onAddButtonClick={handleAddButtonClick}
+          addButtonText={tabInfo.addButtonText}
         />
 
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
