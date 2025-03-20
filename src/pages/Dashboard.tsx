@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Package, ShoppingBag, ArrowRight, Check, XCircle, FolderTree, Truck, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Building2, Package, ShoppingBag, ArrowRight, Check, XCircle, FolderTree, Truck, AlertTriangle, CheckCircle, Clock, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,6 +11,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { services, subServices } = useServicesData();
   const [studios, setStudios] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
   
   useEffect(() => {
     const savedStudios = localStorage.getItem('laundryStudios');
@@ -18,6 +19,20 @@ const Dashboard: React.FC = () => {
       const parsedStudios = JSON.parse(savedStudios);
       setStudios(parsedStudios);
     }
+    
+    setDrivers([
+      { id: 1, name: 'John Doe', status: true },
+      { id: 2, name: 'Jane Smith', status: true },
+      { id: 3, name: 'Bob Johnson', status: true },
+      { id: 4, name: 'Alice Brown', status: true },
+      { id: 5, name: 'Charlie Wilson', status: true },
+      { id: 6, name: 'Diana Lee', status: true },
+      { id: 7, name: 'Edward Miller', status: true },
+      { id: 8, name: 'Fiona Clark', status: true },
+      { id: 9, name: 'George Davis', status: true },
+      { id: 10, name: 'Helen Taylor', status: false },
+      { id: 11, name: 'Ian Jackson', status: false },
+    ]);
   }, []);
 
   const totalStudios = studios.length;
@@ -31,6 +46,10 @@ const Dashboard: React.FC = () => {
   const totalSubServices = subServices.length;
   const activeSubServices = subServices.filter(subService => subService.active).length;
   const inactiveSubServices = totalSubServices - activeSubServices;
+
+  const totalDrivers = drivers.length;
+  const activeDrivers = drivers.filter(driver => driver.status).length;
+  const inactiveDrivers = totalDrivers - activeDrivers;
 
   return (
     <Layout activeSection="dashboard">
@@ -196,6 +215,47 @@ const Dashboard: React.FC = () => {
                 <div>
                   <p className="text-gray-600 text-sm">Avg. Sack Value</p>
                   <p className="text-2xl font-bold text-gray-800">₹396</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Drivers</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card className="p-6 bg-bright-blue border-blue-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Drivers</p>
+                  <p className="text-3xl font-bold text-gray-800">{totalDrivers}</p>
+                </div>
+                <div className="p-3 bg-blue-500 rounded-full text-white">
+                  <Users className="h-6 w-6" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-bright-green border-green-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Active Drivers</p>
+                  <p className="text-3xl font-bold text-gray-800">{activeDrivers}</p>
+                </div>
+                <div className="p-3 bg-green-500 rounded-full text-white">
+                  <Truck className="h-6 w-6" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-bright-purple border-purple-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Inactive Drivers</p>
+                  <p className="text-3xl font-bold text-gray-800">{inactiveDrivers}</p>
+                </div>
+                <div className="p-3 bg-gray-500 rounded-full text-white">
+                  <Clock className="h-6 w-6" />
                 </div>
               </div>
             </Card>
