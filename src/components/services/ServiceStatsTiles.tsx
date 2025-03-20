@@ -27,42 +27,42 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
       label: 'Total Services', 
       value: services.length, 
       icon: <Package className="h-6 w-6" />,
-      bgColor: 'bg-blue-50',
+      bgGradient: 'bg-gradient-blue',
       iconColor: 'text-blue-500'
     },
     { 
       label: 'Active Services', 
       value: activeServices, 
       icon: <Check className="h-6 w-6 text-green-500" />,
-      bgColor: 'bg-green-50',
+      bgGradient: 'bg-gradient-green',
       iconColor: 'text-green-500'
     },
     { 
       label: 'Inactive Services', 
       value: inactiveServices, 
       icon: <XCircle className="h-6 w-6 text-red-500" />,
-      bgColor: 'bg-red-50',
+      bgGradient: 'bg-gradient-red',
       iconColor: 'text-red-500'
     },
     { 
       label: 'Total Sub-services', 
       value: subServices.length, 
       icon: <FolderTree className="h-6 w-6" />,
-      bgColor: 'bg-purple-50',
+      bgGradient: 'bg-gradient-purple',
       iconColor: 'text-purple-500'
     },
     { 
       label: 'Active Sub-services', 
       value: activeSubServices, 
       icon: <Check className="h-6 w-6 text-green-500" />,
-      bgColor: 'bg-green-50',
+      bgGradient: 'bg-gradient-emerald',
       iconColor: 'text-green-500'
     },
     { 
       label: 'Inactive Sub-services', 
       value: inactiveSubServices, 
       icon: <XCircle className="h-6 w-6 text-red-500" />,
-      bgColor: 'bg-red-50',
+      bgGradient: 'bg-gradient-orange',
       iconColor: 'text-red-500'
     },
   ];
@@ -72,12 +72,12 @@ const ServiceStatsTiles: React.FC<ServiceStatsTilesProps> = ({
       {stats.map((stat, index) => (
         <Card 
           key={index} 
-          className="border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]"
+          className={`${stat.bgGradient} border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]`}
         >
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className={`p-3 ${stat.bgColor} rounded-lg ${stat.iconColor}`}>{stat.icon}</div>
+                <div className={`p-3 bg-white/80 rounded-lg ${stat.iconColor}`}>{stat.icon}</div>
                 <div className="flex flex-col">
                   <span className="font-medium text-gray-600 text-sm">{stat.label}</span>
                   <span className="text-2xl font-bold text-gray-800">{stat.value}</span>

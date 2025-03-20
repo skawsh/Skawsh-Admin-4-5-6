@@ -216,7 +216,7 @@
 
 /* Fix to prevent scrolling issues in long forms */
 .scrollable-form {
-  @apply max-h-[calc(100vh-8rem)] overflow-y-auto pb-8 pr-2;
+  @apply h-[calc(100vh-8rem)] overflow-y-auto pb-8 pr-2;
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
@@ -266,3 +266,4 @@
 .section-title {
   @apply text-2xl font-bold mb-6 text-gray-800 border-b pb-2;
 }
+

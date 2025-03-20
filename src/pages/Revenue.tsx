@@ -70,7 +70,7 @@ const Revenue: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-gradient-amber card-hover-effect">
+          <Card className="card-hover-effect border border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-800">Revenue Breakdown</h3>
@@ -84,7 +84,7 @@ const Revenue: React.FC = () => {
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-rose card-hover-effect">
+          <Card className="card-hover-effect border border-gray-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-800">Monthly Trends</h3>

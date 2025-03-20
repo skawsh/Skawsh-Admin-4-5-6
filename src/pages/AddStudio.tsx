@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { ArrowLeft, Save, Plus, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
@@ -26,6 +27,7 @@ const AddStudio: React.FC = () => {
   const [studioServices, setStudioServices] = useState<StudioService[]>([]);
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [editingService, setEditingService] = useState<StudioService | null>(null);
+  const [isGstRegistered, setIsGstRegistered] = useState('no');
   
   const [formData, setFormData] = useState({
     ownerFirstName: '',
@@ -75,6 +77,8 @@ const AddStudio: React.FC = () => {
         : 'both' as WashCategory;
       
       setFormData(prev => ({ ...prev, [name]: washValue }));
+    } else if (name === 'gstRegistered') {
+      setIsGstRegistered(value);
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -293,7 +297,7 @@ const AddStudio: React.FC = () => {
           </Button>
         </div>
 
-        <Card className="form-card bg-gradient-blue">
+        <Card className="form-card">
           <h2 className="section-title">Basic Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -381,7 +385,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="form-card bg-gradient-purple">
+        <Card className="form-card">
           <h2 className="section-title">Address Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -465,10 +469,30 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="form-card bg-gradient-green">
+        <Card className="form-card">
           <h2 className="section-title">Business Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4 md:col-span-2">
+              <Label className="text-base font-medium">
+                GST Registered
+              </Label>
+              <RadioGroup 
+                value={isGstRegistered} 
+                onValueChange={(value) => handleRadioChange('gstRegistered', value)}
+                className="flex flex-row gap-8"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="gst-yes" />
+                  <Label htmlFor="gst-yes">Yes</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="gst-no" />
+                  <Label htmlFor="gst-no">No</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="businessRegNumber" className="text-base font-medium">
                 Business Registration Number
@@ -479,6 +503,8 @@ const AddStudio: React.FC = () => {
                 placeholder="Business Registration Number"
                 value={formData.businessRegNumber}
                 onChange={handleInputChange}
+                disabled={isGstRegistered !== 'yes'}
+                className={isGstRegistered !== 'yes' ? "bg-gray-100" : ""}
               />
             </div>
             
@@ -492,6 +518,8 @@ const AddStudio: React.FC = () => {
                 placeholder="GST Number"
                 value={formData.gstNumber}
                 onChange={handleInputChange}
+                disabled={isGstRegistered !== 'yes'}
+                className={isGstRegistered !== 'yes' ? "bg-gray-100" : ""}
               />
             </div>
             
@@ -549,7 +577,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="form-card bg-gradient-amber">
+        <Card className="form-card">
           <h2 className="section-title">Studio Setup</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -618,7 +646,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="form-card bg-gradient-cyan">
+        <Card className="form-card">
           <h2 className="section-title">Payment Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -722,7 +750,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="form-card bg-gradient-fuchsia">
+        <Card className="form-card">
           <h2 className="section-title">Services</h2>
           
           <Button 
@@ -786,7 +814,7 @@ const AddStudio: React.FC = () => {
                             const subServiceName = getSubServiceNameById(subService.name);
                             
                             return (
-                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 bg-gradient-cyan shadow-sm">
+                              <div key={`${subService.id || subIndex}`} className="border rounded-lg p-4 shadow-sm">
                                 <h4 className="text-base font-semibold text-gray-700 mb-3">{subServiceName}</h4>
                                 
                                 <div className="space-y-4 mb-4">
@@ -910,4 +938,3 @@ const AddStudio: React.FC = () => {
 };
 
 export default AddStudio;
-
