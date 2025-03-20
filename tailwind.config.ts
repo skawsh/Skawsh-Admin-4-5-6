@@ -73,7 +73,16 @@ export default {
 					gray: '#f8f9fa',
 					'gray-light': '#f1f3f5',
 					'gray-dark': '#e9ecef'
-				}
+				},
+				// Add custom bright colors
+				'bright-blue': '#D3E4FD',
+				'bright-purple': '#E5DEFF',
+				'bright-green': '#F2FCE2',
+				'bright-yellow': '#FEF7CD',
+				'bright-orange': '#FEC6A1',
+				'bright-pink': '#FFDEE2',
+				'bright-peach': '#FDE1D3',
+				'bright-cyan': '#D3F8FA',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
