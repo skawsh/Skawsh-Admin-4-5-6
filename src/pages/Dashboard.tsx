@@ -60,26 +60,6 @@ const Dashboard: React.FC = () => {
           <p className="text-gray-600 mt-1">Welcome to your laundry management dashboard</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up">
-          <div className="glass-card p-6 space-y-2 hover:shadow-md transition-all">
-            <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-            <p className="text-3xl font-bold">1,257</p>
-            <p className="text-sm text-green-600">+12% from last month</p>
-          </div>
-          
-          <div className="glass-card p-6 space-y-2 hover:shadow-md transition-all">
-            <h3 className="text-sm font-medium text-gray-500">Active Studios</h3>
-            <p className="text-3xl font-bold">{activeStudios}</p>
-            <p className="text-sm text-green-600">+{activeStudios > 0 ? Math.floor(activeStudios / totalStudios * 100) : 0}% active</p>
-          </div>
-          
-          <div className="glass-card p-6 space-y-2 hover:shadow-md transition-all">
-            <h3 className="text-sm font-medium text-gray-500">Monthly Revenue</h3>
-            <p className="text-3xl font-bold">₹24,568</p>
-            <p className="text-sm text-green-600">+18% from last month</p>
-          </div>
-        </div>
-
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Orders</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
