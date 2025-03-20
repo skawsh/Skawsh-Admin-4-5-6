@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Package, ShoppingBag, ArrowRight, Check, XCircle, FolderTree } from 'lucide-react';
+import { Building2, Package, ShoppingBag, ArrowRight, Check, XCircle, FolderTree, Truck, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,7 +12,6 @@ const Dashboard: React.FC = () => {
   const { services, subServices } = useServicesData();
   const [studios, setStudios] = useState<any[]>([]);
   
-  // Load studios from localStorage
   useEffect(() => {
     const savedStudios = localStorage.getItem('laundryStudios');
     if (savedStudios) {
@@ -21,7 +20,6 @@ const Dashboard: React.FC = () => {
     }
   }, []);
 
-  // Calculate stats
   const totalStudios = studios.length;
   const activeStudios = studios.filter(studio => studio.status).length;
   const inactiveStudios = totalStudios - activeStudios;
@@ -42,7 +40,6 @@ const Dashboard: React.FC = () => {
           <p className="text-gray-600 mt-1">Welcome to your laundry management dashboard</p>
         </div>
         
-        {/* Main Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up">
           <div className="glass-card p-6 space-y-2 hover:shadow-md transition-all">
             <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
@@ -63,7 +60,95 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Studios Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Orders</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Orders</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">26</p>
+                </div>
+                <div className="bg-blue-500 rounded-full p-3 text-white">
+                  <Package className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">New Orders</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">10</p>
+                </div>
+                <div className="bg-blue-500 rounded-full p-3 text-white">
+                  <Package className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-amber-50 border-amber-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">In Progress</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">2</p>
+                </div>
+                <div className="bg-amber-50 rounded-full p-3 text-white">
+                  <Package className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-yellow-50 border-yellow-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">Ready for Collection</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">7</p>
+                </div>
+                <div className="bg-yellow-500 rounded-full p-3 text-white">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-green-50 border-green-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">Delivered</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">5</p>
+                </div>
+                <div className="bg-green-500 rounded-full p-3 text-white">
+                  <Truck className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-red-50 border-red-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">Cancelled</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">1</p>
+                </div>
+                <div className="bg-red-500 rounded-full p-3 text-white">
+                  <AlertTriangle className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+            
+            <Card className="p-6 bg-cyan-50 border-cyan-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-600 text-sm">Assigned</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-2">10</p>
+                </div>
+                <div className="bg-cyan-500 rounded-full p-3 text-white">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+        
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Studios</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -117,11 +202,9 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        {/* Services and Sub-services Section */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Services and Sub-services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {/* Services Section */}
             <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm">
               <div className="flex items-center space-x-4">
                 <div className="p-3 bg-white rounded-lg text-blue-500">
@@ -158,7 +241,6 @@ const Dashboard: React.FC = () => {
               </div>
             </Card>
             
-            {/* Sub-services Section */}
             <Card className="p-6 bg-purple-50 border-purple-100 shadow-sm">
               <div className="flex items-center space-x-4">
                 <div className="p-3 bg-white rounded-lg text-purple-500">
@@ -197,9 +279,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        {/* Studios and Services Tiles */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-up">
-          {/* Studios Tile */}
           <Card className="p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Studios</h2>
@@ -271,7 +351,6 @@ const Dashboard: React.FC = () => {
             </ScrollArea>
           </Card>
           
-          {/* Services Tile */}
           <Card className="p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Services</h2>
@@ -344,7 +423,6 @@ const Dashboard: React.FC = () => {
           </Card>
         </div>
         
-        {/* Popular Services and Recent Orders */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-up">
           <div className="glass-card p-6">
             <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
