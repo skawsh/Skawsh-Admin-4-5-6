@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import TabNavigation from '../components/services/TabNavigation';
@@ -10,6 +9,7 @@ import AddItemDialog from '../components/services/AddItemDialog';
 import EditItemDialog from '../components/services/EditItemDialog';
 import ServicesCard from '@/components/studio/details/ServicesCard';
 import StudioServicesDetails from '../components/services/StudioServicesDetails';
+import ServiceStatsTiles from '../components/services/ServiceStatsTiles';
 import { useServicesData } from '../hooks/useServicesData';
 import { useServicesTabs } from '../hooks/useServicesTabs';
 import { useServicesDialogs } from '../hooks/useServicesDialogs';
@@ -145,7 +145,15 @@ const Services: React.FC = () => {
           onClearSearch={clearSearch}
           onAddButtonClick={handleAddButtonClick}
         />
+
+        <ServiceStatsTiles 
+          services={services} 
+          subServices={subServices} 
+          clothingItems={clothingItems} 
+        />
+
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+        
         <div className="bg-white p-8 min-h-[300px] rounded-lg border border-gray-100 shadow-sm">
           {activeTab === 'services' && (
             <>
