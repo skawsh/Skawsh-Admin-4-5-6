@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -271,7 +270,7 @@ const AddStudio: React.FC = () => {
   };
 
   return (
-    <Layout activeSection="studios" noScroll={true}>
+    <Layout activeSection="studios">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sticky top-0 z-10 bg-white pb-4 border-b">
           <div className="flex items-center gap-3">
