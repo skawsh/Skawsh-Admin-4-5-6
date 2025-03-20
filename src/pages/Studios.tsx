@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -253,14 +252,6 @@ const Studios: React.FC = () => {
           <div className="flex flex-wrap gap-3">
             <Button 
               variant="outline" 
-              className="bg-white" 
-              onClick={resetFilters}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Reset Filters
-            </Button>
-            <Button 
-              variant="outline" 
               className="bg-white"
             >
               <BarChart2 className="mr-2 h-4 w-4" />
@@ -354,6 +345,15 @@ const Studios: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              className="bg-white" 
+              onClick={resetFilters}
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Reset Filters
+            </Button>
+            
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <Input
