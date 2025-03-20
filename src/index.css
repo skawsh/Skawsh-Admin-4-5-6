@@ -144,3 +144,33 @@
     transform: translateY(0);
   }
 }
+
+/* Gradient Card Backgrounds */
+.bg-gradient-blue {
+  @apply bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200;
+}
+
+.bg-gradient-purple {
+  @apply bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200;
+}
+
+.bg-gradient-green {
+  @apply bg-gradient-to-br from-green-50 to-green-100 border-green-200;
+}
+
+.bg-gradient-amber {
+  @apply bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200;
+}
+
+.bg-gradient-rose {
+  @apply bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200;
+}
+
+.bg-gradient-cyan {
+  @apply bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200;
+}
+
+.card-shadow {
+  @apply shadow-md hover:shadow-lg transition-all duration-300;
+}
+

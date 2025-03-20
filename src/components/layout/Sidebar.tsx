@@ -8,7 +8,7 @@ import {
   Car, 
   ClipboardList, 
   BarChart2, 
-  DollarSign, 
+  IndianRupee, 
   Users, 
   Settings, 
   ChevronLeft,
@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection }) => {
     { name: 'Drivers', icon: Car, path: '/drivers' },
     { name: 'Orders', icon: ClipboardList, path: '/orders' },
     { name: 'Analytics', icon: BarChart2, path: '/analytics' },
-    { name: 'Revenue', icon: DollarSign, path: '/revenue' },
+    { name: 'Revenue', icon: IndianRupee, path: '/revenue' },
     { name: 'Users', icon: Users, path: '/users' },
     { name: 'Settings', icon: Settings, path: '/settings' },
   ];
