@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Package, CheckCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Calendar } from 'lucide-react';
 import { Card } from "@/components/ui/card";
@@ -255,13 +254,6 @@ const filterCategories = {
     'last60Minutes',
     'last4Hours',
     'last24Hours'
-  ],
-  other: [
-    'all',
-    'today',
-    'weekToDate',
-    'monthToDate',
-    'yearToDate'
   ]
 };
 
@@ -271,8 +263,7 @@ const OrdersSection: React.FC = () => {
     relative: true,
     relativeInTime: false,
     dateRange: false,
-    dateTimeRange: false,
-    other: false
+    dateTimeRange: false
   });
   
   const [dateRange, setDateRange] = useState<{
@@ -291,7 +282,6 @@ const OrdersSection: React.FC = () => {
     to: "23:59"
   });
   
-  // Use the existing data or fallback to 'all' if the filter doesn't exist
   const orderData = mockOrdersData[timeFilter as keyof typeof mockOrdersData] || mockOrdersData.all;
 
   const handleFilterChange = (value: string) => {
@@ -307,7 +297,6 @@ const OrdersSection: React.FC = () => {
   
   const handleDateRangeSelect = () => {
     if (dateRange.from && dateRange.to) {
-      // In a real application, you would fetch data for this date range
       console.log(`Selected date range: ${format(dateRange.from, 'yyyy-MM-dd')} to ${format(dateRange.to, 'yyyy-MM-dd')}`);
       setTimeFilter('dateRange');
     }
@@ -315,7 +304,6 @@ const OrdersSection: React.FC = () => {
   
   const handleDateTimeRangeSelect = () => {
     if (dateRange.from && dateRange.to) {
-      // In a real application, you would fetch data for this date and time range
       console.log(`Selected date time range: ${format(dateRange.from, 'yyyy-MM-dd')} ${timeRange.from} to ${format(dateRange.to, 'yyyy-MM-dd')} ${timeRange.to}`);
       setTimeFilter('dateTimeRange');
     }
@@ -553,27 +541,11 @@ const OrdersSection: React.FC = () => {
                   </div>
                 </CollapsibleContent>
               </Collapsible>
-              
-              <DropdownMenuSeparator />
-              
-              <div className="p-2">
-                <span className="font-medium px-2">Other</span>
-                <div className="grid grid-cols-1 gap-1 mt-1">
-                  {filterCategories.other.map((filter) => (
-                    <DropdownMenuItem 
-                      key={filter}
-                      onClick={() => handleFilterChange(filter)}
-                      className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                    >
-                      {filterDisplayNames[filter]}
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+      
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm relative overflow-hidden">
           <div className="flex justify-between items-start">
