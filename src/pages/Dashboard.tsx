@@ -1,12 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Package, ShoppingBag, ArrowRight, Check, XCircle, FolderTree, Truck, AlertTriangle, CheckCircle, Clock, Users } from 'lucide-react';
+import { Building2, Check, XCircle, FolderTree, Truck, Users, Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useServicesData } from '@/hooks/useServicesData';
+import OrdersSection from '@/components/dashboard/OrdersSection';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
