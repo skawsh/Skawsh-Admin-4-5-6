@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -338,6 +339,7 @@ const AddStudio: React.FC = () => {
           <h2 className="section-title">Basic Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Owner First Name */}
             <div className="space-y-2">
               <Label htmlFor="ownerFirstName" className="text-base font-medium">
                 Owner First Name <span className="text-red-500">*</span>
@@ -352,6 +354,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Owner Last Name */}
             <div className="space-y-2">
               <Label htmlFor="ownerLastName" className="text-base font-medium">
                 Owner Last Name
@@ -365,6 +368,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Studio Name */}
             <div className="space-y-2">
               <Label htmlFor="studioName" className="text-base font-medium">
                 Studio Name <span className="text-red-500">*</span>
@@ -379,6 +383,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base font-medium">
                 Email
@@ -393,6 +398,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Primary Number */}
             <div className="space-y-2">
               <Label htmlFor="primaryNumber" className="text-base font-medium">
                 Primary Number <span className="text-red-500">*</span>
@@ -407,6 +413,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Secondary Number */}
             <div className="space-y-2">
               <Label htmlFor="secondaryNumber" className="text-base font-medium">
                 Secondary Number
@@ -420,6 +427,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
 
+            {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-base font-medium">
                 Password <span className="text-red-500">*</span>
@@ -446,6 +454,7 @@ const AddStudio: React.FC = () => {
               </div>
             </div>
             
+            {/* Confirm Password */}
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-base font-medium">
                 Confirm Password <span className="text-red-500">*</span>
@@ -474,11 +483,12 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        
+        {/* Address Details */}
         <Card className="form-card">
           <h2 className="section-title">Address Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Street */}
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="street" className="text-base font-medium">
                 Street
@@ -492,6 +502,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* City */}
             <div className="space-y-2">
               <Label htmlFor="city" className="text-base font-medium">
                 City
@@ -505,6 +516,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* State */}
             <div className="space-y-2">
               <Label htmlFor="state" className="text-base font-medium">
                 State
@@ -518,6 +530,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Latitude */}
             <div className="space-y-2">
               <Label htmlFor="latitude" className="text-base font-medium">
                 Latitude
@@ -531,6 +544,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Longitude */}
             <div className="space-y-2">
               <Label htmlFor="longitude" className="text-base font-medium">
                 Longitude
@@ -544,6 +558,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Postal Code */}
             <div className="space-y-2">
               <Label htmlFor="postalCode" className="text-base font-medium">
                 Postal Code
@@ -559,11 +574,12 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        
+        {/* Business Details */}
         <Card className="form-card">
           <h2 className="section-title">Business Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* GST Registered */}
             <div className="space-y-4 md:col-span-2">
               <Label className="text-base font-medium">
                 GST Registered
@@ -584,6 +600,7 @@ const AddStudio: React.FC = () => {
               </RadioGroup>
             </div>
             
+            {/* Business Registration Number */}
             <div className="space-y-2">
               <Label htmlFor="businessRegNumber" className="text-base font-medium">
                 Business Registration Number
@@ -599,6 +616,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* GST/VAT Number */}
             <div className="space-y-2">
               <Label htmlFor="gstNumber" className="text-base font-medium">
                 GST/VAT Number
@@ -614,6 +632,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* PAN Number */}
             <div className="space-y-2">
               <Label htmlFor="panNumber" className="text-base font-medium">
                 PAN Number
@@ -627,6 +646,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Opening Time */}
             <div className="space-y-2">
               <Label htmlFor="openingTime" className="text-base font-medium">
                 Opening Time
@@ -640,6 +660,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Closing Time */}
             <div className="space-y-2">
               <Label htmlFor="closingTime" className="text-base font-medium">
                 Closing Time
@@ -653,6 +674,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Price Adjustment */}
             <div className="space-y-2">
               <Label htmlFor="priceAdjustment" className="text-base font-medium">
                 Price Adjustment %
@@ -668,10 +690,12 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Studio Setup */}
         <Card className="form-card">
           <h2 className="section-title">Studio Setup</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Number of Employees */}
             <div className="space-y-2">
               <Label htmlFor="employeeCount" className="text-base font-medium">
                 Number of Employees
@@ -685,6 +709,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Daily Capacity */}
             <div className="space-y-2">
               <Label htmlFor="dailyCapacity" className="text-base font-medium">
                 Daily Capacity (In KG's)
@@ -698,6 +723,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Special Equipment */}
             <div className="space-y-2">
               <Label htmlFor="specialEquipment" className="text-base font-medium">
                 Special Equipment
@@ -711,6 +737,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Wash Category */}
             <div className="space-y-4">
               <Label className="text-base font-medium">
                 Select Wash Category
@@ -737,10 +764,12 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        {/* Payment Details */}
         <Card className="form-card">
           <h2 className="section-title">Payment Details</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Account Holder Name */}
             <div className="space-y-2">
               <Label htmlFor="accountHolderName" className="text-base font-medium">
                 Account Holder Name
@@ -754,6 +783,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Bank Name */}
             <div className="space-y-2">
               <Label htmlFor="bankName" className="text-base font-medium">
                 Bank Name
@@ -767,6 +797,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Account Number */}
             <div className="space-y-2">
               <Label htmlFor="accountNumber" className="text-base font-medium">
                 Account Number
@@ -780,6 +811,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Re-enter Account Number */}
             <div className="space-y-2">
               <Label htmlFor="reEnterAccountNumber" className="text-base font-medium">
                 Re-enter Account Number
@@ -793,6 +825,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* IFSC Code */}
             <div className="space-y-2">
               <Label htmlFor="ifscCode" className="text-base font-medium">
                 IFSC Code
@@ -806,6 +839,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Branch Name */}
             <div className="space-y-2">
               <Label htmlFor="branchName" className="text-base font-medium">
                 Branch Name
@@ -819,6 +853,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* UPI ID */}
             <div className="space-y-2">
               <Label htmlFor="upiId" className="text-base font-medium">
                 UPI ID
@@ -832,6 +867,7 @@ const AddStudio: React.FC = () => {
               />
             </div>
             
+            {/* Payment Schedule */}
             <div className="space-y-4 md:col-span-2">
               <Label className="text-base font-medium">
                 Select Payment Schedule
@@ -854,7 +890,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
-        
+        {/* Services */}
         <Card className="form-card">
           <h2 className="section-title">Services</h2>
           
@@ -977,3 +1013,48 @@ const AddStudio: React.FC = () => {
                                 
                                 {subService.selectedItems && subService.selectedItems.length > 0 && (
                                   <div>
+                                    <h5 className="text-sm font-medium text-gray-700 mb-2">Selected Items:</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                      {subService.selectedItems.map((itemId: string, itemIndex: number) => (
+                                        <span 
+                                          key={`${itemId}-${itemIndex}`} 
+                                          className="px-2 py-1 bg-gray-100 rounded-md text-xs"
+                                        >
+                                          {getClothingItemNameById(itemId)}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center p-8 border border-dashed rounded-lg bg-gray-50">
+              <p className="text-gray-500">No services added yet. Click the "Add Services" button to add services.</p>
+            </div>
+          )}
+        </Card>
+
+        {/* Service Dialog */}
+        {isAddServiceDialogOpen && (
+          <MultiSelectServiceDialog
+            open={isAddServiceDialogOpen}
+            onClose={() => setIsAddServiceDialogOpen(false)}
+            onServiceAdded={handleServiceAdded}
+            editService={editingService}
+          />
+        )}
+      </form>
+    </Layout>
+  );
+};
+
+export default AddStudio;
