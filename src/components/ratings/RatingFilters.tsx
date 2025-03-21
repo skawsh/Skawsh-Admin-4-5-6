@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDown, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Select,
@@ -196,13 +195,25 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
           <SelectTrigger className="w-[180px]">
             <span className="flex items-center gap-2">
               <span>Sort by</span>
-              <ChevronDown size={16} />
+              {sortOption === "highest" && <ArrowDown size={16} className="ml-1 text-gray-500" />}
+              {sortOption === "lowest" && <ArrowUp size={16} className="ml-1 text-gray-500" />}
+              {sortOption === "latest" && <ChevronDown size={16} />}
             </span>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="latest">Latest reviews</SelectItem>
-            <SelectItem value="highest">Highest to lowest</SelectItem>
-            <SelectItem value="lowest">Lowest to highest</SelectItem>
+            <SelectItem value="highest">
+              <div className="flex items-center">
+                Highest to lowest
+                <ArrowDown size={16} className="ml-1 text-gray-500" />
+              </div>
+            </SelectItem>
+            <SelectItem value="lowest">
+              <div className="flex items-center">
+                Lowest to highest
+                <ArrowUp size={16} className="ml-1 text-gray-500" />
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

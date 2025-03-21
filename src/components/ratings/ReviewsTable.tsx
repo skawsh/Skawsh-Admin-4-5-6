@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -57,21 +56,25 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[8%] bg-gray-50 font-semibold">S.NO</TableHead>
               <TableHead className="w-[12%] bg-gray-50 font-semibold">Order ID</TableHead>
               <TableHead className="w-[15%] bg-gray-50 font-semibold">Customer Name</TableHead>
               <TableHead className="w-[10%] bg-gray-50 font-semibold">Rating</TableHead>
-              <TableHead className="w-[35%] bg-gray-50 font-semibold">Review</TableHead>
+              <TableHead className="w-[30%] bg-gray-50 font-semibold">Review</TableHead>
               <TableHead className="w-[15%] bg-gray-50 font-semibold">Date & Time</TableHead>
-              <TableHead className="w-[13%] text-right bg-gray-50 font-semibold">Actions</TableHead>
+              <TableHead className="w-[10%] text-right bg-gray-50 font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedReviews.length > 0 ? (
-              paginatedReviews.map((review) => (
+              paginatedReviews.map((review, index) => (
                 <TableRow 
                   key={review.id} 
                   className={review.hidden ? "bg-gray-50 text-gray-500" : "hover:bg-gray-50"}
                 >
+                  <TableCell className="font-medium text-center">
+                    {(page - 1) * reviewsPerPage + index + 1}
+                  </TableCell>
                   <TableCell className="font-medium">
                     <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded border border-gray-200">
                       {review.orderId}
@@ -134,7 +137,7 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-10 text-gray-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <p className="font-medium">No reviews found</p>
                     <p className="text-sm">Try adjusting your filters to see more results</p>
