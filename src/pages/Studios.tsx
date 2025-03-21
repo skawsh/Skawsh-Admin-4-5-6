@@ -222,10 +222,7 @@ const Studios: React.FC = () => {
   };
 
   const handleViewAnalyticsClick = (studio: Studio) => {
-    toast({
-      title: "Ratings & Reviews",
-      description: `Viewing ratings and reviews for ${studio.studioName}`,
-    });
+    navigate(`/studios/${studio.id}/ratings`);
   };
 
   const handleDeleteStudioClick = (studio: Studio) => {
@@ -426,3 +423,4 @@ const Studios: React.FC = () => {
 };
 
 export default Studios;
+
