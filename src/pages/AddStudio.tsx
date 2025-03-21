@@ -1046,10 +1046,14 @@ const AddStudio: React.FC = () => {
         {/* Service Dialog */}
         {isAddServiceDialogOpen && (
           <MultiSelectServiceDialog
-            open={isAddServiceDialogOpen}
-            onClose={() => setIsAddServiceDialogOpen(false)}
-            onServiceAdded={handleServiceAdded}
-            editService={editingService}
+            isOpen={isAddServiceDialogOpen}
+            onOpenChange={setIsAddServiceDialogOpen}
+            services={services}
+            subServices={subServices}
+            clothingItems={clothingItems}
+            washCategory={formData.washCategory}
+            onSave={handleServiceAdded}
+            editingService={editingService}
           />
         )}
       </form>
