@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { ArrowLeft, Star, ChevronDown, Eye, EyeOff, Filter, CalendarRange } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { ReviewsTable } from '@/components/ratings/ReviewsTable';
 import { RatingOverview } from '@/components/ratings/RatingOverview';
@@ -139,7 +137,11 @@ const StudioRatings: React.FC = () => {
     const orderIdPrefix = studio.studioId.replace("STU", "ORD");
     
     return Array.from({ length: 20 }, (_, i) => {
-      const rating = Math.floor(Math.random() * 5) + 1;
+      // Make some reviews have null ratings or comments to demonstrate N/A
+      const hasRating = Math.random() > 0.2; // 20% chance of no rating
+      const hasComment = Math.random() > 0.3; // 30% chance of no comment
+      
+      const rating = hasRating ? Math.floor(Math.random() * 5) + 1 : null;
       const date = new Date();
       date.setDate(date.getDate() - Math.floor(Math.random() * 60));
       
@@ -148,9 +150,11 @@ const StudioRatings: React.FC = () => {
         orderId: `${orderIdPrefix}${(1000 + i).toString()}`,
         customerName: names[Math.floor(Math.random() * names.length)],
         rating: rating,
-        comment: rating >= 4 ? 
-          comments[Math.floor(Math.random() * 10)] : 
-          comments[10 + Math.floor(Math.random() * 6)],
+        comment: hasRating && hasComment ? 
+          (rating && rating >= 4 ? 
+            comments[Math.floor(Math.random() * 10)] : 
+            comments[10 + Math.floor(Math.random() * 6)]) : 
+          "",
         date: date.toISOString(),
         hidden: false
       };

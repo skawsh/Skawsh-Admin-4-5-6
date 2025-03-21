@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
                   format(dateRange.from, "MMM d, yyyy")
                 )
               ) : (
-                <span>Date Range</span>
+                <span>All Reviews & Ratings</span>
               )}
             </Button>
           </DropdownMenuTrigger>
@@ -125,7 +126,7 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
               <Popover>
                 <PopoverTrigger asChild>
                   <span className="flex items-center justify-between w-full cursor-pointer">
-                    Date Range
+                    All Reviews & Ratings
                     <ChevronRight className="h-4 w-4" />
                   </span>
                 </PopoverTrigger>
