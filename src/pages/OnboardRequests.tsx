@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -343,7 +342,11 @@ const OnboardRequests: React.FC = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[350px] bg-white p-0" align="end">
         {filterOptions.map((option) => (
-          <div key={option.id} className="w-full border-b border-gray-100 last:border-0">
+          <Collapsible
+            key={option.id}
+            open={expandedFilter === option.id}
+            className="w-full border-b border-gray-100 last:border-0"
+          >
             <CollapsibleTrigger
               onClick={() => toggleFilterExpansion(option.id)}
               className="flex w-full items-center justify-between p-4 hover:bg-gray-50 cursor-pointer"
@@ -352,111 +355,165 @@ const OnboardRequests: React.FC = () => {
               {expandedFilter === option.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </CollapsibleTrigger>
             
-            <Collapsible open={expandedFilter === option.id} className="w-full">
-              <CollapsibleContent>
-                {option.id === 'relativeTime' && (
-                  <div className="grid grid-cols-2 gap-4 p-4">
-                    <div className="space-y-4">
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('last15Minutes')}
-                      >
-                        Last 15 minutes
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('last30Minutes')}
-                      >
-                        Last 30 minutes
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('last60Minutes')}
-                      >
-                        Last 60 minutes
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('last4Hours')}
-                      >
-                        Last 4 hours
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('last24Hours')}
-                      >
-                        Last 24 hours
-                      </Button>
-                    </div>
+            <CollapsibleContent>
+              {option.id === 'relativeTime' && (
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div className="space-y-4">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('last15Minutes')}
+                    >
+                      Last 15 minutes
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('last30Minutes')}
+                    >
+                      Last 30 minutes
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('last60Minutes')}
+                    >
+                      Last 60 minutes
+                    </Button>
                   </div>
-                )}
-                
-                {option.id === 'relativeDate' && (
-                  <div className="grid grid-cols-2 gap-4 p-4">
-                    <div className="space-y-4">
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('daily')}
-                      >
-                        Daily
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('yesterday')}
-                      >
-                        Yesterday
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('weekly')}
-                      >
-                        Weekly
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('monthly')}
-                      >
-                        Monthly
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('yearly')}
-                      >
-                        Yearly
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
-                        onClick={() => handleFilterChange('allTime')}
-                      >
-                        All time
-                      </Button>
-                    </div>
+                  <div className="space-y-4">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('last4Hours')}
+                    >
+                      Last 4 hours
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('last24Hours')}
+                    >
+                      Last 24 hours
+                    </Button>
                   </div>
-                )}
-                
-                {option.id === 'dateRange' && (
-                  <div className="p-4 space-y-2">
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-sm font-medium">From:</span>
+                </div>
+              )}
+              
+              {option.id === 'relativeDate' && (
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div className="space-y-4">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('daily')}
+                    >
+                      Daily
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('yesterday')}
+                    >
+                      Yesterday
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('weekly')}
+                    >
+                      Weekly
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('monthly')}
+                    >
+                      Monthly
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('yearly')}
+                    >
+                      Yearly
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-blue-500 font-normal hover:bg-gray-50 hover:text-blue-600"
+                      onClick={() => handleFilterChange('allTime')}
+                    >
+                      All time
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {option.id === 'dateRange' && (
+                <div className="p-4 space-y-2">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm font-medium">From:</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="justify-start text-left font-normal w-full">
+                          {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
+                          <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-white" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={dateRange.from}
+                          onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm font-medium">To:</span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="justify-start text-left font-normal w-full">
+                          {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
+                          <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-white" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={dateRange.to}
+                          onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  <Button 
+                    onClick={handleDateRangeSelect}
+                    disabled={!dateRange.from || !dateRange.to}
+                    className="w-full"
+                  >
+                    Apply Date Range
+                  </Button>
+                </div>
+              )}
+              
+              {option.id === 'dateTimeRange' && (
+                <div className="p-4 space-y-2">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm font-medium">From Date & Time:</span>
+                    <div className="flex gap-2">
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="justify-start text-left font-normal w-full">
-                            {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
+                          <Button variant="outline" className="justify-start text-left font-normal flex-1">
+                            {dateRange.from ? format(dateRange.from, 'PP') : <span>Date</span>}
                             <Calendar className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -470,14 +527,21 @@ const OnboardRequests: React.FC = () => {
                           />
                         </PopoverContent>
                       </Popover>
+                      <Input 
+                        type="time" 
+                        className="flex-1"
+                        onChange={(e) => console.log(e.target.value)} 
+                      />
                     </div>
-                    
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-sm font-medium">To:</span>
+                  </div>
+                  
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm font-medium">To Date & Time:</span>
+                    <div className="flex gap-2">
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" className="justify-start text-left font-normal w-full">
-                            {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
+                          <Button variant="outline" className="justify-start text-left font-normal flex-1">
+                            {dateRange.to ? format(dateRange.to, 'PP') : <span>Date</span>}
                             <Calendar className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -491,88 +555,25 @@ const OnboardRequests: React.FC = () => {
                           />
                         </PopoverContent>
                       </Popover>
+                      <Input 
+                        type="time" 
+                        className="flex-1"
+                        onChange={(e) => console.log(e.target.value)} 
+                      />
                     </div>
-                    
-                    <Button 
-                      onClick={handleDateRangeSelect}
-                      disabled={!dateRange.from || !dateRange.to}
-                      className="w-full"
-                    >
-                      Apply Date Range
-                    </Button>
                   </div>
-                )}
-                
-                {option.id === 'dateTimeRange' && (
-                  <div className="p-4 space-y-2">
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-sm font-medium">From Date & Time:</span>
-                      <div className="flex gap-2">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" className="justify-start text-left font-normal flex-1">
-                              {dateRange.from ? format(dateRange.from, 'PP') : <span>Date</span>}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 bg-white" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={dateRange.from}
-                              onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <Input 
-                          type="time" 
-                          className="flex-1"
-                          onChange={(e) => console.log(e.target.value)} 
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col space-y-1">
-                      <span className="text-sm font-medium">To Date & Time:</span>
-                      <div className="flex gap-2">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" className="justify-start text-left font-normal flex-1">
-                              {dateRange.to ? format(dateRange.to, 'PP') : <span>Date</span>}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 bg-white" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={dateRange.to}
-                              onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <Input 
-                          type="time" 
-                          className="flex-1"
-                          onChange={(e) => console.log(e.target.value)} 
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      onClick={handleDateRangeSelect}
-                      disabled={!dateRange.from || !dateRange.to}
-                      className="w-full"
-                    >
-                      Apply Date & Time Range
-                    </Button>
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+                  
+                  <Button 
+                    onClick={handleDateRangeSelect}
+                    disabled={!dateRange.from || !dateRange.to}
+                    className="w-full"
+                  >
+                    Apply Date & Time Range
+                  </Button>
+                </div>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
