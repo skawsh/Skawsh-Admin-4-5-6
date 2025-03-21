@@ -339,193 +339,193 @@ const OnboardRequests: React.FC = () => {
         </div>
         
         <div className="flex justify-between items-center mt-6">
-          <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
               <TabsTrigger value="pending">Pending Requests</TabsTrigger>
               <TabsTrigger value="reviewed">Reviewed Requests</TabsTrigger>
             </TabsList>
+            
+            <div className="flex justify-end mt-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="min-w-[180px] justify-between bg-white">
+                    {filterDisplayNames[timeFilter] || 'Select Time Frame'}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[350px] bg-white" align="end">
+                  <Collapsible
+                    open={openCategories.relative}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relative')}>
+                      <span className="font-medium">Relative Date</span>
+                      {openCategories.relative ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="grid grid-cols-2 gap-1">
+                      <div className="space-y-1 p-2">
+                        {filterCategories.relative.slice(0, 3).map((filter) => (
+                          <DropdownMenuItem 
+                            key={filter}
+                            onClick={() => handleFilterChange(filter)}
+                            className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                          >
+                            {filterDisplayNames[filter]}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                      <div className="space-y-1 p-2">
+                        {filterCategories.relative.slice(3).map((filter) => (
+                          <DropdownMenuItem 
+                            key={filter}
+                            onClick={() => handleFilterChange(filter)}
+                            className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                          >
+                            {filterDisplayNames[filter]}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <Collapsible
+                    open={openCategories.toDate}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('toDate')}>
+                      <span className="font-medium">To Date</span>
+                      {openCategories.toDate ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="grid grid-cols-2 gap-1">
+                      <div className="space-y-1 p-2">
+                        {filterCategories.toDate.slice(0, 2).map((filter) => (
+                          <DropdownMenuItem 
+                            key={filter}
+                            onClick={() => handleFilterChange(filter)}
+                            className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                          >
+                            {filterDisplayNames[filter]}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                      <div className="space-y-1 p-2">
+                        {filterCategories.toDate.slice(2).map((filter) => (
+                          <DropdownMenuItem 
+                            key={filter}
+                            onClick={() => handleFilterChange(filter)}
+                            className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                          >
+                            {filterDisplayNames[filter]}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <Collapsible
+                    open={openCategories.last}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('last')}>
+                      <span className="font-medium">Last</span>
+                      {openCategories.last ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="grid grid-cols-2 gap-1">
+                      <div className="space-y-1 p-2">
+                        {filterCategories.last.map((filter) => (
+                          <DropdownMenuItem 
+                            key={filter}
+                            onClick={() => handleFilterChange(filter)}
+                            className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                          >
+                            {filterDisplayNames[filter]}
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <Collapsible
+                    open={openCategories.dateRange}
+                    className="w-full"
+                  >
+                    <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('dateRange')}>
+                      <span className="font-medium">Date Range</span>
+                      {openCategories.dateRange ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="p-2 space-y-2">
+                        <div className="flex flex-col space-y-1">
+                          <span className="text-sm font-medium">From:</span>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="justify-start text-left font-normal">
+                                {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
+                                <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 bg-white" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={dateRange.from}
+                                onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                                initialFocus
+                                className="p-3 pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        
+                        <div className="flex flex-col space-y-1">
+                          <span className="text-sm font-medium">To:</span>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="justify-start text-left font-normal">
+                                {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
+                                <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 bg-white" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={dateRange.to}
+                                onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+                                initialFocus
+                                className="p-3 pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                        
+                        <Button 
+                          onClick={handleDateRangeSelect}
+                          disabled={!dateRange.from || !dateRange.to}
+                          className="w-full"
+                        >
+                          Apply Date Range
+                        </Button>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            <TabsContent value="pending" className="mt-4">
+              {renderRequestsTable(pendingRequests)}
+            </TabsContent>
+            
+            <TabsContent value="reviewed" className="mt-4">
+              {renderRequestsTable(reviewedRequests)}
+            </TabsContent>
           </Tabs>
-          
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="min-w-[180px] justify-between bg-white">
-                  {filterDisplayNames[timeFilter] || 'Select Time Frame'}
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[350px] bg-white" align="end">
-                <Collapsible
-                  open={openCategories.relative}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relative')}>
-                    <span className="font-medium">Relative Date</span>
-                    {openCategories.relative ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="grid grid-cols-2 gap-1">
-                    <div className="space-y-1 p-2">
-                      {filterCategories.relative.slice(0, 3).map((filter) => (
-                        <DropdownMenuItem 
-                          key={filter}
-                          onClick={() => handleFilterChange(filter)}
-                          className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                        >
-                          {filterDisplayNames[filter]}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                    <div className="space-y-1 p-2">
-                      {filterCategories.relative.slice(3).map((filter) => (
-                        <DropdownMenuItem 
-                          key={filter}
-                          onClick={() => handleFilterChange(filter)}
-                          className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                        >
-                          {filterDisplayNames[filter]}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-                
-                <DropdownMenuSeparator />
-                
-                <Collapsible
-                  open={openCategories.toDate}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('toDate')}>
-                    <span className="font-medium">To Date</span>
-                    {openCategories.toDate ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="grid grid-cols-2 gap-1">
-                    <div className="space-y-1 p-2">
-                      {filterCategories.toDate.slice(0, 2).map((filter) => (
-                        <DropdownMenuItem 
-                          key={filter}
-                          onClick={() => handleFilterChange(filter)}
-                          className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                        >
-                          {filterDisplayNames[filter]}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                    <div className="space-y-1 p-2">
-                      {filterCategories.toDate.slice(2).map((filter) => (
-                        <DropdownMenuItem 
-                          key={filter}
-                          onClick={() => handleFilterChange(filter)}
-                          className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                        >
-                          {filterDisplayNames[filter]}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-                
-                <DropdownMenuSeparator />
-                
-                <Collapsible
-                  open={openCategories.last}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('last')}>
-                    <span className="font-medium">Last</span>
-                    {openCategories.last ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="grid grid-cols-2 gap-1">
-                    <div className="space-y-1 p-2">
-                      {filterCategories.last.map((filter) => (
-                        <DropdownMenuItem 
-                          key={filter}
-                          onClick={() => handleFilterChange(filter)}
-                          className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                        >
-                          {filterDisplayNames[filter]}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-                
-                <DropdownMenuSeparator />
-                
-                <Collapsible
-                  open={openCategories.dateRange}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('dateRange')}>
-                    <span className="font-medium">Date Range</span>
-                    {openCategories.dateRange ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="p-2 space-y-2">
-                      <div className="flex flex-col space-y-1">
-                        <span className="text-sm font-medium">From:</span>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" className="justify-start text-left font-normal">
-                              {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 bg-white" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={dateRange.from}
-                              onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                      
-                      <div className="flex flex-col space-y-1">
-                        <span className="text-sm font-medium">To:</span>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" className="justify-start text-left font-normal">
-                              {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
-                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 bg-white" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={dateRange.to}
-                              onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                      
-                      <Button 
-                        onClick={handleDateRangeSelect}
-                        disabled={!dateRange.from || !dateRange.to}
-                        className="w-full"
-                      >
-                        Apply Date Range
-                      </Button>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </div>
-        
-        <TabsContent value="pending" className="mt-4">
-          {renderRequestsTable(pendingRequests)}
-        </TabsContent>
-        
-        <TabsContent value="reviewed" className="mt-4">
-          {renderRequestsTable(reviewedRequests)}
-        </TabsContent>
       </div>
     </Layout>
   );
