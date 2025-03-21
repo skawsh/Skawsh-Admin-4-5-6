@@ -25,7 +25,7 @@ interface Review {
   id: number;
   orderId: string;
   customerName: string;
-  rating: number;
+  rating: number | null;
   comment: string;
   date: string;
   hidden: boolean;
@@ -79,13 +79,19 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({
                   </TableCell>
                   <TableCell>{review.customerName}</TableCell>
                   <TableCell>
-                    <StarRating rating={review.rating} />
+                    {review.rating !== null ? (
+                      <StarRating rating={review.rating} />
+                    ) : (
+                      <span className="text-gray-400 italic">N/A</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     {review.hidden ? (
                       <span className="text-gray-400 italic">This review is hidden</span>
+                    ) : review.comment ? (
+                      review.comment
                     ) : (
-                      review.comment || <span className="text-gray-400 italic">No comment provided</span>
+                      <span className="text-gray-400 italic">N/A</span>
                     )}
                   </TableCell>
                   <TableCell className="text-gray-600 text-sm">

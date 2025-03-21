@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Calendar as CalendarIcon, ChevronDown } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Select,
@@ -17,6 +16,12 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface RatingFiltersProps {
   ratingFilter: string | null;
@@ -35,6 +40,31 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
   sortOption,
   setSortOption
 }) => {
+  const handleDateFilterSelect = (option: string) => {
+    const today = new Date();
+    const from = new Date();
+    
+    switch (option) {
+      case 'relativeTime':
+        // This would typically show a time-based filter
+        setDateRange({ from: undefined, to: undefined });
+        break;
+      case 'relativeDate':
+        // This would typically show relative dates (today, yesterday, etc.)
+        setDateRange({ from: undefined, to: undefined });
+        break;
+      case 'dateRange':
+        // Keep the current implementation
+        break;
+      case 'dateTimeRange':
+        // This would typically include time in the date range
+        setDateRange({ from: undefined, to: undefined });
+        break;
+      default:
+        setDateRange({ from: undefined, to: undefined });
+    }
+  };
+
   return (
     <div className="flex flex-wrap gap-4 justify-between">
       <div className="flex flex-wrap items-center gap-3">
@@ -60,8 +90,8 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
           </SelectContent>
         </Select>
         
-        <Popover>
-          <PopoverTrigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-[180px] justify-start text-left">
               <CalendarIcon className="mr-2 h-4 w-4" />
               {dateRange.from ? (
@@ -77,27 +107,57 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
                 <span>Date Range</span>
               )}
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={dateRange.from}
-              selected={{
-                from: dateRange.from,
-                to: dateRange.to,
-              }}
-              onSelect={(range) => {
-                setDateRange({
-                  from: range?.from,
-                  to: range?.to,
-                });
-              }}
-              numberOfMonths={2}
-              className={cn("p-3 pointer-events-auto")}
-            />
-          </PopoverContent>
-        </Popover>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('relativeTime')}>
+              <span className="flex items-center justify-between w-full">
+                Relative Time
+                <ChevronRight className="h-4 w-4" />
+              </span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('relativeDate')}>
+              <span className="flex items-center justify-between w-full">
+                Relative Date
+                <ChevronRight className="h-4 w-4" />
+              </span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="flex items-center justify-between w-full cursor-pointer">
+                    Date Range
+                    <ChevronRight className="h-4 w-4" />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange.from}
+                    selected={{
+                      from: dateRange.from,
+                      to: dateRange.to,
+                    }}
+                    onSelect={(range) => {
+                      setDateRange({
+                        from: range?.from,
+                        to: range?.to,
+                      });
+                    }}
+                    numberOfMonths={2}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('dateTimeRange')}>
+              <span className="flex items-center justify-between w-full">
+                Date & Time Range
+                <ChevronRight className="h-4 w-4" />
+              </span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       
       <div>
