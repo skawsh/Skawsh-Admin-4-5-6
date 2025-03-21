@@ -13,7 +13,7 @@ const CollapsibleTrigger = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CollapsiblePrimitive.CollapsibleTrigger
     ref={ref}
-    className={cn("flex w-full", className)}
+    className={cn("w-full", className)}
     {...props}
   />
 ))
