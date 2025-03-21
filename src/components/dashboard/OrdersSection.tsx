@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Package, CheckCircle, Truck, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Package, CheckCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Calendar } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
 
 const mockOrdersData = {
   all: {
@@ -208,8 +213,18 @@ const mockOrdersData = {
 };
 
 const filterDisplayNames: Record<string, string> = {
-  today: "Today",
+  daily: "Daily",
   yesterday: "Yesterday",
+  weekly: "Weekly",
+  monthly: "Monthly",
+  yearly: "Yearly",
+  allTime: "All time",
+  last15Minutes: "Last 15 minutes",
+  last30Minutes: "Last 30 minutes",
+  last60Minutes: "Last 60 minutes",
+  last4Hours: "Last 4 hours",
+  last24Hours: "Last 24 hours",
+  today: "Today",
   weekToDate: "Week to date",
   businessWeekToDate: "Business week to date",
   monthToDate: "Month to date",
@@ -218,46 +233,35 @@ const filterDisplayNames: Record<string, string> = {
   previousBusinessWeek: "Previous business week",
   previousMonth: "Previous month",
   previousYear: "Previous year",
-  last15Minutes: "Last 15 minutes",
-  last60Minutes: "Last 60 minutes",
-  last4Hours: "Last 4 hours",
-  last24Hours: "Last 24 hours",
   last7Days: "Last 7 days",
   last30Days: "Last 30 days",
-  daily: "Daily",
-  weekly: "Weekly",
-  monthly: "Monthly",
   all: "All Orders",
-  allTime: "All time"
+  dateRange: "Custom Date Range",
+  dateTimeRange: "Custom Date & Time Range"
 };
 
 const filterCategories = {
   relative: [
-    'today',
-    'weekToDate',
-    'businessWeekToDate',
-    'monthToDate',
-    'yearToDate',
-    'yesterday',
-    'previousWeek',
-    'previousBusinessWeek',
-    'previousMonth',
-    'previousYear'
-  ],
-  lastX: [
-    'last15Minutes',
-    'last60Minutes',
-    'last4Hours',
-    'last24Hours',
-    'last7Days',
-    'last30Days'
-  ],
-  other: [
-    'allTime',
     'daily',
+    'yesterday',
     'weekly',
     'monthly',
-    'all'
+    'yearly',
+    'allTime'
+  ],
+  relativeInTime: [
+    'last15Minutes',
+    'last30Minutes',
+    'last60Minutes',
+    'last4Hours',
+    'last24Hours'
+  ],
+  other: [
+    'all',
+    'today',
+    'weekToDate',
+    'monthToDate',
+    'yearToDate'
   ]
 };
 
@@ -265,13 +269,30 @@ const OrdersSection: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<string>('all');
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({
     relative: true,
-    lastX: false,
+    relativeInTime: false,
     dateRange: false,
     dateTimeRange: false,
-    advanced: false
+    other: false
   });
   
-  const orderData = mockOrdersData[timeFilter as keyof typeof mockOrdersData];
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: undefined,
+    to: undefined
+  });
+  
+  const [timeRange, setTimeRange] = useState<{
+    from: string;
+    to: string;
+  }>({
+    from: "00:00",
+    to: "23:59"
+  });
+  
+  // Use the existing data or fallback to 'all' if the filter doesn't exist
+  const orderData = mockOrdersData[timeFilter as keyof typeof mockOrdersData] || mockOrdersData.all;
 
   const handleFilterChange = (value: string) => {
     setTimeFilter(value);
@@ -282,6 +303,22 @@ const OrdersSection: React.FC = () => {
       ...prev,
       [category]: !prev[category]
     }));
+  };
+  
+  const handleDateRangeSelect = () => {
+    if (dateRange.from && dateRange.to) {
+      // In a real application, you would fetch data for this date range
+      console.log(`Selected date range: ${format(dateRange.from, 'yyyy-MM-dd')} to ${format(dateRange.to, 'yyyy-MM-dd')}`);
+      setTimeFilter('dateRange');
+    }
+  };
+  
+  const handleDateTimeRangeSelect = () => {
+    if (dateRange.from && dateRange.to) {
+      // In a real application, you would fetch data for this date and time range
+      console.log(`Selected date time range: ${format(dateRange.from, 'yyyy-MM-dd')} ${timeRange.from} to ${format(dateRange.to, 'yyyy-MM-dd')} ${timeRange.to}`);
+      setTimeFilter('dateTimeRange');
+    }
   };
 
   return (
@@ -307,7 +344,7 @@ const OrdersSection: React.FC = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="grid grid-cols-2 gap-1">
                   <div className="space-y-1 p-2">
-                    {filterCategories.relative.slice(0, 5).map((filter) => (
+                    {filterCategories.relative.slice(0, 3).map((filter) => (
                       <DropdownMenuItem 
                         key={filter}
                         onClick={() => handleFilterChange(filter)}
@@ -318,7 +355,7 @@ const OrdersSection: React.FC = () => {
                     ))}
                   </div>
                   <div className="space-y-1 p-2">
-                    {filterCategories.relative.slice(5).map((filter) => (
+                    {filterCategories.relative.slice(3).map((filter) => (
                       <DropdownMenuItem 
                         key={filter}
                         onClick={() => handleFilterChange(filter)}
@@ -334,16 +371,16 @@ const OrdersSection: React.FC = () => {
               <DropdownMenuSeparator />
               
               <Collapsible
-                open={openCategories.lastX}
+                open={openCategories.relativeInTime}
                 className="w-full"
               >
-                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('lastX')}>
-                  <span className="font-medium">Last X</span>
-                  {openCategories.lastX ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relativeInTime')}>
+                  <span className="font-medium">Relative in Time</span>
+                  {openCategories.relativeInTime ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="grid grid-cols-2 gap-1">
                   <div className="space-y-1 p-2">
-                    {filterCategories.lastX.slice(0, 3).map((filter) => (
+                    {filterCategories.relativeInTime.slice(0, 3).map((filter) => (
                       <DropdownMenuItem 
                         key={filter}
                         onClick={() => handleFilterChange(filter)}
@@ -354,7 +391,7 @@ const OrdersSection: React.FC = () => {
                     ))}
                   </div>
                   <div className="space-y-1 p-2">
-                    {filterCategories.lastX.slice(3).map((filter) => (
+                    {filterCategories.relativeInTime.slice(3).map((filter) => (
                       <DropdownMenuItem 
                         key={filter}
                         onClick={() => handleFilterChange(filter)}
@@ -363,6 +400,156 @@ const OrdersSection: React.FC = () => {
                         {filterDisplayNames[filter]}
                       </DropdownMenuItem>
                     ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+              
+              <DropdownMenuSeparator />
+              
+              <Collapsible
+                open={openCategories.dateRange}
+                className="w-full"
+              >
+                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('dateRange')}>
+                  <span className="font-medium">Date Range</span>
+                  {openCategories.dateRange ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="p-2 space-y-2">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">From:</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="justify-start text-left font-normal">
+                            {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={dateRange.from}
+                            onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">To:</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="justify-start text-left font-normal">
+                            {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={dateRange.to}
+                            onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <Button 
+                      onClick={handleDateRangeSelect}
+                      disabled={!dateRange.from || !dateRange.to}
+                      className="w-full"
+                    >
+                      Apply Date Range
+                    </Button>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+              
+              <DropdownMenuSeparator />
+              
+              <Collapsible
+                open={openCategories.dateTimeRange}
+                className="w-full"
+              >
+                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('dateTimeRange')}>
+                  <span className="font-medium">Date & Time Range</span>
+                  {openCategories.dateTimeRange ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="p-2 space-y-2">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">From Date:</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="justify-start text-left font-normal">
+                            {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={dateRange.from}
+                            onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">From Time:</span>
+                      <Input
+                        type="time"
+                        value={timeRange.from}
+                        onChange={(e) => setTimeRange(prev => ({ ...prev, from: e.target.value }))}
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">To Date:</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="justify-start text-left font-normal">
+                            {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={dateRange.to}
+                            onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm font-medium">To Time:</span>
+                      <Input
+                        type="time"
+                        value={timeRange.to}
+                        onChange={(e) => setTimeRange(prev => ({ ...prev, to: e.target.value }))}
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <Button 
+                      onClick={handleDateTimeRangeSelect}
+                      disabled={!dateRange.from || !dateRange.to}
+                      className="w-full"
+                    >
+                      Apply Date & Time Range
+                    </Button>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -383,57 +570,6 @@ const OrdersSection: React.FC = () => {
                   ))}
                 </div>
               </div>
-              
-              <DropdownMenuSeparator />
-              
-              <Collapsible
-                open={openCategories.dateRange}
-                className="w-full"
-              >
-                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('dateRange')}>
-                  <span className="font-medium">Date Range</span>
-                  {openCategories.dateRange ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-2 text-sm text-gray-500">
-                    Date range selection not implemented yet
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-              
-              <DropdownMenuSeparator />
-              
-              <Collapsible
-                open={openCategories.dateTimeRange}
-                className="w-full"
-              >
-                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('dateTimeRange')}>
-                  <span className="font-medium">Date & Time Range</span>
-                  {openCategories.dateTimeRange ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-2 text-sm text-gray-500">
-                    Date & time range selection not implemented yet
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-              
-              <DropdownMenuSeparator />
-              
-              <Collapsible
-                open={openCategories.advanced}
-                className="w-full"
-              >
-                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('advanced')}>
-                  <span className="font-medium">Advanced</span>
-                  {openCategories.advanced ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-2 text-sm text-gray-500">
-                    Advanced options not implemented yet
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
