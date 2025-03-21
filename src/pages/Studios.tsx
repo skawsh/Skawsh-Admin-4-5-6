@@ -14,7 +14,8 @@ import {
   Settings,
   Package,
   BarChart,
-  Trash 
+  Trash,
+  ClipboardList 
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -253,8 +254,9 @@ const Studios: React.FC = () => {
             <Button 
               variant="outline" 
               className="bg-white"
+              onClick={() => navigate('/studios/onboard-requests')}
             >
-              <BarChart2 className="mr-2 h-4 w-4" />
+              <ClipboardList className="mr-2 h-4 w-4" />
               Onboard Requests
             </Button>
             <Button 
@@ -464,4 +466,3 @@ const Studios: React.FC = () => {
 };
 
 export default Studios;
-

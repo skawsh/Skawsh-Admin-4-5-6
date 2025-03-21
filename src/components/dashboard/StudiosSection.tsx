@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { Building2, Check, XCircle, ShoppingBag, ClipboardList } from 'lucide-react';
+import { Building2, Check, XCircle, ShoppingBag } from 'lucide-react';
 import { Card } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 interface StudiosSectionProps {
@@ -22,15 +21,6 @@ const StudiosSection: React.FC<StudiosSectionProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Studios</h2>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="text-blue-600 border-blue-600 hover:bg-blue-50"
-          onClick={() => navigate('/studios/onboard-requests')}
-        >
-          <ClipboardList className="mr-1 h-4 w-4" />
-          Onboard Requests
-        </Button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm">
