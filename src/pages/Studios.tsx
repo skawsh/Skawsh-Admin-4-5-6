@@ -9,11 +9,9 @@ import {
   Search, 
   ChevronDown, 
   MoreHorizontal, 
-  ArrowUpDown,
   CreditCard,
   Settings,
   Package,
-  BarChart,
   Trash,
   ClipboardList 
 } from 'lucide-react';
@@ -46,6 +44,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from '@/hooks/use-toast';
+import StudiosSection from '@/components/dashboard/StudiosSection';
 
 interface Studio {
   id: number;
@@ -224,8 +223,8 @@ const Studios: React.FC = () => {
 
   const handleViewAnalyticsClick = (studio: Studio) => {
     toast({
-      title: "Analytics",
-      description: `Viewing analytics for ${studio.studioName}`,
+      title: "Ratings & Reviews",
+      description: `Viewing ratings and reviews for ${studio.studioName}`,
     });
   };
 
@@ -269,40 +268,11 @@ const Studios: React.FC = () => {
           </div>
         </div>
 
-        <div className="tile-grid">
-          <Card className="stat-tile bg-gradient-blue">
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Total Studios</p>
-                <p className="text-3xl font-bold">{totalStudios}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="stat-tile bg-gradient-green">
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Active Studios</p>
-                <p className="text-3xl font-bold text-green-500">{activeStudios}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="stat-tile bg-gradient-rose">
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Inactive Studios</p>
-                <p className="text-3xl font-bold">{inactiveStudios}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="stat-tile bg-gradient-purple">
-            <CardContent className="p-6">
-              <div className="space-y-1">
-                <p className="text-gray-500 text-sm">Avg. Sack Value</p>
-                <p className="text-3xl font-bold">₹{avgSackValue}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StudiosSection 
+          totalStudios={totalStudios}
+          activeStudios={activeStudios}
+          inactiveStudios={inactiveStudios}
+        />
 
         <div className="flex flex-wrap justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -334,16 +304,6 @@ const Studios: React.FC = () => {
                 <SelectItem value="below4">Below 4.0</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              variant="outline"
-              className="bg-white"
-              onClick={toggleSort}
-            >
-              <span className="flex items-center gap-2">
-                <span>Sort</span>
-                <ArrowUpDown size={16} />
-              </span>
-            </Button>
           </div>
 
           <div className="flex items-center gap-4">
@@ -441,8 +401,8 @@ const Studios: React.FC = () => {
                           onClick={() => handleViewAnalyticsClick(studio)}
                           className="flex items-center gap-2 cursor-pointer py-2"
                         >
-                          <BarChart className="h-4 w-4 text-gray-500" />
-                          <span>View Analytics</span>
+                          <Star className="h-4 w-4 text-gray-500" />
+                          <span>View Ratings & Reviews</span>
                         </DropdownMenuItem>
                         
                         <DropdownMenuItem 
