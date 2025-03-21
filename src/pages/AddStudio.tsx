@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import { ArrowLeft, Save, Plus, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Pencil, Trash2, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -28,6 +27,8 @@ const AddStudio: React.FC = () => {
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [editingService, setEditingService] = useState<StudioService | null>(null);
   const [isGstRegistered, setIsGstRegistered] = useState('no');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     ownerFirstName: '',
@@ -36,6 +37,8 @@ const AddStudio: React.FC = () => {
     email: '',
     primaryNumber: '',
     secondaryNumber: '',
+    password: '',
+    confirmPassword: '',
     
     street: '',
     city: '',
@@ -59,6 +62,7 @@ const AddStudio: React.FC = () => {
     accountHolderName: '',
     bankName: '',
     accountNumber: '',
+    reEnterAccountNumber: '',
     ifscCode: '',
     branchName: '',
     upiId: '',
@@ -84,11 +88,41 @@ const AddStudio: React.FC = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation for passwords
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "Password and confirm password do not match",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validation for account numbers
+    if (formData.accountNumber && formData.reEnterAccountNumber && 
+        formData.accountNumber !== formData.reEnterAccountNumber) {
+      toast({
+        title: "Account number mismatch",
+        description: "Account number and re-entered account number do not match",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     console.log('Studio data to submit:', formData);
     console.log('Studio services to submit:', studioServices);
+    
     
     const formattedStudioServices = studioServices.map(service => {
       const serviceName = getServiceNameById(service.serviceId);
@@ -129,6 +163,7 @@ const AddStudio: React.FC = () => {
     navigate('/studios');
   };
 
+  
   const generateNewStudioId = (): number => {
     const savedStudios = localStorage.getItem('laundryStudios');
     if (!savedStudios) return 1;
@@ -154,6 +189,7 @@ const AddStudio: React.FC = () => {
   };
 
   const handleServiceAdded = (data: any) => {
+    
     if (editingService) {
       const updatedServices = studioServices.map(service => 
         service.serviceId === editingService.serviceId ? {
@@ -225,6 +261,7 @@ const AddStudio: React.FC = () => {
     setIsAddServiceDialogOpen(false);
   };
 
+  
   const toggleServiceExpansion = (serviceId: string) => {
     setExpandedServices(prev => ({
       ...prev,
@@ -382,9 +419,62 @@ const AddStudio: React.FC = () => {
                 onChange={handleInputChange}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-base font-medium">
+                Password <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter Password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-base font-medium">
+                Confirm Password <span className="text-red-500">*</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={toggleConfirmPasswordVisibility}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </Button>
+              </div>
+            </div>
           </div>
         </Card>
 
+        
         <Card className="form-card">
           <h2 className="section-title">Address Details</h2>
           
@@ -469,6 +559,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        
         <Card className="form-card">
           <h2 className="section-title">Business Details</h2>
           
@@ -690,6 +781,19 @@ const AddStudio: React.FC = () => {
             </div>
             
             <div className="space-y-2">
+              <Label htmlFor="reEnterAccountNumber" className="text-base font-medium">
+                Re-enter Account Number
+              </Label>
+              <Input
+                id="reEnterAccountNumber"
+                name="reEnterAccountNumber"
+                placeholder="Re-enter Account Number"
+                value={formData.reEnterAccountNumber}
+                onChange={handleInputChange}
+              />
+            </div>
+            
+            <div className="space-y-2">
               <Label htmlFor="ifscCode" className="text-base font-medium">
                 IFSC Code
               </Label>
@@ -750,6 +854,7 @@ const AddStudio: React.FC = () => {
           </div>
         </Card>
 
+        
         <Card className="form-card">
           <h2 className="section-title">Services</h2>
           
@@ -872,69 +977,3 @@ const AddStudio: React.FC = () => {
                                 
                                 {subService.selectedItems && subService.selectedItems.length > 0 && (
                                   <div>
-                                    <h5 className="text-sm font-medium text-gray-600 mb-2">Clothing Items:</h5>
-                                    <div className="space-y-3">
-                                      {subService.selectedItems.map((itemId: string) => {
-                                        const itemName = getClothingItemNameById(itemId);
-                                        return (
-                                          <div key={itemId} className="border border-gray-100 rounded p-3 bg-gray-50">
-                                            <div className="font-medium text-gray-700 mb-2">{itemName}</div>
-                                            {formData.washCategory === 'standard' && (
-                                              <div className="text-sm text-gray-600">
-                                                Standard Price: ₹{subService.standardItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
-                                              </div>
-                                            )}
-                                            {formData.washCategory === 'express' && (
-                                              <div className="text-sm text-gray-600">
-                                                Express Price: ₹{subService.expressItemPrices?.[itemId] || subService.itemPrices?.[itemId] || '0'}
-                                              </div>
-                                            )}
-                                            {formData.washCategory === 'both' && (
-                                              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                                                <div>
-                                                  Standard Price: ₹{subService.standardItemPrices?.[itemId] || '0'}
-                                                </div>
-                                                <div>
-                                                  Express Price: ₹{subService.expressItemPrices?.[itemId] || '0'}
-                                                </div>
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="bg-gray-50 rounded-lg p-8 text-center">
-              <p className="text-gray-500">No services added yet. Click the button above to add services.</p>
-            </div>
-          )}
-        </Card>
-
-        <MultiSelectServiceDialog
-          isOpen={isAddServiceDialogOpen}
-          onOpenChange={setIsAddServiceDialogOpen}
-          services={services}
-          subServices={subServices}
-          clothingItems={clothingItems}
-          washCategory={formData.washCategory}
-          onSave={handleServiceAdded}
-          editingService={editingService}
-        />
-      </form>
-    </Layout>
-  );
-};
-
-export default AddStudio;
