@@ -42,15 +42,55 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
 }) => {
   const handleDateFilterSelect = (option: string) => {
     const today = new Date();
-    const from = new Date();
     
     switch (option) {
-      case 'relativeDate':
-        // This would typically show relative dates (today, yesterday, etc.)
+      case 'daily':
+        // Just today
+        setDateRange({ 
+          from: new Date(today.setHours(0, 0, 0, 0)),
+          to: new Date(today.setHours(23, 59, 59, 999))
+        });
+        break;
+      case 'yesterday':
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        setDateRange({ 
+          from: new Date(yesterday.setHours(0, 0, 0, 0)),
+          to: new Date(yesterday.setHours(23, 59, 59, 999))
+        });
+        break;
+      case 'weekly':
+        const weekStart = new Date();
+        weekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6); // End of week (Saturday)
+        setDateRange({ 
+          from: new Date(weekStart.setHours(0, 0, 0, 0)),
+          to: new Date(weekEnd.setHours(23, 59, 59, 999))
+        });
+        break;
+      case 'monthly':
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        setDateRange({ 
+          from: new Date(monthStart.setHours(0, 0, 0, 0)),
+          to: new Date(monthEnd.setHours(23, 59, 59, 999))
+        });
+        break;
+      case 'yearly':
+        const yearStart = new Date(today.getFullYear(), 0, 1);
+        const yearEnd = new Date(today.getFullYear(), 11, 31);
+        setDateRange({ 
+          from: new Date(yearStart.setHours(0, 0, 0, 0)),
+          to: new Date(yearEnd.setHours(23, 59, 59, 999))
+        });
+        break;
+      case 'allTime':
+        // Clear the date filters
         setDateRange({ from: undefined, to: undefined });
         break;
       case 'dateRange':
-        // Keep the current implementation
+        // Keep the current implementation for custom date range
         break;
       default:
         setDateRange({ from: undefined, to: undefined });
@@ -101,11 +141,61 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
-            <DropdownMenuItem onClick={() => handleDateFilterSelect('relativeDate')}>
-              <span className="flex items-center justify-between w-full">
-                Relative Date
-                <ChevronRight className="h-4 w-4" />
-              </span>
+            <DropdownMenuItem>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="flex items-center justify-between w-full cursor-pointer">
+                    Relative Date
+                    <ChevronRight className="h-4 w-4" />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-0" align="start">
+                  <div className="grid grid-cols-2 gap-2 p-4">
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleDateFilterSelect('daily')}
+                    >
+                      Daily
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleDateFilterSelect('monthly')}
+                    >
+                      Monthly
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleDateFilterSelect('yesterday')}
+                    >
+                      Yesterday
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleDateFilterSelect('yearly')}
+                    >
+                      Yearly
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleDateFilterSelect('weekly')}
+                    >
+                      Weekly
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleDateFilterSelect('allTime')}
+                    >
+                      All time
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Popover>

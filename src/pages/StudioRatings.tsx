@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -142,24 +143,24 @@ const StudioRatings: React.FC = () => {
     
     const orderIdPrefix = studio.studioId.replace("STU", "ORD");
     
+    // Generate a mix of reviews, with some having only ratings, some only comments, and some both
     return Array.from({ length: 20 }, (_, i) => {
-      // Make some reviews have null ratings or comments to demonstrate N/A
-      const hasRating = Math.random() > 0.2; // 20% chance of no rating
-      const hasComment = Math.random() > 0.3; // 30% chance of no comment
+      const reviewType = i % 4; // 0: both, 1: rating only, 2: comment only, 3: both
       
-      // Ensure at least one of rating or comment exists (about 10% will have neither)
-      const forceHasRating = !hasComment && Math.random() > 0.5;
-      const forceHasComment = !hasRating && Math.random() > 0.5;
+      let rating = null;
+      let comment = "";
       
-      const rating = (hasRating || forceHasRating) ? Math.floor(Math.random() * 5) + 1 : null;
+      // Ensure we have reviews with either rating, comment, or both
+      if (reviewType === 0 || reviewType === 1 || reviewType === 3) {
+        rating = Math.floor(Math.random() * 5) + 1;
+      }
+      
+      if (reviewType === 0 || reviewType === 2 || reviewType === 3) {
+        comment = comments[Math.floor(Math.random() * comments.length)];
+      }
+      
       const date = new Date();
       date.setDate(date.getDate() - Math.floor(Math.random() * 60));
-      
-      const comment = (hasComment || forceHasComment) ? 
-        (rating && rating >= 4 ? 
-          comments[Math.floor(Math.random() * 10)] : 
-          comments[10 + Math.floor(Math.random() * 6)]) : 
-        "";
       
       return {
         id: i + 1,
@@ -170,7 +171,7 @@ const StudioRatings: React.FC = () => {
         date: date.toISOString(),
         hidden: false
       };
-    });
+    }).filter(review => review.rating !== null || (review.comment && review.comment.trim() !== ''));
   };
 
   if (loading) {
@@ -193,6 +194,7 @@ const StudioRatings: React.FC = () => {
     );
   }
 
+  // Calculate stats for valid reviews only (those with either rating or comment)
   const validReviews = reviews.filter(review => 
     review.rating !== null || (review.comment && review.comment.trim() !== '')
   );
