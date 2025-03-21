@@ -31,8 +31,14 @@ const StudioRatings: React.FC = () => {
       
       // Generate mock reviews data
       const mockReviews = generateMockReviews(foundStudio);
-      setReviews(mockReviews);
-      setFilteredReviews(mockReviews);
+      
+      // Filter reviews to only include those with a rating or comment
+      const validReviews = mockReviews.filter(review => 
+        review.rating !== null || (review.comment && review.comment.trim() !== '')
+      );
+      
+      setReviews(validReviews);
+      setFilteredReviews(validReviews);
       setLoading(false);
     }
   }, [id]);
@@ -68,10 +74,10 @@ const StudioRatings: React.FC = () => {
           filtered = filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           break;
         case "highest":
-          filtered = filtered.sort((a, b) => b.rating - a.rating);
+          filtered = filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
           break;
         case "lowest":
-          filtered = filtered.sort((a, b) => a.rating - b.rating);
+          filtered = filtered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
           break;
         default:
           break;
@@ -141,20 +147,26 @@ const StudioRatings: React.FC = () => {
       const hasRating = Math.random() > 0.2; // 20% chance of no rating
       const hasComment = Math.random() > 0.3; // 30% chance of no comment
       
-      const rating = hasRating ? Math.floor(Math.random() * 5) + 1 : null;
+      // Ensure at least one of rating or comment exists (about 10% will have neither)
+      const forceHasRating = !hasComment && Math.random() > 0.5;
+      const forceHasComment = !hasRating && Math.random() > 0.5;
+      
+      const rating = (hasRating || forceHasRating) ? Math.floor(Math.random() * 5) + 1 : null;
       const date = new Date();
       date.setDate(date.getDate() - Math.floor(Math.random() * 60));
+      
+      const comment = (hasComment || forceHasComment) ? 
+        (rating && rating >= 4 ? 
+          comments[Math.floor(Math.random() * 10)] : 
+          comments[10 + Math.floor(Math.random() * 6)]) : 
+        "";
       
       return {
         id: i + 1,
         orderId: `${orderIdPrefix}${(1000 + i).toString()}`,
         customerName: names[Math.floor(Math.random() * names.length)],
         rating: rating,
-        comment: hasRating && hasComment ? 
-          (rating && rating >= 4 ? 
-            comments[Math.floor(Math.random() * 10)] : 
-            comments[10 + Math.floor(Math.random() * 6)]) : 
-          "",
+        comment: comment,
         date: date.toISOString(),
         hidden: false
       };
@@ -181,9 +193,15 @@ const StudioRatings: React.FC = () => {
     );
   }
 
-  const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
-  const totalRatings = reviews.length;
-  const totalReviews = reviews.filter(review => review.comment && review.comment.trim() !== '').length;
+  const validReviews = reviews.filter(review => 
+    review.rating !== null || (review.comment && review.comment.trim() !== '')
+  );
+  
+  const averageRating = validReviews.reduce((acc, review) => 
+    acc + (review.rating || 0), 0) / validReviews.filter(review => review.rating !== null).length;
+  
+  const totalRatings = validReviews.filter(review => review.rating !== null).length;
+  const totalReviews = validReviews.filter(review => review.comment && review.comment.trim() !== '').length;
 
   return (
     <Layout activeSection="studios">

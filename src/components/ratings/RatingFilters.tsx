@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,20 +45,12 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
     const from = new Date();
     
     switch (option) {
-      case 'relativeTime':
-        // This would typically show a time-based filter
-        setDateRange({ from: undefined, to: undefined });
-        break;
       case 'relativeDate':
         // This would typically show relative dates (today, yesterday, etc.)
         setDateRange({ from: undefined, to: undefined });
         break;
       case 'dateRange':
         // Keep the current implementation
-        break;
-      case 'dateTimeRange':
-        // This would typically include time in the date range
-        setDateRange({ from: undefined, to: undefined });
         break;
       default:
         setDateRange({ from: undefined, to: undefined });
@@ -110,12 +101,6 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
-            <DropdownMenuItem onClick={() => handleDateFilterSelect('relativeTime')}>
-              <span className="flex items-center justify-between w-full">
-                Relative Time
-                <ChevronRight className="h-4 w-4" />
-              </span>
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleDateFilterSelect('relativeDate')}>
               <span className="flex items-center justify-between w-full">
                 Relative Date
@@ -126,7 +111,7 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
               <Popover>
                 <PopoverTrigger asChild>
                   <span className="flex items-center justify-between w-full cursor-pointer">
-                    All Reviews & Ratings
+                    Date Range
                     <ChevronRight className="h-4 w-4" />
                   </span>
                 </PopoverTrigger>
@@ -150,12 +135,6 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
                   />
                 </PopoverContent>
               </Popover>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDateFilterSelect('dateTimeRange')}>
-              <span className="flex items-center justify-between w-full">
-                Date & Time Range
-                <ChevronRight className="h-4 w-4" />
-              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
