@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Package, CheckCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Calendar } from 'lucide-react';
 import { Card } from "@/components/ui/card";
@@ -240,6 +241,13 @@ const filterDisplayNames: Record<string, string> = {
 };
 
 const filterCategories = {
+  relativeInTime: [
+    'last15Minutes',
+    'last30Minutes',
+    'last60Minutes',
+    'last4Hours',
+    'last24Hours'
+  ],
   relative: [
     'daily',
     'yesterday',
@@ -247,13 +255,6 @@ const filterCategories = {
     'monthly',
     'yearly',
     'allTime'
-  ],
-  relativeInTime: [
-    'last15Minutes',
-    'last30Minutes',
-    'last60Minutes',
-    'last4Hours',
-    'last24Hours'
   ]
 };
 
@@ -323,42 +324,6 @@ const OrdersSection: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[350px] bg-white" align="end">
               <Collapsible
-                open={openCategories.relative}
-                className="w-full"
-              >
-                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relative')}>
-                  <span className="font-medium">Relative Date</span>
-                  {openCategories.relative ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="grid grid-cols-2 gap-1">
-                  <div className="space-y-1 p-2">
-                    {filterCategories.relative.slice(0, 3).map((filter) => (
-                      <DropdownMenuItem 
-                        key={filter}
-                        onClick={() => handleFilterChange(filter)}
-                        className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                      >
-                        {filterDisplayNames[filter]}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                  <div className="space-y-1 p-2">
-                    {filterCategories.relative.slice(3).map((filter) => (
-                      <DropdownMenuItem 
-                        key={filter}
-                        onClick={() => handleFilterChange(filter)}
-                        className="cursor-pointer text-blue-500 hover:bg-gray-100"
-                      >
-                        {filterDisplayNames[filter]}
-                      </DropdownMenuItem>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-              
-              <DropdownMenuSeparator />
-              
-              <Collapsible
                 open={openCategories.relativeInTime}
                 className="w-full"
               >
@@ -380,6 +345,42 @@ const OrdersSection: React.FC = () => {
                   </div>
                   <div className="space-y-1 p-2">
                     {filterCategories.relativeInTime.slice(3).map((filter) => (
+                      <DropdownMenuItem 
+                        key={filter}
+                        onClick={() => handleFilterChange(filter)}
+                        className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                      >
+                        {filterDisplayNames[filter]}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+              
+              <DropdownMenuSeparator />
+              
+              <Collapsible
+                open={openCategories.relative}
+                className="w-full"
+              >
+                <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relative')}>
+                  <span className="font-medium">Relative Date</span>
+                  {openCategories.relative ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </CollapsibleTrigger>
+                <CollapsibleContent className="grid grid-cols-2 gap-1">
+                  <div className="space-y-1 p-2">
+                    {filterCategories.relative.slice(0, 3).map((filter) => (
+                      <DropdownMenuItem 
+                        key={filter}
+                        onClick={() => handleFilterChange(filter)}
+                        className="cursor-pointer text-blue-500 hover:bg-gray-100"
+                      >
+                        {filterDisplayNames[filter]}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                  <div className="space-y-1 p-2">
+                    {filterCategories.relative.slice(3).map((filter) => (
                       <DropdownMenuItem 
                         key={filter}
                         onClick={() => handleFilterChange(filter)}
