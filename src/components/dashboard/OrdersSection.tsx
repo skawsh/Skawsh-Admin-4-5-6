@@ -339,7 +339,7 @@ const OrdersSection: React.FC = () => {
                 className="w-full"
               >
                 <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relative')}>
-                  <span className="font-medium">Relative</span>
+                  <span className="font-medium">Relative Date</span>
                   {openCategories.relative ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="grid grid-cols-2 gap-1">
@@ -375,7 +375,7 @@ const OrdersSection: React.FC = () => {
                 className="w-full"
               >
                 <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-100" onClick={() => toggleCategory('relativeInTime')}>
-                  <span className="font-medium">Relative in Time</span>
+                  <span className="font-medium">Relative Time</span>
                   {openCategories.relativeInTime ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="grid grid-cols-2 gap-1">
