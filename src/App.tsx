@@ -17,6 +17,7 @@ import Revenue from "./pages/Revenue";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import OnboardRequests from "./pages/OnboardRequests";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/studios/add" element={<AddStudio />} />
           <Route path="/studios/:id" element={<StudioDetails />} />
           <Route path="/studios/:id/services" element={<StudioServices />} />
+          <Route path="/studios/onboard-requests" element={<OnboardRequests />} />
           <Route path="/services" element={<Services />} />
           <Route path="/drivers" element={<Drivers />} />
           <Route path="/orders" element={<Orders />} />
