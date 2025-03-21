@@ -75,10 +75,20 @@ const StudioRatings: React.FC = () => {
           filtered = filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           break;
         case "highest":
-          filtered = filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          filtered = filtered.sort((a, b) => {
+            // Handle null values properly in sorting
+            if (a.rating === null) return 1;
+            if (b.rating === null) return -1;
+            return b.rating - a.rating;
+          });
           break;
         case "lowest":
-          filtered = filtered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+          filtered = filtered.sort((a, b) => {
+            // Handle null values properly in sorting
+            if (a.rating === null) return 1;
+            if (b.rating === null) return -1;
+            return a.rating - b.rating;
+          });
           break;
         default:
           break;
@@ -159,8 +169,16 @@ const StudioRatings: React.FC = () => {
         comment = comments[Math.floor(Math.random() * comments.length)];
       }
       
+      // Create dates with a better distribution for testing filters
+      const daysAgo = [
+        0, 1, 2, 3, 4, 5, 6, // This week
+        10, 15, 20, 25, // This month
+        45, 60, 75, 90, // Few months ago
+        120, 150, 180, 250, 300 // Last year
+      ][i % 20];
+      
       const date = new Date();
-      date.setDate(date.getDate() - Math.floor(Math.random() * 60));
+      date.setDate(date.getDate() - daysAgo);
       
       return {
         id: i + 1,

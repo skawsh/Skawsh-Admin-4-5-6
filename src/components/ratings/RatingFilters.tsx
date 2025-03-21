@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Calendar as CalendarIcon, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -89,11 +90,9 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
         // Clear the date filters
         setDateRange({ from: undefined, to: undefined });
         break;
-      case 'dateRange':
-        // Keep the current implementation for custom date range
-        break;
       default:
-        setDateRange({ from: undefined, to: undefined });
+        // If no valid option, don't change the date range
+        break;
     }
   };
 
@@ -141,61 +140,23 @@ export const RatingFilters: React.FC<RatingFiltersProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
-            <DropdownMenuItem>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <span className="flex items-center justify-between w-full cursor-pointer">
-                    Relative Date
-                    <ChevronRight className="h-4 w-4" />
-                  </span>
-                </PopoverTrigger>
-                <PopoverContent className="w-56 p-0" align="start">
-                  <div className="grid grid-cols-2 gap-2 p-4">
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleDateFilterSelect('daily')}
-                    >
-                      Daily
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleDateFilterSelect('monthly')}
-                    >
-                      Monthly
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleDateFilterSelect('yesterday')}
-                    >
-                      Yesterday
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleDateFilterSelect('yearly')}
-                    >
-                      Yearly
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleDateFilterSelect('weekly')}
-                    >
-                      Weekly
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => handleDateFilterSelect('allTime')}
-                    >
-                      All time
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('daily')}>
+              Daily
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('yesterday')}>
+              Yesterday
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('weekly')}>
+              Weekly
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('monthly')}>
+              Monthly
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('yearly')}>
+              Yearly
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDateFilterSelect('allTime')}>
+              All time
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Popover>
