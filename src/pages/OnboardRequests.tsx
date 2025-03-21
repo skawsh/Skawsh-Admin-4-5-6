@@ -1,12 +1,21 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
-import { format } from 'date-fns';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface OnboardRequest {
   id: number;
@@ -19,10 +28,9 @@ interface OnboardRequest {
 }
 
 const OnboardRequests: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>('pending');
-
-  // Mock data for demonstration purposes
-  const mockRequests: OnboardRequest[] = [
+  const [requests, setRequests] = useState<OnboardRequest[]>([
     {
       id: 1,
       studioName: 'Fresh Laundry Services',
@@ -59,10 +67,17 @@ const OnboardRequests: React.FC = () => {
       requestDate: new Date(2025, 2, 5),
       status: 'rejected'
     }
-  ];
+  ]);
 
-  const pendingRequests = mockRequests.filter(request => request.status === 'pending');
-  const reviewedRequests = mockRequests.filter(request => request.status === 'approved' || request.status === 'rejected');
+  const handleStatusChange = (requestId: number, newStatus: 'pending' | 'approved' | 'rejected') => {
+    setRequests(prevRequests => 
+      prevRequests.map(request => 
+        request.id === requestId ? { ...request, status: newStatus } : request
+      )
+    );
+    
+    toast.success(`Status updated to ${newStatus}`);
+  };
 
   const renderStatusBadge = (status: string) => {
     switch (status) {
@@ -90,7 +105,49 @@ const OnboardRequests: React.FC = () => {
     }
   };
 
-  const renderRequestsTable = (requests: OnboardRequest[]) => (
+  const renderStatusDropdown = (request: OnboardRequest) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 p-0">
+          {renderStatusBadge(request.status)}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="bg-white">
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange(request.id, 'pending')}
+          className="cursor-pointer"
+        >
+          <Badge className="bg-yellow-100 text-yellow-800 flex items-center gap-1 font-medium">
+            <AlertCircle className="h-3.5 w-3.5" />
+            Pending
+          </Badge>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange(request.id, 'approved')}
+          className="cursor-pointer"
+        >
+          <Badge className="bg-green-100 text-green-800 flex items-center gap-1 font-medium">
+            <CheckCircle className="h-3.5 w-3.5" />
+            Approved
+          </Badge>
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange(request.id, 'rejected')}
+          className="cursor-pointer"
+        >
+          <Badge className="bg-red-100 text-red-800 flex items-center gap-1 font-medium">
+            <AlertCircle className="h-3.5 w-3.5" />
+            Rejected
+          </Badge>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  const pendingRequests = requests.filter(request => request.status === 'pending');
+  const reviewedRequests = requests.filter(request => request.status === 'approved' || request.status === 'rejected');
+
+  const renderRequestsTable = (requestsToRender: OnboardRequest[]) => (
     <Card className="mt-4 overflow-hidden">
       <Table>
         <TableHeader>
@@ -105,8 +162,8 @@ const OnboardRequests: React.FC = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {requests.length > 0 ? (
-            requests.map((request, index) => (
+          {requestsToRender.length > 0 ? (
+            requestsToRender.map((request, index) => (
               <TableRow key={request.id}>
                 <TableCell className="font-medium">{index + 1}</TableCell>
                 <TableCell>{request.studioName}</TableCell>
@@ -114,7 +171,7 @@ const OnboardRequests: React.FC = () => {
                 <TableCell>{request.mobileNumber}</TableCell>
                 <TableCell>{request.emailId}</TableCell>
                 <TableCell>{format(request.requestDate, 'dd MMM yyyy')}</TableCell>
-                <TableCell>{renderStatusBadge(request.status)}</TableCell>
+                <TableCell>{renderStatusDropdown(request)}</TableCell>
               </TableRow>
             ))
           ) : (
@@ -132,9 +189,19 @@ const OnboardRequests: React.FC = () => {
   return (
     <Layout activeSection="studios">
       <div className="space-y-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Onboard Requests</h1>
-          <p className="text-gray-600 mt-1">Manage studio onboarding requests</p>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            className="bg-white" 
+            onClick={() => navigate('/studios')}
+            size="icon"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Onboard Requests</h1>
+            <p className="text-gray-600 mt-1">Manage studio onboarding requests</p>
+          </div>
         </div>
         
         <Tabs defaultValue="pending" value={activeTab} onValueChange={setActiveTab} className="w-full">
