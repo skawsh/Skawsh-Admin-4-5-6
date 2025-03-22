@@ -12,7 +12,8 @@ import {
   Users, 
   Settings, 
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,6 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection }) => {
     { name: 'Analytics', icon: BarChart2, path: '/analytics' },
     { name: 'Revenue', icon: IndianRupee, path: '/revenue' },
     { name: 'Users', icon: Users, path: '/users' },
+    { name: 'Feedback', icon: MessageSquare, path: '/feedback' },
     { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 

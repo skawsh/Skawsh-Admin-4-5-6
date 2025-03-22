@@ -17,6 +17,7 @@ import Analytics from "./pages/Analytics";
 import Revenue from "./pages/Revenue";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 import OnboardRequests from "./pages/OnboardRequests";
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/revenue" element={<Revenue />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
