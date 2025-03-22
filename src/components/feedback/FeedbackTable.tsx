@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import {
@@ -42,23 +43,13 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
   const [expandedFeedback, setExpandedFeedback] = useState<number | null>(null);
   const itemsPerPage = 8;
   
-  // Apply sorting
-  const sortedFeedback = [...feedback].sort((a, b) => {
-    if (sortOrder === 'latest') {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    } else if (sortOrder === 'highest') {
-      return b.rating - a.rating;
-    } else if (sortOrder === 'lowest') {
-      return a.rating - b.rating;
-    }
-    return 0;
-  });
-  
-  const totalPages = Math.ceil(sortedFeedback.length / itemsPerPage);
-  const paginatedFeedback = sortedFeedback.slice(
+  // No need to re-sort here - we're now receiving pre-sorted data
+  const paginatedFeedback = feedback.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
+  
+  const totalPages = Math.ceil(feedback.length / itemsPerPage);
   
   const toggleExpand = (id: number) => {
     setExpandedFeedback(expandedFeedback === id ? null : id);
