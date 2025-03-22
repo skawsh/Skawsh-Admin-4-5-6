@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Filter } from 'lucide-react';
+import { Filter, ChevronLeft } from 'lucide-react';
 import { FeedbackTable } from '@/components/feedback/FeedbackTable';
 import { FeedbackFilters } from '@/components/feedback/FeedbackFilters';
 import { RatingOverview } from '@/components/ratings/RatingOverview';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 // Updated mock data with more entries and varied timestamps
 const mockFeedback = [
@@ -193,6 +194,8 @@ const mockFeedback = [
 ];
 
 const Feedback = () => {
+  const navigate = useNavigate();
+  
   // Calculate average rating
   const totalRatings = mockFeedback.length;
   const averageRating = mockFeedback.reduce((sum, item) => sum + item.rating, 0) / totalRatings;
@@ -203,6 +206,11 @@ const Feedback = () => {
   const [customDateTo, setCustomDateTo] = useState<Date | undefined>(undefined);
   const [selectedRating, setSelectedRating] = useState('all');
   const [sortOrder, setSortOrder] = useState<'latest' | 'highest' | 'lowest'>('latest');
+
+  // Handle back button click
+  const handleBackClick = () => {
+    navigate(-1);
+  };
 
   // Filter the feedback based on the selected filters
   const filteredFeedback = mockFeedback.filter(item => {
@@ -266,7 +274,18 @@ const Feedback = () => {
     <Layout activeSection="feedback">
       <div className="container mx-auto py-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Feedback</h1>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBackClick}
+              className="h-9 w-9"
+              aria-label="Go back"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-3xl font-bold tracking-tight">Feedback</h1>
+          </div>
         </div>
         
         {/* Rating Overview Section */}
