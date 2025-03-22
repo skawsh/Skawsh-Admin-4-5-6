@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { FeedbackTable } from '@/components/feedback/FeedbackTable';
 import { FeedbackFilters } from '@/components/feedback/FeedbackFilters';
 import { RatingOverview } from '@/components/ratings/RatingOverview';
 
-// Updated mock data for feedback with some entries for today
+// Updated mock data with more entries and varied timestamps
 const mockFeedback = [
   {
     id: 1,
@@ -142,6 +143,52 @@ const mockFeedback = [
     category: "App Experience",
     date: "2023-09-01T10:05:00",
     flagged: false
+  },
+  // Adding more data with today's date for better testing
+  {
+    id: 16,
+    userName: "Rachel Green",
+    rating: 1,
+    feedbackText: "Very disappointed with the service today. My clothes weren't delivered on time.",
+    category: "App Experience",
+    date: new Date().toISOString(), // Today's date
+    flagged: false
+  },
+  {
+    id: 17,
+    userName: "Ross Geller",
+    rating: 5,
+    feedbackText: "Amazing service today! Everything was perfect and on time.",
+    category: "App Experience",
+    date: new Date().toISOString(), // Today's date
+    flagged: false
+  },
+  {
+    id: 18,
+    userName: "Chandler Bing",
+    rating: 4,
+    feedbackText: "Could the app BE any better? Almost perfect but has minor glitches.",
+    category: "App Experience",
+    date: new Date().toISOString(), // Today's date
+    flagged: false
+  },
+  {
+    id: 19,
+    userName: "Monica Geller",
+    rating: 5,
+    feedbackText: "The cleanest my clothes have ever been! Perfectly organized delivery too.",
+    category: "App Experience",
+    date: new Date().toISOString(), // Today's date
+    flagged: false
+  },
+  {
+    id: 20,
+    userName: "Joey Tribbiani",
+    rating: 3,
+    feedbackText: "How you doin'? The app is good but could use more food delivery options.",
+    category: "App Experience",
+    date: new Date().toISOString(), // Today's date
+    flagged: false
   }
 ];
 
@@ -203,6 +250,18 @@ const Feedback = () => {
     return true;
   });
 
+  // Sort the filtered feedback based on the selected sort order
+  const sortedFeedback = [...filteredFeedback].sort((a, b) => {
+    if (sortOrder === 'latest') {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    } else if (sortOrder === 'highest') {
+      return b.rating - a.rating;
+    } else if (sortOrder === 'lowest') {
+      return a.rating - b.rating;
+    }
+    return 0;
+  });
+
   return (
     <Layout activeSection="feedback">
       <div className="container mx-auto py-6 space-y-6">
@@ -210,7 +269,7 @@ const Feedback = () => {
           <h1 className="text-3xl font-bold tracking-tight">Feedback</h1>
         </div>
         
-        {/* Rating Overview Section - Removed Total Reviews tile */}
+        {/* Rating Overview Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardContent className="p-6">
@@ -285,7 +344,7 @@ const Feedback = () => {
             </CardHeader>
             <CardContent>
               <FeedbackTable 
-                feedback={filteredFeedback}
+                feedback={sortedFeedback}
                 sortOrder={sortOrder}
               />
             </CardContent>
