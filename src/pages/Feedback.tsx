@@ -1,111 +1,101 @@
 
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Filter } from 'lucide-react';
 import { FeedbackTable } from '@/components/feedback/FeedbackTable';
 import { FeedbackFilters } from '@/components/feedback/FeedbackFilters';
 
-// Mock data for feedback with order IDs
+// Mock data for feedback
 const mockFeedback = [
   {
     id: 1,
-    userName: "Ava Anderson",
-    orderId: "ORD10001000",
-    rating: 3,
-    feedbackText: "Disappointed with the result, some stains remained.",
-    category: "Service Quality",
-    date: "2023-03-22T12:07:00",
+    userName: "John Smith",
+    rating: 5,
+    feedbackText: "The app is amazing! I've been using it for all my laundry needs. The delivery was prompt and my clothes came back perfectly clean. The user interface is also very intuitive and easy to navigate.",
+    category: "App Experience",
+    date: "2023-09-15T14:30:00",
     flagged: false
   },
   {
     id: 2,
-    userName: "Robert Thomas",
-    orderId: "ORD10001001",
-    rating: 2,
-    feedbackText: "N/A",
+    userName: "Sarah Johnson",
+    rating: 4,
+    feedbackText: "Good service overall. The app works well but sometimes lags when I'm trying to track my order.",
     category: "App Experience",
-    date: "2023-03-21T12:07:00",
+    date: "2023-09-14T10:15:00",
     flagged: false
   },
   {
     id: 3,
-    userName: "John Smith",
-    orderId: "ORD10001002",
-    rating: 0,
-    feedbackText: "Good job, but delivery was a bit late.",
+    userName: "Michael Brown",
+    rating: 2,
+    feedbackText: "Had issues with my last order. The delivery was late and some of my items were missing.",
     category: "Service Quality",
-    date: "2023-03-20T12:07:00",
+    date: "2023-09-13T16:45:00",
     flagged: false
   },
   {
     id: 4,
-    userName: "Mia Harris",
-    orderId: "ORD10001003",
-    rating: 3,
-    feedbackText: "Clothing came back damaged, not happy.",
-    category: "Service Quality",
-    date: "2023-03-19T12:07:00",
+    userName: "Emily Davis",
+    rating: 5,
+    feedbackText: "Customer support was excellent! Had an issue with my order and they resolved it immediately.",
+    category: "Customer Support",
+    date: "2023-09-12T09:30:00",
     flagged: false
   },
   {
     id: 5,
     userName: "David Wilson",
-    orderId: "ORD10001004",
-    rating: 4,
+    rating: 3,
     feedbackText: "App is good but needs more payment options.",
     category: "App Experience",
-    date: "2023-03-11T12:00:00",
+    date: "2023-09-11T12:00:00",
     flagged: false
   },
   {
     id: 6,
     userName: "Lisa Martinez",
-    orderId: "ORD10001005",
     rating: 1,
-    feedbackText: "Terrible experience. My clothes came back with stains.",
+    feedbackText: "Terrible experience. My clothes came back with stains and customer service didn't help at all. This is completely unacceptable and I demand a full refund for this horrible service. Will not be using this app again!",
     category: "Service Quality",
-    date: "2023-03-10T15:20:00",
+    date: "2023-09-10T15:20:00",
     flagged: true
   },
   {
     id: 7,
     userName: "Robert Taylor",
-    orderId: "ORD10001006",
     rating: 5,
     feedbackText: "Best laundry service I've ever used! Very convenient.",
     category: "App Experience",
-    date: "2023-03-09T11:10:00",
+    date: "2023-09-09T11:10:00",
     flagged: false
   },
   {
     id: 8,
     userName: "Amanda Anderson",
-    orderId: "ORD10001007",
     rating: 4,
     feedbackText: "Love the app, but would like to see more discounts for regular users.",
     category: "App Experience",
-    date: "2023-03-08T14:25:00",
+    date: "2023-09-08T14:25:00",
     flagged: false
   },
   {
     id: 9,
     userName: "James Thomas",
-    orderId: "ORD10001008",
     rating: 5,
     feedbackText: "The service is consistently excellent. Always on time and great quality.",
     category: "Service Quality",
-    date: "2023-03-07T10:30:00",
+    date: "2023-09-07T10:30:00",
     flagged: false
   },
   {
     id: 10,
     userName: "Jennifer Jackson",
-    orderId: "ORD10001009",
     rating: 2,
     feedbackText: "Had trouble reaching customer support. Waited for over an hour on the phone.",
     category: "Customer Support",
-    date: "2023-03-06T13:15:00",
+    date: "2023-09-06T13:15:00",
     flagged: false
   }
 ];
@@ -168,11 +158,6 @@ const Feedback = () => {
     return true;
   });
 
-  // Calculate statistics
-  const totalRatings = mockFeedback.length;
-  const totalReviews = mockFeedback.filter(item => item.feedbackText && item.feedbackText !== "N/A").length;
-  const averageRating = mockFeedback.reduce((sum, item) => sum + item.rating, 0) / totalRatings || 0;
-
   return (
     <Layout activeSection="feedback">
       <div className="container mx-auto py-6 space-y-6">
@@ -180,69 +165,49 @@ const Feedback = () => {
           <h1 className="text-3xl font-bold tracking-tight">Feedback</h1>
         </div>
         
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Average Rating</h3>
-                <div className="flex items-center">
-                  <span className="text-4xl font-bold mr-2">{averageRating.toFixed(1)}</span>
-                  <span className="text-yellow-400 text-2xl">★</span>
-                </div>
-                <p className="text-sm text-gray-500">based on {totalRatings} customer ratings</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Total Ratings</h3>
-                <div className="text-4xl font-bold">{totalRatings}</div>
-                <p className="text-sm text-gray-500">ratings received</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Total Reviews</h3>
-                <div className="text-4xl font-bold">{totalReviews}</div>
-                <p className="text-sm text-gray-500">reviews received</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Filter Section */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-center">
-            <span className="text-gray-500 mr-2">Filter by:</span>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Feedback Filters
+            </CardTitle>
+            <CardDescription>
+              Filter and sort feedback to find the information you need
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <FeedbackFilters 
-              selectedRating={selectedRating}
-              setSelectedRating={setSelectedRating}
               selectedDateRange={selectedDateRange}
               setSelectedDateRange={setSelectedDateRange}
               customDateFrom={customDateFrom}
               setCustomDateFrom={setCustomDateFrom}
               customDateTo={customDateTo}
               setCustomDateTo={setCustomDateTo}
+              selectedRating={selectedRating}
+              setSelectedRating={setSelectedRating}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
               sortOrder={sortOrder}
               setSortOrder={setSortOrder}
             />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
         
-        {/* Feedback Table */}
-        <div>
-          <FeedbackTable 
-            feedback={filteredFeedback}
-            sortOrder={sortOrder}
-          />
+        <div className="grid grid-cols-1 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Feedback</CardTitle>
+              <CardDescription>
+                View and manage feedback submitted by users
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FeedbackTable 
+                feedback={filteredFeedback}
+                sortOrder={sortOrder}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </Layout>

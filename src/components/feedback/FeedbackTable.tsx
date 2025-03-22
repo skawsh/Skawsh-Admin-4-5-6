@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Eye, X } from 'lucide-react';
+import { Star, Flag, Eye } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,7 +24,6 @@ import { StarRating } from '@/components/ratings/StarRating';
 interface FeedbackItem {
   id: number;
   userName: string;
-  orderId: string;
   rating: number;
   feedbackText: string;
   category: string;
@@ -42,6 +41,7 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
   sortOrder
 }) => {
   const [page, setPage] = useState(1);
+  const [expandedFeedback, setExpandedFeedback] = useState<number | null>(null);
   const itemsPerPage = 8;
   
   // Apply sorting
@@ -62,6 +62,10 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
     page * itemsPerPage
   );
   
+  const toggleExpand = (id: number) => {
+    setExpandedFeedback(expandedFeedback === id ? null : id);
+  };
+  
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -69,12 +73,12 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[5%] bg-gray-50 font-semibold">S.NO</TableHead>
-              <TableHead className="w-[15%] bg-gray-50 font-semibold">Order ID</TableHead>
-              <TableHead className="w-[15%] bg-gray-50 font-semibold">Customer Name</TableHead>
+              <TableHead className="w-[15%] bg-gray-50 font-semibold">User Name</TableHead>
               <TableHead className="w-[10%] bg-gray-50 font-semibold">Rating</TableHead>
-              <TableHead className="w-[25%] bg-gray-50 font-semibold">Review</TableHead>
+              <TableHead className="w-[35%] bg-gray-50 font-semibold">Feedback Text</TableHead>
+              <TableHead className="w-[15%] bg-gray-50 font-semibold">Category</TableHead>
               <TableHead className="w-[15%] bg-gray-50 font-semibold">Date & Time</TableHead>
-              <TableHead className="w-[15%] text-right bg-gray-50 font-semibold">Actions</TableHead>
+              <TableHead className="w-[5%] text-right bg-gray-50 font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -87,25 +91,44 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
                   <TableCell className="font-medium text-center">
                     {(page - 1) * itemsPerPage + index + 1}
                   </TableCell>
-                  <TableCell>
-                    <span className="font-mono text-xs bg-gray-100 py-1 px-2 rounded">
-                      {item.orderId}
-                    </span>
-                  </TableCell>
                   <TableCell>{item.userName}</TableCell>
                   <TableCell>
-                    {item.rating > 0 ? (
-                      <StarRating rating={item.rating} />
-                    ) : (
-                      <span className="text-gray-400">N/A</span>
+                    <StarRating rating={item.rating} />
+                  </TableCell>
+                  <TableCell>
+                    {expandedFeedback === item.id 
+                      ? item.feedbackText 
+                      : (
+                        <>
+                          {item.feedbackText.length > 100 
+                            ? `${item.feedbackText.substring(0, 100)}... `
+                            : item.feedbackText
+                          }
+                          {item.feedbackText.length > 100 && (
+                            <Button 
+                              variant="link" 
+                              className="p-0 h-auto text-blue-600"
+                              onClick={() => toggleExpand(item.id)}
+                            >
+                              Read more
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    {expandedFeedback === item.id && item.feedbackText.length > 100 && (
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-blue-600 ml-2"
+                        onClick={() => toggleExpand(item.id)}
+                      >
+                        Show less
+                      </Button>
                     )}
                   </TableCell>
                   <TableCell>
-                    {item.feedbackText === "N/A" ? (
-                      <span className="text-gray-400 italic">N/A</span>
-                    ) : (
-                      <span>{item.feedbackText}</span>
-                    )}
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                      {item.category}
+                    </span>
                   </TableCell>
                   <TableCell className="text-gray-600 text-sm">
                     {format(new Date(item.date), 'MMM d, yyyy h:mm a')}
@@ -115,18 +138,13 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-500 hover:text-blue-600 flex items-center"
+                        className={item.flagged ? "text-red-600" : "text-gray-500 hover:text-red-600"}
+                        title={item.flagged ? "Unflag feedback" : "Flag as inappropriate"}
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Order
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-500 hover:text-red-600 flex items-center"
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Hide
+                        <Flag className="h-4 w-4" />
+                        <span className="sr-only">
+                          {item.flagged ? "Unflag feedback" : "Flag as inappropriate"}
+                        </span>
                       </Button>
                     </div>
                   </TableCell>
