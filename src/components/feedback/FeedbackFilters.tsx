@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CalendarIcon, Filter } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { 
@@ -27,8 +27,6 @@ interface FeedbackFiltersProps {
   setCustomDateTo: (date: Date | undefined) => void;
   selectedRating: string;
   setSelectedRating: (rating: string) => void;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
   sortOrder: 'latest' | 'highest' | 'lowest';
   setSortOrder: (order: 'latest' | 'highest' | 'lowest') => void;
 }
@@ -42,8 +40,6 @@ export const FeedbackFilters: React.FC<FeedbackFiltersProps> = ({
   setCustomDateTo,
   selectedRating,
   setSelectedRating,
-  selectedCategory,
-  setSelectedCategory,
   sortOrder,
   setSortOrder
 }) => {
@@ -127,23 +123,6 @@ export const FeedbackFilters: React.FC<FeedbackFiltersProps> = ({
               <SelectItem value="3">3 Stars</SelectItem>
               <SelectItem value="2">2 Stars</SelectItem>
               <SelectItem value="1">1 Star</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          {/* Category Filter */}
-          <Select
-            value={selectedCategory}
-            onValueChange={setSelectedCategory}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="App Experience">App Experience</SelectItem>
-              <SelectItem value="Customer Support">Customer Support</SelectItem>
-              <SelectItem value="Service Quality">Service Quality</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>

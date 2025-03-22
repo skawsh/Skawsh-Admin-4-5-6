@@ -1,7 +1,5 @@
-
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Star, Flag, Eye } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -75,10 +73,9 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
               <TableHead className="w-[5%] bg-gray-50 font-semibold">S.NO</TableHead>
               <TableHead className="w-[15%] bg-gray-50 font-semibold">User Name</TableHead>
               <TableHead className="w-[10%] bg-gray-50 font-semibold">Rating</TableHead>
-              <TableHead className="w-[35%] bg-gray-50 font-semibold">Feedback Text</TableHead>
-              <TableHead className="w-[15%] bg-gray-50 font-semibold">Category</TableHead>
+              <TableHead className="w-[45%] bg-gray-50 font-semibold">Feedback Text</TableHead>
+              <TableHead className="w-[10%] bg-gray-50 font-semibold">Category</TableHead>
               <TableHead className="w-[15%] bg-gray-50 font-semibold">Date & Time</TableHead>
-              <TableHead className="w-[5%] text-right bg-gray-50 font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -133,26 +130,11 @@ export const FeedbackTable: React.FC<FeedbackTableProps> = ({
                   <TableCell className="text-gray-600 text-sm">
                     {format(new Date(item.date), 'MMM d, yyyy h:mm a')}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={item.flagged ? "text-red-600" : "text-gray-500 hover:text-red-600"}
-                        title={item.flagged ? "Unflag feedback" : "Flag as inappropriate"}
-                      >
-                        <Flag className="h-4 w-4" />
-                        <span className="sr-only">
-                          {item.flagged ? "Unflag feedback" : "Flag as inappropriate"}
-                        </span>
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-10 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-10 text-gray-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <p className="font-medium">No feedback found</p>
                     <p className="text-sm">Try adjusting your filters to see more results</p>
