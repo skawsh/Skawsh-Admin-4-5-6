@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -212,7 +213,7 @@ const Feedback = () => {
     navigate(-1);
   };
 
-  // Filter the feedback based on the selected filters
+  // Improved filter logic for the feedback based on the selected filters
   const filteredFeedback = mockFeedback.filter(item => {
     const itemDate = new Date(item.date);
     const today = new Date();
@@ -227,17 +228,21 @@ const Feedback = () => {
     const last30Days = new Date(today);
     last30Days.setDate(last30Days.getDate() - 30);
     
-    // Date Range Filter
+    // Date Range Filter - improved logic
+    let dateMatch = true;
+    
     if (selectedDateRange === 'today') {
       const endOfDay = new Date(today);
       endOfDay.setHours(23, 59, 59, 999);
-      return itemDate >= today && itemDate <= endOfDay;
-    } else if (selectedDateRange === 'yesterday' && (itemDate < yesterday || itemDate >= today)) {
-      return false;
-    } else if (selectedDateRange === 'last7days' && itemDate < last7Days) {
-      return false;
-    } else if (selectedDateRange === 'last30days' && itemDate < last30Days) {
-      return false;
+      dateMatch = itemDate >= today && itemDate <= endOfDay;
+    } else if (selectedDateRange === 'yesterday') {
+      const endOfYesterday = new Date(yesterday);
+      endOfYesterday.setHours(23, 59, 59, 999);
+      dateMatch = itemDate >= yesterday && itemDate <= endOfYesterday;
+    } else if (selectedDateRange === 'last7days') {
+      dateMatch = itemDate >= last7Days;
+    } else if (selectedDateRange === 'last30days') {
+      dateMatch = itemDate >= last30Days;
     } else if (selectedDateRange === 'custom' && customDateFrom && customDateTo) {
       const fromDate = new Date(customDateFrom);
       fromDate.setHours(0, 0, 0, 0);
@@ -245,17 +250,16 @@ const Feedback = () => {
       const toDate = new Date(customDateTo);
       toDate.setHours(23, 59, 59, 999);
       
-      if (itemDate < fromDate || itemDate > toDate) {
-        return false;
-      }
+      dateMatch = itemDate >= fromDate && itemDate <= toDate;
     }
     
-    // Rating Filter
-    if (selectedRating !== 'all' && item.rating !== parseInt(selectedRating)) {
-      return false;
+    // Rating Filter - improved logic
+    let ratingMatch = true;
+    if (selectedRating !== 'all') {
+      ratingMatch = item.rating === parseInt(selectedRating);
     }
     
-    return true;
+    return dateMatch && ratingMatch;
   });
 
   // Sort the filtered feedback based on the selected sort order
@@ -264,10 +268,9 @@ const Feedback = () => {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     } else if (sortOrder === 'highest') {
       return b.rating - a.rating;
-    } else if (sortOrder === 'lowest') {
+    } else {
       return a.rating - b.rating;
     }
-    return 0;
   });
 
   return (
