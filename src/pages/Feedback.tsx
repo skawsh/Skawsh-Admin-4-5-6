@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,7 @@ import { FeedbackTable } from '@/components/feedback/FeedbackTable';
 import { FeedbackFilters } from '@/components/feedback/FeedbackFilters';
 import { RatingOverview } from '@/components/ratings/RatingOverview';
 
-// Updated mock data for feedback - all with "App Experience" category
+// Updated mock data for feedback with some entries for today
 const mockFeedback = [
   {
     id: 1,
@@ -15,7 +14,7 @@ const mockFeedback = [
     rating: 5,
     feedbackText: "The app is amazing! I've been using it for all my laundry needs. The delivery was prompt and my clothes came back perfectly clean. The user interface is also very intuitive and easy to navigate.",
     category: "App Experience",
-    date: "2023-09-15T14:30:00",
+    date: new Date().toISOString(), // Today's date
     flagged: false
   },
   {
@@ -24,7 +23,7 @@ const mockFeedback = [
     rating: 4,
     feedbackText: "Good service overall. The app works well but sometimes lags when I'm trying to track my order.",
     category: "App Experience",
-    date: "2023-09-14T10:15:00",
+    date: new Date().toISOString(), // Today's date
     flagged: false
   },
   {
@@ -174,8 +173,10 @@ const Feedback = () => {
     last30Days.setDate(last30Days.getDate() - 30);
     
     // Date Range Filter
-    if (selectedDateRange === 'today' && itemDate < today) {
-      return false;
+    if (selectedDateRange === 'today') {
+      const endOfDay = new Date(today);
+      endOfDay.setHours(23, 59, 59, 999);
+      return itemDate >= today && itemDate <= endOfDay;
     } else if (selectedDateRange === 'yesterday' && (itemDate < yesterday || itemDate >= today)) {
       return false;
     } else if (selectedDateRange === 'last7days' && itemDate < last7Days) {
