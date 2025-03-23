@@ -2,15 +2,31 @@
 import React from 'react';
 import Layout from '../components/layout/Layout';
 import { Card, CardContent } from "@/components/ui/card";
-import { BarChart, Calendar, CreditCard, IndianRupee, PieChart, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BarChart, Calendar, CreditCard, IndianRupee, PieChart, TrendingUp, Wallet, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Revenue: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <Layout activeSection="revenue">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Revenue</h1>
-          <p className="text-gray-600 mt-1">Monitor your financial performance</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate(-1)} 
+              className="rounded-full h-9 w-9"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Revenue</h1>
+              <p className="text-gray-600 mt-1">Monitor your financial performance</p>
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -26,7 +42,7 @@ const Revenue: React.FC = () => {
                   </p>
                 </div>
                 <div className="bg-blue-500 p-3 rounded-lg">
-                  <IndianRupee className="h-6 w-6 text-white" />
+                  <Wallet className="h-6 w-6 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -36,11 +52,11 @@ const Revenue: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-600 font-medium mb-1">Monthly Earnings</p>
-                  <h3 className="text-2xl font-bold text-gray-800">₹ 42,150</h3>
-                  <p className="text-green-600 text-sm mt-1 flex items-center">
-                    <TrendingUp className="h-4 w-4 mr-1" />
-                    <span>+8.2% from last month</span>
+                  <p className="text-purple-600 font-medium mb-1">Payments Pending</p>
+                  <h3 className="text-2xl font-bold text-gray-800">₹ 12,540</h3>
+                  <p className="text-amber-600 text-sm mt-1 flex items-center">
+                    <CreditCard className="h-4 w-4 mr-1" />
+                    <span>5 pending transactions</span>
                   </p>
                 </div>
                 <div className="bg-purple-500 p-3 rounded-lg">
@@ -54,15 +70,15 @@ const Revenue: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-600 font-medium mb-1">Pending Payments</p>
-                  <h3 className="text-2xl font-bold text-gray-800">₹ 12,540</h3>
-                  <p className="text-amber-600 text-sm mt-1 flex items-center">
-                    <CreditCard className="h-4 w-4 mr-1" />
-                    <span>5 pending transactions</span>
+                  <p className="text-green-600 font-medium mb-1">Payments Received</p>
+                  <h3 className="text-2xl font-bold text-gray-800">₹ 132,740</h3>
+                  <p className="text-green-600 text-sm mt-1 flex items-center">
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                    <span>+8.2% from last month</span>
                   </p>
                 </div>
                 <div className="bg-green-500 p-3 rounded-lg">
-                  <CreditCard className="h-6 w-6 text-white" />
+                  <CheckCircle className="h-6 w-6 text-white" />
                 </div>
               </div>
             </CardContent>
