@@ -274,27 +274,30 @@ const OrderDetails: React.FC = () => {
                   </div>
                 </div>
                 
-                <div>
-                  <h3 className="font-medium text-lg mb-4">Collect and Delivery</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
-                    <div>
-                      <p className="text-sm text-gray-500">Assigned to</p>
-                      <p className="font-medium">Saiteja</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Vehicle details</p>
-                      <p className="font-medium">Honda Activa - TS02FF2703</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Collected date & time</p>
-                      <p className="font-medium">Jun 12, 2024 at 09:45 AM</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Delivered date & time</p>
-                      <p className="font-medium">Jun 15, 2024 at 06:15 PM</p>
+                {/* Only show Collect and Delivery section if order has been delivered */}
+                {order.deliveredDate && (
+                  <div>
+                    <h3 className="font-medium text-lg mb-4">Collect and Delivery</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                      <div>
+                        <p className="text-sm text-gray-500">Assigned to</p>
+                        <p className="font-medium">Saiteja</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Vehicle details</p>
+                        <p className="font-medium">Honda Activa - TS02FF2703</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Collected date & time</p>
+                        <p className="font-medium">Jun 12, 2024 at 09:45 AM</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Delivered date & time</p>
+                        <p className="font-medium">Jun 15, 2024 at 06:15 PM</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </Card>
           </div>
