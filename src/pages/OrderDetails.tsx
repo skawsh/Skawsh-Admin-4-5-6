@@ -208,33 +208,40 @@ const OrderDetails: React.FC = () => {
                     <p>₹3000</p>
                   </div>
                 </div>
-                
-                {/* Payment Information */}
-                <div className="border rounded-md p-4 mt-6">
-                  <div className="flex items-center gap-2 font-semibold text-lg mb-4">
-                    <CreditCard className="h-5 w-5" />
-                    <h3>Payment Information</h3>
+              </div>
+            </Card>
+            
+            {/* Payment Information Card - Now as a separate card */}
+            <Card className="p-6 border-l-4 border-l-indigo-500">
+              <div className="flex items-center gap-2 text-xl font-semibold text-indigo-700 mb-6">
+                <CreditCard className="h-6 w-6" />
+                <h2>Payment Information</h2>
+              </div>
+              
+              {order.paymentStatus === 'Pending' ? (
+                <div className="text-center py-6 text-yellow-600">
+                  <p className="font-medium text-lg">Payment details will be shown after payment completion.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Payment Method</p>
+                    <p className="font-medium">Credit Card</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Payment Method</p>
-                      <p className="font-medium">Credit Card</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Transaction ID</p>
-                      <p className="font-medium">TXN123456789</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Payment Date</p>
-                      <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy')}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Payment Status</p>
-                      <Badge className={getPaymentStatusColor(order.paymentStatus)}>{order.paymentStatus}</Badge>
-                    </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Transaction ID</p>
+                    <p className="font-medium">TXN123456789</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Payment Date</p>
+                    <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Payment Status</p>
+                    <Badge className={getPaymentStatusColor(order.paymentStatus)}>{order.paymentStatus}</Badge>
                   </div>
                 </div>
-              </div>
+              )}
             </Card>
             
             {/* Delivery Information */}
