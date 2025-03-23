@@ -1,118 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Wallet, CreditCard, CheckCircle, Calendar as CalendarIcon, ChevronDown, ChevronRight, Eye, TruckIcon, Calculator, PercentIcon } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
-import { RevenueTable } from '@/components/revenue/RevenueTable';
 import { getFilteredOrders, calculateRevenueMetrics } from '@/components/revenue/mockRevenueData';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-
-const mockRevenueData = {
-  all: {
-    totalRevenue: 145280,
-    pendingPayments: 12540,
-    receivedPayments: 132740,
-    totalGrowth: "+12.5%",
-    receivedGrowth: "+8.2%",
-    pendingCount: 5
-  },
-  daily: {
-    totalRevenue: 4800,
-    pendingPayments: 950,
-    receivedPayments: 3850,
-    totalGrowth: "+5.3%",
-    receivedGrowth: "+4.1%",
-    pendingCount: 2
-  },
-  weekly: {
-    totalRevenue: 32600,
-    pendingPayments: 3800,
-    receivedPayments: 28800,
-    totalGrowth: "+8.7%",
-    receivedGrowth: "+6.2%",
-    pendingCount: 3
-  },
-  monthly: {
-    totalRevenue: 145280,
-    pendingPayments: 12540,
-    receivedPayments: 132740,
-    totalGrowth: "+12.5%",
-    receivedGrowth: "+8.2%",
-    pendingCount: 5
-  },
-  yearly: {
-    totalRevenue: 1652400,
-    pendingPayments: 85600,
-    receivedPayments: 1566800,
-    totalGrowth: "+15.8%",
-    receivedGrowth: "+14.3%",
-    pendingCount: 12
-  },
-  today: {
-    totalRevenue: 2300,
-    pendingPayments: 450,
-    receivedPayments: 1850,
-    totalGrowth: "+3.2%",
-    receivedGrowth: "+2.5%",
-    pendingCount: 1
-  },
-  yesterday: {
-    totalRevenue: 2500,
-    pendingPayments: 500,
-    receivedPayments: 2000,
-    totalGrowth: "+4.1%",
-    receivedGrowth: "+3.2%",
-    pendingCount: 1
-  },
-  last15Minutes: {
-    totalRevenue: 150,
-    pendingPayments: 150,
-    receivedPayments: 0,
-    totalGrowth: "+0.0%",
-    receivedGrowth: "+0.0%",
-    pendingCount: 1
-  },
-  last60Minutes: {
-    totalRevenue: 750,
-    pendingPayments: 300,
-    receivedPayments: 450,
-    totalGrowth: "+1.2%",
-    receivedGrowth: "+0.8%",
-    pendingCount: 2
-  },
-  last4Hours: {
-    totalRevenue: 1800,
-    pendingPayments: 450,
-    receivedPayments: 1350,
-    totalGrowth: "+2.5%",
-    receivedGrowth: "+1.9%",
-    pendingCount: 2
-  },
-  last24Hours: {
-    totalRevenue: 4800,
-    pendingPayments: 950,
-    receivedPayments: 3850,
-    totalGrowth: "+5.3%",
-    receivedGrowth: "+4.1%",
-    pendingCount: 2
-  }
-};
+import { RevenueFilterDropdown } from '@/components/revenue/RevenueFilterDropdown';
+import { RevenueTiles } from '@/components/revenue/RevenueTiles';
+import { RevenueTableSection } from '@/components/revenue/RevenueTableSection';
 
 const formatIndianCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -199,8 +94,6 @@ const Revenue: React.FC = () => {
     }
   };
 
-  const revenueData = mockRevenueData[timeFilter as keyof typeof mockRevenueData] || mockRevenueData.all;
-
   return (
     <Layout activeSection="revenue">
       <div className="space-y-6">
@@ -220,385 +113,35 @@ const Revenue: React.FC = () => {
             </div>
           </div>
           <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="min-w-[180px] justify-between bg-white">
-                  {filterDisplayNames[timeFilter] || 'Select Time Frame'}
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[350px] bg-white p-0" align="end">
-                {filterOptions.map((option) => {
-                  if (option.id === 'relativeTime') {
-                    return (
-                      <Collapsible
-                        key={option.id}
-                        open={expandedFilter === option.id}
-                        className="w-full border-b border-gray-100"
-                      >
-                        <CollapsibleTrigger
-                          onClick={() => toggleFilterExpansion(option.id)}
-                          className="flex w-full items-center justify-between p-4 hover:bg-gray-50 cursor-pointer"
-                        >
-                          <span className="font-medium">{option.label}</span>
-                          {expandedFilter === option.id ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="px-4 pb-4">
-                          <div className="grid grid-cols-1 gap-2">
-                            {['last15Minutes', 'last60Minutes', 'last4Hours', 'last24Hours'].map((filter) => (
-                              <Button
-                                key={filter}
-                                variant="ghost"
-                                className="justify-start hover:bg-gray-100 w-full text-blue-600"
-                                onClick={() => handleFilterChange(filter)}
-                              >
-                                {filterDisplayNames[filter]}
-                              </Button>
-                            ))}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  } else if (option.id === 'relativeDate') {
-                    return (
-                      <Collapsible
-                        key={option.id}
-                        open={expandedFilter === option.id}
-                        className="w-full border-b border-gray-100"
-                      >
-                        <CollapsibleTrigger
-                          onClick={() => toggleFilterExpansion(option.id)}
-                          className="flex w-full items-center justify-between p-4 hover:bg-gray-50 cursor-pointer"
-                        >
-                          <span className="font-medium">{option.label}</span>
-                          {expandedFilter === option.id ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="px-4 pb-4">
-                          <div className="grid grid-cols-1 gap-2">
-                            {['today', 'yesterday', 'daily', 'weekly', 'monthly', 'yearly', 'all'].map((filter) => (
-                              <Button
-                                key={filter}
-                                variant="ghost"
-                                className="justify-start hover:bg-gray-100 w-full text-blue-600"
-                                onClick={() => handleFilterChange(filter)}
-                              >
-                                {filterDisplayNames[filter]}
-                              </Button>
-                            ))}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  } else if (option.id === 'dateRange') {
-                    return (
-                      <Collapsible
-                        key={option.id}
-                        open={expandedFilter === option.id}
-                        className="w-full border-b border-gray-100"
-                      >
-                        <CollapsibleTrigger
-                          onClick={() => toggleFilterExpansion(option.id)}
-                          className="flex w-full items-center justify-between p-4 hover:bg-gray-50 cursor-pointer"
-                        >
-                          <span className="font-medium">{option.label}</span>
-                          {expandedFilter === option.id ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="p-4">
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">From:</label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <CalendarComponent
-                                    mode="single"
-                                    selected={dateRange.from}
-                                    onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
-                                    initialFocus
-                                    className="p-3 pointer-events-auto"
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">To:</label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <CalendarComponent
-                                    mode="single"
-                                    selected={dateRange.to}
-                                    onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
-                                    initialFocus
-                                    className="p-3 pointer-events-auto"
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            
-                            <Button 
-                              onClick={handleDateRangeSelect}
-                              disabled={!dateRange.from || !dateRange.to}
-                              className="w-full"
-                            >
-                              Apply Date Range
-                            </Button>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  } else {
-                    return (
-                      <Collapsible
-                        key={option.id}
-                        open={expandedFilter === option.id}
-                        className="w-full border-b border-gray-100 last:border-0"
-                      >
-                        <CollapsibleTrigger
-                          onClick={() => toggleFilterExpansion(option.id)}
-                          className="flex w-full items-center justify-between p-4 hover:bg-gray-50 cursor-pointer"
-                        >
-                          <span className="font-medium">{option.label}</span>
-                          {expandedFilter === option.id ? (
-                            <ChevronDown className="h-4 w-4" />
-                          ) : (
-                            <ChevronRight className="h-4 w-4" />
-                          )}
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="p-4">
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">From Date:</label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <CalendarComponent
-                                    mode="single"
-                                    selected={dateRange.from}
-                                    onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
-                                    initialFocus
-                                    className="p-3 pointer-events-auto"
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">From Time:</label>
-                              <Input
-                                type="time"
-                                value={timeRange.from}
-                                onChange={(e) => setTimeRange(prev => ({ ...prev, from: e.target.value }))}
-                                className="w-full"
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">To Date:</label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <CalendarComponent
-                                    mode="single"
-                                    selected={dateRange.to}
-                                    onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
-                                    initialFocus
-                                    className="p-3 pointer-events-auto"
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">To Time:</label>
-                              <Input
-                                type="time"
-                                value={timeRange.to}
-                                onChange={(e) => setTimeRange(prev => ({ ...prev, to: e.target.value }))}
-                                className="w-full"
-                              />
-                            </div>
-                            
-                            <Button 
-                              onClick={handleDateTimeRangeSelect}
-                              disabled={!dateRange.from || !dateRange.to}
-                              className="w-full"
-                            >
-                              Apply Date & Time Range
-                            </Button>
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  }
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <RevenueFilterDropdown
+              timeFilter={timeFilter}
+              filterDisplayNames={filterDisplayNames}
+              filterOptions={filterOptions}
+              expandedFilter={expandedFilter}
+              toggleFilterExpansion={toggleFilterExpansion}
+              handleFilterChange={handleFilterChange}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+              timeRange={timeRange}
+              setTimeRange={setTimeRange}
+              handleDateRangeSelect={handleDateRangeSelect}
+              handleDateTimeRangeSelect={handleDateTimeRangeSelect}
+            />
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Total Revenue Card */}
-          <Card className="overflow-hidden bg-gradient-blue card-hover-effect">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-600 font-medium mb-1">Total Revenue</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.totalRevenue)}</h3>
-                </div>
-                <div className="bg-blue-500 p-3 rounded-lg">
-                  <Wallet className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Markup Revenue Card - NEW */}
-          <Card className="overflow-hidden bg-gradient-to-br from-indigo-50 to-indigo-100 card-hover-effect">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-indigo-600 font-medium mb-1">Markup Revenue</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.markupRevenue)}</h3>
-                  <p className="text-gray-600 text-sm mt-1">After 10% subtraction</p>
-                </div>
-                <div className="bg-indigo-500 p-3 rounded-lg">
-                  <Calculator className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Delivery Revenue Card - NEW */}
-          <Card className="overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100 card-hover-effect">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-amber-600 font-medium mb-1">Delivery Revenue</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.totalDeliveryRevenue)}</h3>
-                  <p className="text-gray-600 text-sm mt-1">₹50 per order</p>
-                </div>
-                <div className="bg-amber-500 p-3 rounded-lg">
-                  <TruckIcon className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Payments Pending Card */}
-          <Card className="overflow-hidden bg-gradient-purple card-hover-effect">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-600 font-medium mb-1">Payments Pending</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.pendingPayments)}</h3>
-                  <p className="text-amber-600 text-sm mt-1 flex items-center">
-                    <span>{revenueMetrics.pendingCount} pending transactions</span>
-                  </p>
-                </div>
-                <div className="bg-purple-500 p-3 rounded-lg">
-                  <CreditCard className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Payments Received Card */}
-          <Card className="overflow-hidden bg-gradient-green card-hover-effect">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-600 font-medium mb-1">Payments Received</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.receivedPayments)}</h3>
-                </div>
-                <div className="bg-green-500 p-3 rounded-lg">
-                  <CheckCircle className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Total Taxes Card - NEW */}
-          <Card className="overflow-hidden bg-gradient-to-br from-cyan-50 to-cyan-100 card-hover-effect">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-cyan-600 font-medium mb-1">Total Taxes</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.totalTaxes)}</h3>
-                  <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                    <div className="bg-white p-1 rounded text-gray-700">
-                      <span className="font-medium">Delivery (5%):</span> {formatIndianCurrency(revenueMetrics.deliveryTax)}
-                    </div>
-                    <div className="bg-white p-1 rounded text-gray-700">
-                      <span className="font-medium">Services (18%):</span> {formatIndianCurrency(revenueMetrics.subtotalTax)}
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-cyan-500 p-3 rounded-lg">
-                  <PercentIcon className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <RevenueTiles 
+          revenueMetrics={revenueMetrics}
+          formatIndianCurrency={formatIndianCurrency}
+        />
         
-        <div className="mt-8">
-          <Tabs defaultValue="all" onValueChange={setActiveTab}>
-            <div className="flex items-center justify-between mb-6">
-              <TabsList>
-                <TabsTrigger value="all">All Orders</TabsTrigger>
-                <TabsTrigger value="pending">Payments Pending</TabsTrigger>
-                <TabsTrigger value="paid">Payments Received</TabsTrigger>
-              </TabsList>
-              <Button variant="outline">Export Data</Button>
-            </div>
-            
-            <TabsContent value="all">
-              <RevenueTable orders={allOrders} />
-            </TabsContent>
-            
-            <TabsContent value="pending">
-              <RevenueTable orders={pendingOrders} />
-            </TabsContent>
-            
-            <TabsContent value="paid">
-              <RevenueTable orders={paidOrders} />
-            </TabsContent>
-          </Tabs>
-        </div>
+        <RevenueTableSection
+          allOrders={allOrders}
+          pendingOrders={pendingOrders}
+          paidOrders={paidOrders}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
       </div>
     </Layout>
   );
