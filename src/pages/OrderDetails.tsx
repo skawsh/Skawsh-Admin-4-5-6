@@ -11,7 +11,8 @@ import {
   MapPin, 
   Building, 
   FileText, 
-  Truck
+  Truck,
+  CreditCard
 } from 'lucide-react';
 import { mockOrders } from '@/components/revenue/mockRevenueData';
 import { format } from 'date-fns';
@@ -135,6 +136,10 @@ const OrderDetails: React.FC = () => {
                   <p className="text-sm text-gray-500">Contact</p>
                   <p className="font-medium">+91 8887776660</p>
                 </div>
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-medium">23-A, Hi-Tech City Road, KPHB Colony, Hyderabad</p>
+                </div>
               </div>
             </Card>
             
@@ -201,6 +206,32 @@ const OrderDetails: React.FC = () => {
                   <div className="flex justify-between font-bold text-lg">
                     <p>Total</p>
                     <p>₹3000</p>
+                  </div>
+                </div>
+                
+                {/* Payment Information */}
+                <div className="border rounded-md p-4 mt-6">
+                  <div className="flex items-center gap-2 font-semibold text-lg mb-4">
+                    <CreditCard className="h-5 w-5" />
+                    <h3>Payment Information</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Payment Method</p>
+                      <p className="font-medium">Credit Card</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Transaction ID</p>
+                      <p className="font-medium">TXN123456789</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Payment Date</p>
+                      <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Payment Status</p>
+                      <Badge className={getPaymentStatusColor(order.paymentStatus)}>{order.paymentStatus}</Badge>
+                    </div>
                   </div>
                 </div>
               </div>
