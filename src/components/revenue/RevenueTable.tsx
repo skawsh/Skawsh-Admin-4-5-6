@@ -78,11 +78,11 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
     
     setOrdersData(updatedOrders);
     
-    // Show success toast
+    // Show success toast with fixed variants to match the available options
     toast({
       title: "Status Updated",
       description: `Order #${orderId} payment status changed to ${newStatus}`,
-      variant: newStatus === 'Paid' ? 'default' : newStatus === 'Pending' ? 'warning' : 'destructive',
+      variant: newStatus === 'Paid' ? 'default' : 'destructive',
     });
   };
 
