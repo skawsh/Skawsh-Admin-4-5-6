@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -150,80 +149,68 @@ const OrderDetails: React.FC = () => {
                 <h2>Services Information</h2>
               </div>
               
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <div>
                   <p className="text-sm text-gray-500">Wash Type</p>
-                  <p className="font-medium text-red-600">{order.washType}</p>
+                  <p className="font-medium text-red-600">Express Wash</p>
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                  <h3 className="font-bold text-lg mb-3">Your Order</h3>
-                  
-                  {/* Core Laundry Service */}
-                  <div className="mb-4">
-                    <p className="font-bold text-gray-800">Core Laundry Service</p>
-                    <div className="space-y-2 mt-1 pl-4">
-                      <div className="flex justify-between">
-                        <p>1) Wash & Fold</p>
-                        <div className="flex space-x-4">
-                          <span className="text-gray-600">4.3 Kg X ₹49</span>
-                          <span className="font-medium">₹210.7</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between">
-                        <p>2) Wash & Iron</p>
-                        <div className="flex space-x-4">
-                          <span className="text-gray-600">2 Kg X ₹79</span>
-                          <span className="font-medium">₹158</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Dry Cleaning */}
-                  <div className="mb-4">
-                    <p className="font-bold text-gray-800">Dry Cleaning</p>
-                    <div className="space-y-2 mt-1 pl-4">
-                      <p className="font-medium text-gray-700">Upper Wear</p>
-                      <div className="flex justify-between pl-4">
-                        <p>1 Leather jacket X 199</p>
-                        <span className="font-medium">₹199</span>
-                      </div>
-                      <div className="flex justify-between pl-4">
-                        <p>2 Designer Saree X 499</p>
-                        <span className="font-medium">₹499</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Totals */}
-                  <div className="space-y-2 mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex justify-between">
-                      <p className="font-medium">Service Total</p>
-                      <p className="font-medium">₹1066</p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p>Delivery Charges</p>
-                      <p>₹50</p>
-                    </div>
-                    <div className="flex justify-between">
-                      <p>Taxes</p>
-                      <p>₹194.38</p>
-                    </div>
-                    <div className="flex justify-between bg-green-100 p-2 rounded-md mt-2">
-                      <p className="font-bold">Grand Total</p>
-                      <p className="font-bold">₹1310.38</p>
+                {/* Dry Cleaning Services */}
+                <div className="border rounded-md p-4">
+                  <h3 className="font-semibold text-lg mb-4">Dry Cleaning Services</h3>
+                  <div className="space-y-4">
+                    <p className="font-medium">Bottom Wear</p>
+                    <div className="flex justify-between items-center">
+                      <p>1) Jeans</p>
+                      <p className="text-gray-600">2 X 200</p>
+                      <p className="font-medium">₹400</p>
                     </div>
                   </div>
                 </div>
                 
-                {/* Deprecated sections that are now integrated above */}
-                {/* Removed the original Dry Cleaning Services and Shoe Cleaning Services blocks */}
-                {/* Removed the original Fee and Taxes section */}
+                {/* Shoe Cleaning Services */}
+                <div className="border rounded-md p-4">
+                  <h3 className="font-semibold text-lg mb-4">Shoe Cleaning Services</h3>
+                  <div className="space-y-4">
+                    <p className="font-medium">Regular</p>
+                    <div className="flex justify-between items-center">
+                      <p></p>
+                      <p className="text-gray-600">2 X 598/Pair</p>
+                      <p className="font-medium">₹1196</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Fee and Taxes */}
+                <div className="space-y-3 mt-4">
+                  <div className="flex justify-between">
+                    <p>Delivery Fee</p>
+                    <p className="font-medium">₹50</p>
+                  </div>
+                  
+                  <p className="font-medium">Taxes</p>
+                  
+                  <div className="flex justify-between">
+                    <p className="text-gray-600">GST on Services (18%)</p>
+                    <p className="font-medium">₹449.64</p>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <p className="text-gray-600">GST on Delivery (5%)</p>
+                    <p className="font-medium">₹2.50</p>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex justify-between font-bold text-lg">
+                    <p>Total</p>
+                    <p>₹3000</p>
+                  </div>
+                </div>
               </div>
             </Card>
             
-            {/* Payment Information Card */}
+            {/* Payment Information Card - Now as a separate card */}
             <Card className="p-6 border-l-4 border-l-indigo-500">
               <div className="flex items-center gap-2 text-xl font-semibold text-indigo-700 mb-6">
                 <CreditCard className="h-6 w-6" />
