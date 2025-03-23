@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Table, 
   TableHeader, 
@@ -11,8 +11,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { Eye } from 'lucide-react';
+import { Eye, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { toast } from '@/hooks/use-toast';
 
 // Define an order type for revenue data
 export interface RevenueOrder {
@@ -31,6 +38,7 @@ interface RevenueTableProps {
 
 export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
   const navigate = useNavigate();
+  const [ordersData, setOrdersData] = useState<RevenueOrder[]>(orders);
   
   // Function to determine badge color based on payment status
   const getPaymentStatusColor = (status: string) => {
@@ -60,6 +68,38 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
     }).format(amount).replace('₹', '₹ ');
   };
 
+  const updateOrderStatus = (orderId: string, newStatus: 'Paid' | 'Pending' | 'Failed') => {
+    const updatedOrders = ordersData.map(order => {
+      if (order.orderId === orderId) {
+        return { ...order, paymentStatus: newStatus };
+      }
+      return order;
+    });
+    
+    setOrdersData(updatedOrders);
+    
+    // Show success toast
+    toast({
+      title: "Status Updated",
+      description: `Order #${orderId} payment status changed to ${newStatus}`,
+      variant: newStatus === 'Paid' ? 'default' : newStatus === 'Pending' ? 'warning' : 'destructive',
+    });
+  };
+
+  // Get the next status in the cycle
+  const getStatusOptions = (currentStatus: string) => {
+    switch (currentStatus) {
+      case 'Pending':
+        return [{ label: 'Mark as Paid', value: 'Paid' }, { label: 'Mark as Failed', value: 'Failed' }];
+      case 'Paid':
+        return [{ label: 'Mark as Pending', value: 'Pending' }, { label: 'Mark as Failed', value: 'Failed' }];
+      case 'Failed':
+        return [{ label: 'Mark as Pending', value: 'Pending' }, { label: 'Mark as Paid', value: 'Paid' }];
+      default:
+        return [{ label: 'Mark as Paid', value: 'Paid' }];
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -76,7 +116,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.map((order, index) => (
+          {ordersData.map((order, index) => (
             <TableRow key={order.id}>
               <TableCell className="font-medium">{index + 1}</TableCell>
               <TableCell>#{order.orderId}</TableCell>
@@ -97,19 +137,46 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
                   : '-'}
               </TableCell>
               <TableCell className="text-right">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-1"
-                  onClick={() => handleViewOrderDetails(order.orderId)}
-                >
-                  <Eye className="h-4 w-4" />
-                  <span>Order Details</span>
-                </Button>
+                <div className="flex justify-end gap-2">
+                  {/* Status button with dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-1"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                        <span>Status</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {getStatusOptions(order.paymentStatus).map((option) => (
+                        <DropdownMenuItem 
+                          key={option.value}
+                          onClick={() => updateOrderStatus(order.orderId, option.value as 'Paid' | 'Pending' | 'Failed')}
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  {/* Order details button */}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                    onClick={() => handleViewOrderDetails(order.orderId)}
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span>Order Details</span>
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
-          {orders.length === 0 && (
+          {ordersData.length === 0 && (
             <TableRow>
               <TableCell colSpan={8} className="h-24 text-center">
                 No revenue data found.
