@@ -96,7 +96,7 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 11,
     orderId: 'ORD-RT011',
-    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 8)), // 8 minutes ago - for last15Minutes view
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 20)), // 20 minutes ago - outside last15Minutes view
     washType: 'Express',
     paymentStatus: 'Pending',
     amount: 1935.78, // Updated to match calculated grand total (400 + 1196 + 50 + 287.28 + 2.50 = 1935.78)
@@ -105,7 +105,7 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 12,
     orderId: 'ORD-RT012',
-    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 12)), // 12 minutes ago - for last15Minutes view
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 30)), // 30 minutes ago - for last60Minutes view
     washType: 'Standard',
     paymentStatus: 'Paid',
     amount: 850,
@@ -139,4 +139,3 @@ export const mockOrders: RevenueOrder[] = [
     deliveredDate: new Date(new Date().setDate(new Date().getDate() - 1)),
   },
 ];
-
