@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -7,7 +8,6 @@ import {
   ArrowLeft, 
   Package, 
   User, 
-  MapPin, 
   Building, 
   FileText, 
   Truck,
@@ -17,6 +17,7 @@ import { mockOrders } from '@/components/revenue/mockRevenueData';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 
 const OrderDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -158,59 +159,65 @@ const OrderDetails: React.FC = () => {
                 {/* Dry Cleaning Services */}
                 <div className="border rounded-md p-4">
                   <h3 className="font-semibold text-lg mb-4">Dry Cleaning Services</h3>
-                  <div className="space-y-4">
-                    <p className="font-medium">Bottom Wear</p>
-                    <div className="flex justify-between items-center">
-                      <p>1) Jeans</p>
-                      <p className="text-gray-600">2 X 200</p>
-                      <p className="font-medium">₹400</p>
-                    </div>
+                  
+                  <div className="mb-2 font-medium">Bottom Wear</div>
+                  
+                  <div className="grid grid-cols-3 gap-4 mb-3">
+                    <div>1) Jeans</div>
+                    <div className="text-right">2 X 200</div>
+                    <div className="text-right font-medium">₹400</div>
                   </div>
                 </div>
                 
                 {/* Shoe Cleaning Services */}
                 <div className="border rounded-md p-4">
                   <h3 className="font-semibold text-lg mb-4">Shoe Cleaning Services</h3>
-                  <div className="space-y-4">
-                    <p className="font-medium">Regular</p>
-                    <div className="flex justify-between items-center">
-                      <p></p>
-                      <p className="text-gray-600">2 X 598/Pair</p>
-                      <p className="font-medium">₹1196</p>
-                    </div>
+                  
+                  <div className="mb-2 font-medium">Regular</div>
+                  
+                  <div className="grid grid-cols-3 gap-4 mb-3">
+                    <div></div>
+                    <div className="text-right">2 X 598/Pair</div>
+                    <div className="text-right font-medium">₹1196</div>
                   </div>
                 </div>
                 
-                {/* Fee and Taxes */}
-                <div className="space-y-3 mt-4">
-                  <div className="flex justify-between">
-                    <p>Delivery Fee</p>
-                    <p className="font-medium">₹50</p>
+                {/* Service Total */}
+                <div className="grid grid-cols-3 gap-4 pb-3 border-b">
+                  <div className="font-medium col-span-2 text-left">Service Total</div>
+                  <div className="text-right font-medium">₹1596</div>
+                </div>
+                
+                {/* Delivery Fee */}
+                <div className="grid grid-cols-3 gap-4 pb-3">
+                  <div className="col-span-2 text-left">Delivery Fee</div>
+                  <div className="text-right font-medium">₹50</div>
+                </div>
+                
+                {/* Taxes */}
+                <div className="space-y-3 pb-3 border-b">
+                  <div className="font-medium">Taxes</div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2 text-gray-600">GST on Services (18%)</div>
+                    <div className="text-right font-medium">₹287.28</div>
                   </div>
                   
-                  <p className="font-medium">Taxes</p>
-                  
-                  <div className="flex justify-between">
-                    <p className="text-gray-600">GST on Services (18%)</p>
-                    <p className="font-medium">₹449.64</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2 text-gray-600">GST on Delivery (5%)</div>
+                    <div className="text-right font-medium">₹2.50</div>
                   </div>
-                  
-                  <div className="flex justify-between">
-                    <p className="text-gray-600">GST on Delivery (5%)</p>
-                    <p className="font-medium">₹2.50</p>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-between font-bold text-lg">
-                    <p>Total</p>
-                    <p>₹3000</p>
-                  </div>
+                </div>
+                
+                {/* Grand Total */}
+                <div className="grid grid-cols-3 gap-4 font-bold text-lg">
+                  <div className="col-span-2 text-left">Grand Total</div>
+                  <div className="text-right">₹1935.78</div>
                 </div>
               </div>
             </Card>
             
-            {/* Payment Information Card - Now as a separate card */}
+            {/* Payment Information Card */}
             <Card className="p-6 border-l-4 border-l-indigo-500">
               <div className="flex items-center gap-2 text-xl font-semibold text-indigo-700 mb-6">
                 <CreditCard className="h-6 w-6" />
