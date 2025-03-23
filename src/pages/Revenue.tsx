@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Wallet, CreditCard, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Wallet, CreditCard, CheckCircle, Calendar as CalendarIcon, ChevronDown, ChevronRight, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,7 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import { RevenueTable } from '@/components/revenue/RevenueTable';
 import { getFilteredOrders } from '@/components/revenue/mockRevenueData';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -320,7 +319,7 @@ const Revenue: React.FC = () => {
                                 <PopoverTrigger asChild>
                                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                                     {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
-                                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -341,7 +340,7 @@ const Revenue: React.FC = () => {
                                 <PopoverTrigger asChild>
                                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                                     {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
-                                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -393,7 +392,7 @@ const Revenue: React.FC = () => {
                                 <PopoverTrigger asChild>
                                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                                     {dateRange.from ? format(dateRange.from, 'PPP') : <span>Select start date</span>}
-                                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -424,7 +423,7 @@ const Revenue: React.FC = () => {
                                 <PopoverTrigger asChild>
                                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                                     {dateRange.to ? format(dateRange.to, 'PPP') : <span>Select end date</span>}
-                                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                   </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -550,3 +549,4 @@ const Revenue: React.FC = () => {
 };
 
 export default Revenue;
+
