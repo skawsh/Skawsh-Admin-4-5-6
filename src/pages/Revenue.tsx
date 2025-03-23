@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/layout/Layout';
 import { ArrowLeft } from 'lucide-react';
@@ -73,13 +74,13 @@ const Revenue: React.FC = () => {
     });
     
     setFilteredOrders(filtered);
-    setRevenueMetrics(calculateRevenueMetrics(filtered));
+    setRevenueMetrics(calculateRevenueMetrics(filtered, timeFilter));
   }, [localOrders, timeFilter]);
 
   useEffect(() => {
     const filtered = getFilteredOrders(timeFilter);
     setFilteredOrders(filtered);
-    setRevenueMetrics(calculateRevenueMetrics(filtered));
+    setRevenueMetrics(calculateRevenueMetrics(filtered, timeFilter));
   }, [timeFilter]);
 
   const pendingOrders = filteredOrders.filter(order => order.paymentStatus === 'Pending');
