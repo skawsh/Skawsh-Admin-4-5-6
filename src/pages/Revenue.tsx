@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, BarChart, Calendar, CreditCard, IndianRupee, PieChart, TrendingUp, Wallet, CheckCircle } from 'lucide-react';
+import { ArrowLeft, BarChart, Calendar, CreditCard, PieChart, TrendingUp, Wallet, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +20,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { RevenueTable } from '@/components/revenue/RevenueTable';
+import { getFilteredOrders } from '@/components/revenue/mockRevenueData';
 
 // Mock revenue data for different time periods
 const mockRevenueData = {
@@ -141,6 +143,13 @@ const Revenue: React.FC = () => {
     from: "00:00",
     to: "23:59"
   });
+  
+  const [orders, setOrders] = useState(getFilteredOrders('all'));
+
+  // Update orders when time filter changes
+  useEffect(() => {
+    setOrders(getFilteredOrders(timeFilter));
+  }, [timeFilter]);
 
   const filterDisplayNames: Record<string, string> = {
     all: "All Time",
@@ -541,6 +550,15 @@ const Revenue: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Revenue Table Section */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-gray-800">Recent Orders</h3>
+            <Button variant="outline">Export Data</Button>
+          </div>
+          <RevenueTable orders={orders} />
         </div>
       </div>
     </Layout>
