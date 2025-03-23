@@ -1,3 +1,4 @@
+
 import { RevenueOrder } from '../types/RevenueTypes';
 
 // Create mock data for revenue orders
@@ -5,7 +6,7 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 1,
     orderId: 'ORD-RT001',
-    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 10)), // 10 minutes ago - for last15Minutes view
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 5)), // 5 minutes ago - for last15Minutes view
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 1935.78, // Update to match the amount shown in the image (₹ 1,936 rounded)
@@ -95,7 +96,7 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 11,
     orderId: 'ORD-RT011',
-    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 10)), // 10 minutes ago - for last15Minutes view
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 8)), // 8 minutes ago - for last15Minutes view
     washType: 'Express',
     paymentStatus: 'Pending',
     amount: 1935.78, // Updated to match calculated grand total (400 + 1196 + 50 + 287.28 + 2.50 = 1935.78)
@@ -104,7 +105,7 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 12,
     orderId: 'ORD-RT012',
-    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 30)), // 30 minutes ago - for last60Minutes view
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 12)), // 12 minutes ago - for last15Minutes view
     washType: 'Standard',
     paymentStatus: 'Paid',
     amount: 850,
@@ -138,3 +139,4 @@ export const mockOrders: RevenueOrder[] = [
     deliveredDate: new Date(new Date().setDate(new Date().getDate() - 1)),
   },
 ];
+
