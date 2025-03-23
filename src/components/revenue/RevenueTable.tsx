@@ -70,7 +70,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
             <TableHead>Ordered Date</TableHead>
             <TableHead>Wash Type</TableHead>
             <TableHead>Payment Status</TableHead>
-            <TableHead>Amount</TableHead>
+            <TableHead>Grand Total</TableHead>
             <TableHead>Delivered Date</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
