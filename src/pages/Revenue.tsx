@@ -7,7 +7,7 @@ import { getFilteredOrders, calculateRevenueMetrics, mockOrders } from '@/compon
 import { RevenueFilterDropdown } from '@/components/revenue/RevenueFilterDropdown';
 import { RevenueTiles } from '@/components/revenue/RevenueTiles';
 import { RevenueTableSection } from '@/components/revenue/RevenueTableSection';
-import { RevenueOrder, RevenueUpdateEvent } from '@/components/revenue/RevenueTable';
+import { RevenueOrder, RevenueUpdateEvent } from '@/components/revenue/types/RevenueTypes';
 
 const formatIndianCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {

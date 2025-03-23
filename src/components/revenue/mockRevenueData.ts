@@ -1,5 +1,5 @@
 
-import { RevenueOrder } from './RevenueTable';
+import { RevenueOrder } from './types/RevenueTypes';
 import { mockOrders } from './data/orderData';
 import { filterOrdersByTime, TimeFilterType } from './utils/filterUtils';
 

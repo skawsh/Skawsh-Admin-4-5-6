@@ -2,7 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RevenueTable, RevenueOrder, RevenueUpdateEvent } from '@/components/revenue/RevenueTable';
+import { RevenueTable } from '@/components/revenue/RevenueTable';
+import { RevenueOrder, RevenueUpdateEvent } from '@/components/revenue/types/RevenueTypes';
 
 interface RevenueTableSectionProps {
   allOrders: RevenueOrder[];

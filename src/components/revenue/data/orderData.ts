@@ -1,4 +1,4 @@
-import { RevenueOrder } from '../RevenueTable';
+import { RevenueOrder } from '../types/RevenueTypes';
 
 // Create mock data for revenue orders
 export const mockOrders: RevenueOrder[] = [
