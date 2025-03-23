@@ -10,28 +10,32 @@ export const getFilteredOrders = (timeFilter: string) => {
 
 // Calculate additional revenue metrics
 export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
-  // Calculate basic totals
-  const totalRevenue = orders.reduce((sum, order) => sum + order.amount, 0);
+  // Calculate total order amounts from raw data
+  const totalOrderAmount = orders.reduce((sum, order) => sum + order.amount, 0);
   const pendingPayments = orders
     .filter(order => order.paymentStatus === 'Pending')
     .reduce((sum, order) => sum + order.amount, 0);
-  const receivedPayments = totalRevenue - pendingPayments;
+  const receivedPayments = totalOrderAmount - pendingPayments;
   const pendingCount = orders.filter(order => order.paymentStatus === 'Pending').length;
   
+  // Calculate subtotal (base amount before delivery and taxes)
+  const subtotal = Math.round(totalOrderAmount * 0.85); // Base subtotal (85% of order amount)
+  
   // Delivery revenue calculation - varies by order based on distance
-  const totalDeliveryRevenue = Math.round(totalRevenue * 0.15); // Assuming 15% of total amount
+  const totalDeliveryRevenue = Math.round(totalOrderAmount * 0.15); // Assuming 15% of total amount
   
   // Calculate taxes
   const servicesTaxRate = 0.18; // 18% on services
   const deliveryTaxRate = 0.05; // 5% on delivery
   
-  // Calculate subtotal (total revenue minus delivery, delivery tax, and service tax)
-  const subtotal = Math.round(totalRevenue * 0.85); // Base subtotal (85% of total revenue)
   const servicesTax = Math.round(subtotal * servicesTaxRate);
   const deliveryTax = Math.round(totalDeliveryRevenue * deliveryTaxRate);
   
   // Updated markup revenue calculation: subtotal - 90% of subtotal (which equals 10% of subtotal)
   const markupRevenue = Math.round(subtotal * 0.1);
+  
+  // Calculate total revenue as the sum of components
+  const totalRevenue = subtotal + totalDeliveryRevenue + servicesTax + deliveryTax;
   
   return {
     totalRevenue,
