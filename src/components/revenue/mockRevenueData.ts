@@ -22,7 +22,11 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
   
   // Calculate total service revenue - This is the sum of all service costs
   // Using 85% as approximation of each order's service cost
-  const subtotal = orders.reduce((sum, order) => sum + Math.round(order.amount * 0.85), 0);
+  // Fix: Ensure we're calculating the correct value by multiplying each order amount by 0.85 and then rounding
+  const subtotal = orders.reduce((sum, order) => {
+    const serviceAmount = Math.round(order.amount * 0.85);
+    return sum + serviceAmount;
+  }, 0);
   
   // Calculate markup revenue - 10% of subtotal
   const markupRevenue = Math.round(subtotal * 0.1);
