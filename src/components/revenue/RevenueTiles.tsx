@@ -50,7 +50,7 @@ export const RevenueTiles: React.FC<RevenueTilesProps> = ({ revenueMetrics, form
             <div>
               <p className="text-indigo-600 font-medium mb-1">Markup Revenue</p>
               <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.markupRevenue)}</h3>
-              <p className="text-gray-600 text-sm mt-1">After 10% markup</p>
+              <p className="text-gray-600 text-sm mt-1">10% of subtotal</p>
             </div>
             <div className="bg-indigo-500 p-3 rounded-lg">
               <Calculator className="h-6 w-6 text-white" />
