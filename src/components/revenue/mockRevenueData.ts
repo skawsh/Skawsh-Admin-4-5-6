@@ -49,7 +49,8 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
     markupRevenue,
     totalDeliveryRevenue,
     servicesTax,
-    deliveryTax
+    deliveryTax,
+    subtotal // Expose subtotal to components
   };
 };
 

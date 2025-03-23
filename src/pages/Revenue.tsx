@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { ArrowLeft } from 'lucide-react';
@@ -48,7 +47,6 @@ const Revenue: React.FC = () => {
   const pendingOrders = allOrders.filter(order => order.paymentStatus === 'Pending');
   const paidOrders = allOrders.filter(order => order.paymentStatus === 'Paid');
 
-  // Calculate revenue metrics based on filtered orders
   const revenueMetrics = calculateRevenueMetrics(allOrders);
 
   const filterDisplayNames: Record<string, string> = {

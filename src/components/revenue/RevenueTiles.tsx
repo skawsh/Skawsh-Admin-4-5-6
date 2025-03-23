@@ -8,7 +8,8 @@ import {
   TruckIcon, 
   Calculator, 
   BadgePercent,
-  Receipt
+  Receipt,
+  DollarSign
 } from 'lucide-react';
 
 interface RevenueTilesProps {
@@ -21,6 +22,7 @@ interface RevenueTilesProps {
     totalDeliveryRevenue: number;
     servicesTax: number;
     deliveryTax: number;
+    subtotal: number; // Add subtotal to props
   };
   formatIndianCurrency: (amount: number) => string;
 }
@@ -38,6 +40,22 @@ export const RevenueTiles: React.FC<RevenueTilesProps> = ({ revenueMetrics, form
             </div>
             <div className="bg-blue-500 p-3 rounded-lg">
               <Wallet className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Subtotal Value Card (New) */}
+      <Card className="overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100 card-hover-effect">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-emerald-600 font-medium mb-1">Subtotal Value</p>
+              <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.subtotal)}</h3>
+              <p className="text-gray-600 text-sm mt-1">Base service cost</p>
+            </div>
+            <div className="bg-emerald-500 p-3 rounded-lg">
+              <DollarSign className="h-6 w-6 text-white" />
             </div>
           </div>
         </CardContent>
@@ -108,7 +126,7 @@ export const RevenueTiles: React.FC<RevenueTilesProps> = ({ revenueMetrics, form
         </CardContent>
       </Card>
 
-      {/* Services Tax Card (new) */}
+      {/* Services Tax Card */}
       <Card className="overflow-hidden bg-gradient-to-br from-cyan-50 to-cyan-100 card-hover-effect">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
@@ -124,7 +142,7 @@ export const RevenueTiles: React.FC<RevenueTilesProps> = ({ revenueMetrics, form
         </CardContent>
       </Card>
 
-      {/* Delivery Tax Card (new) */}
+      {/* Delivery Tax Card */}
       <Card className="overflow-hidden bg-gradient-to-br from-teal-50 to-teal-100 card-hover-effect">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
