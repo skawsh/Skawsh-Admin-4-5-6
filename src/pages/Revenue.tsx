@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/layout/Layout';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { getFilteredOrders, calculateRevenueMetrics } from '@/components/revenue/mockRevenueData';
+import { getFilteredOrders, calculateRevenueMetrics, mockOrders } from '@/components/revenue/mockRevenueData';
 import { RevenueFilterDropdown } from '@/components/revenue/RevenueFilterDropdown';
 import { RevenueTiles } from '@/components/revenue/RevenueTiles';
 import { RevenueTableSection } from '@/components/revenue/RevenueTableSection';
+import { RevenueOrder, RevenueUpdateEvent } from '@/components/revenue/RevenueTable';
 
 const formatIndianCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -37,17 +38,52 @@ const Revenue: React.FC = () => {
     to: "23:59"
   });
   
-  const [allOrders, setAllOrders] = useState(getFilteredOrders('all'));
+  const [localOrders, setLocalOrders] = useState<RevenueOrder[]>([...mockOrders]);
+  const [filteredOrders, setFilteredOrders] = useState<RevenueOrder[]>([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [revenueMetrics, setRevenueMetrics] = useState(calculateRevenueMetrics(filteredOrders));
+
+  const handleRevenueUpdate = useCallback((event: RevenueUpdateEvent) => {
+    if (event.type === 'status-update') {
+      setLocalOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.orderId === event.orderId 
+            ? { ...order, paymentStatus: event.newStatus } 
+            : order
+        )
+      );
+    }
+  }, []);
 
   useEffect(() => {
-    setAllOrders(getFilteredOrders(timeFilter));
+    const filtered = localOrders.filter(order => {
+      if (timeFilter === 'all') return true;
+      
+      const now = new Date();
+      const orderDate = new Date(order.orderDate);
+      
+      switch (timeFilter) {
+        case 'last15Minutes':
+          return (now.getTime() - orderDate.getTime()) <= 15 * 60 * 1000;
+        case 'today':
+          return orderDate.toDateString() === now.toDateString();
+        default:
+          return true;
+      }
+    });
+    
+    setFilteredOrders(filtered);
+    setRevenueMetrics(calculateRevenueMetrics(filtered));
+  }, [localOrders, timeFilter]);
+
+  useEffect(() => {
+    const filtered = getFilteredOrders(timeFilter);
+    setFilteredOrders(filtered);
+    setRevenueMetrics(calculateRevenueMetrics(filtered));
   }, [timeFilter]);
 
-  const pendingOrders = allOrders.filter(order => order.paymentStatus === 'Pending');
-  const paidOrders = allOrders.filter(order => order.paymentStatus === 'Paid');
-
-  const revenueMetrics = calculateRevenueMetrics(allOrders);
+  const pendingOrders = filteredOrders.filter(order => order.paymentStatus === 'Pending');
+  const paidOrders = filteredOrders.filter(order => order.paymentStatus === 'Paid');
 
   const filterDisplayNames: Record<string, string> = {
     all: "All Time",
@@ -134,11 +170,12 @@ const Revenue: React.FC = () => {
         />
         
         <RevenueTableSection
-          allOrders={allOrders}
+          allOrders={filteredOrders}
           pendingOrders={pendingOrders}
           paidOrders={paidOrders}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          onRevenueUpdate={handleRevenueUpdate}
         />
       </div>
     </Layout>

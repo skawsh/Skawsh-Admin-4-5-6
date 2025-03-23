@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RevenueTable, RevenueOrder } from '@/components/revenue/RevenueTable';
+import { RevenueTable, RevenueOrder, RevenueUpdateEvent } from '@/components/revenue/RevenueTable';
 
 interface RevenueTableSectionProps {
   allOrders: RevenueOrder[];
@@ -10,6 +10,7 @@ interface RevenueTableSectionProps {
   paidOrders: RevenueOrder[];
   activeTab: string;
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+  onRevenueUpdate?: (event: RevenueUpdateEvent) => void;
 }
 
 export const RevenueTableSection: React.FC<RevenueTableSectionProps> = ({
@@ -17,7 +18,8 @@ export const RevenueTableSection: React.FC<RevenueTableSectionProps> = ({
   pendingOrders,
   paidOrders,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  onRevenueUpdate
 }) => {
   return (
     <div className="mt-8">
@@ -32,15 +34,15 @@ export const RevenueTableSection: React.FC<RevenueTableSectionProps> = ({
         </div>
         
         <TabsContent value="all">
-          <RevenueTable orders={allOrders} />
+          <RevenueTable orders={allOrders} onRevenueUpdate={onRevenueUpdate} />
         </TabsContent>
         
         <TabsContent value="pending">
-          <RevenueTable orders={pendingOrders} />
+          <RevenueTable orders={pendingOrders} onRevenueUpdate={onRevenueUpdate} />
         </TabsContent>
         
         <TabsContent value="paid">
-          <RevenueTable orders={paidOrders} />
+          <RevenueTable orders={paidOrders} onRevenueUpdate={onRevenueUpdate} />
         </TabsContent>
       </Tabs>
     </div>

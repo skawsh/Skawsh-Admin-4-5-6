@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, 
   TableHeader, 
@@ -32,13 +32,29 @@ export interface RevenueOrder {
   deliveredDate: Date | null;
 }
 
-interface RevenueTableProps {
-  orders: RevenueOrder[];
+// Define a custom event for real-time updates
+export type RevenueUpdateEvent = {
+  type: 'status-update';
+  orderId: string;
+  newStatus: 'Paid' | 'Pending' | 'Failed' | 'Refunded';
 }
 
-export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
+interface RevenueTableProps {
+  orders: RevenueOrder[];
+  onRevenueUpdate?: (event: RevenueUpdateEvent) => void;
+}
+
+export const RevenueTable: React.FC<RevenueTableProps> = ({ 
+  orders,
+  onRevenueUpdate 
+}) => {
   const navigate = useNavigate();
   const [ordersData, setOrdersData] = useState<RevenueOrder[]>(orders);
+
+  // Update local state when props change
+  useEffect(() => {
+    setOrdersData(orders);
+  }, [orders]);
   
   // Function to determine badge color based on payment status
   const getPaymentStatusColor = (status: string) => {
@@ -80,7 +96,16 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
     
     setOrdersData(updatedOrders);
     
-    // Show success toast with fixed variants to match the available options
+    // Emit the update event for real-time updates
+    if (onRevenueUpdate) {
+      onRevenueUpdate({
+        type: 'status-update',
+        orderId,
+        newStatus
+      });
+    }
+    
+    // Show success toast
     toast({
       title: "Status Updated",
       description: `Order #${orderId} payment status changed to ${newStatus}`,
