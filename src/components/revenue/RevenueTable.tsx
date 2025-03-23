@@ -50,6 +50,16 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
     navigate(`/orders/${orderId}/details`);
   };
 
+  // Format amount to INR currency
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount).replace('₹', '₹ ');
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -60,6 +70,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
             <TableHead>Ordered Date</TableHead>
             <TableHead>Wash Type</TableHead>
             <TableHead>Payment Status</TableHead>
+            <TableHead>Amount</TableHead>
             <TableHead>Delivered Date</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -79,6 +90,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
                   {order.paymentStatus}
                 </Badge>
               </TableCell>
+              <TableCell>{formatAmount(order.amount)}</TableCell>
               <TableCell>
                 {order.deliveredDate 
                   ? format(order.deliveredDate, 'dd MMM yyyy') 
@@ -99,7 +111,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
           ))}
           {orders.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={8} className="h-24 text-center">
                 No revenue data found.
               </TableCell>
             </TableRow>

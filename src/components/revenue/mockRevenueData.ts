@@ -66,6 +66,79 @@ export const mockOrders: RevenueOrder[] = [
     amount: 400,
     deliveredDate: null,
   },
+  // Additional orders for various time periods
+  {
+    id: 8,
+    orderId: 'ORD-RT008',
+    orderDate: new Date(2024, 2, 10), // March 10, 2024 - for monthly view
+    washType: 'Standard',
+    paymentStatus: 'Paid',
+    amount: 1500,
+    deliveredDate: new Date(2024, 2, 12),
+  },
+  {
+    id: 9,
+    orderId: 'ORD-RT009',
+    orderDate: new Date(2024, 1, 15), // February 15, 2024 - for monthly view
+    washType: 'Express',
+    paymentStatus: 'Paid',
+    amount: 2100,
+    deliveredDate: new Date(2024, 1, 16),
+  },
+  {
+    id: 10,
+    orderId: 'ORD-RT010',
+    orderDate: new Date(2024, 0, 5), // January 5, 2024 - for yearly view
+    washType: 'Standard & Express',
+    paymentStatus: 'Paid',
+    amount: 3200,
+    deliveredDate: new Date(2024, 0, 7),
+  },
+  {
+    id: 11,
+    orderId: 'ORD-RT011',
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 10)), // 10 minutes ago - for last15Minutes view
+    washType: 'Express',
+    paymentStatus: 'Pending',
+    amount: 1800,
+    deliveredDate: null,
+  },
+  {
+    id: 12,
+    orderId: 'ORD-RT012',
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 30)), // 30 minutes ago - for last60Minutes view
+    washType: 'Standard',
+    paymentStatus: 'Paid',
+    amount: 850,
+    deliveredDate: null,
+  },
+  {
+    id: 13,
+    orderId: 'ORD-RT013',
+    orderDate: new Date(new Date().setHours(new Date().getHours() - 2)), // 2 hours ago - for last4Hours view
+    washType: 'Standard & Express',
+    paymentStatus: 'Paid',
+    amount: 2400,
+    deliveredDate: null,
+  },
+  {
+    id: 14,
+    orderId: 'ORD-RT014',
+    orderDate: new Date(new Date().setHours(new Date().getHours() - 18)), // 18 hours ago - for last24Hours view
+    washType: 'Express',
+    paymentStatus: 'Failed',
+    amount: 300,
+    deliveredDate: null,
+  },
+  {
+    id: 15,
+    orderId: 'ORD-RT015',
+    orderDate: new Date(new Date().setDate(new Date().getDate() - 1)), // Yesterday
+    washType: 'Standard',
+    paymentStatus: 'Paid',
+    amount: 1100,
+    deliveredDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+  },
 ];
 
 // Function to filter orders based on time period
