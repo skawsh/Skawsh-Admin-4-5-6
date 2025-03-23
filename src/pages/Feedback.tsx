@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Filter, ChevronLeft } from 'lucide-react';
+import { Filter, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { FeedbackTable } from '@/components/feedback/FeedbackTable';
 import { FeedbackFilters } from '@/components/feedback/FeedbackFilters';
 import { RatingOverview } from '@/components/ratings/RatingOverview';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ReportedStudiosTable } from '@/components/feedback/ReportedStudiosTable';
 
 // Updated mock data with more entries and varied timestamps
 const mockFeedback = [
@@ -194,6 +195,90 @@ const mockFeedback = [
   }
 ];
 
+// Mock data for reported studios
+const mockReportedStudios = [
+  {
+    id: 1,
+    userName: "Mary Johnson",
+    studioId: "STD-001",
+    studioName: "CleanWash Laundry",
+    issueReported: "Items were damaged during washing process",
+    date: new Date().toISOString() // Today's date
+  },
+  {
+    id: 2,
+    userName: "Robert Davis",
+    studioId: "STD-002",
+    studioName: "SpeedyWash",
+    issueReported: "Late delivery and poor customer service",
+    date: new Date().toISOString() // Today's date
+  },
+  {
+    id: 3,
+    userName: "Sarah Wilson",
+    studioId: "STD-001",
+    studioName: "CleanWash Laundry",
+    issueReported: "Missing items from my order",
+    date: "2023-09-15T14:30:00"
+  },
+  {
+    id: 4,
+    userName: "Thomas Brown",
+    studioId: "STD-003",
+    studioName: "Premium Laundry Services",
+    issueReported: "Overcharged for basic washing services",
+    date: "2023-09-10T09:15:00"
+  },
+  {
+    id: 5,
+    userName: "Jennifer Lee",
+    studioId: "STD-004",
+    studioName: "EcoWash Studio",
+    issueReported: "Poor quality of cleaning, stains remained",
+    date: "2023-09-08T16:45:00"
+  },
+  {
+    id: 6,
+    userName: "Michael Garcia",
+    studioId: "STD-002",
+    studioName: "SpeedyWash",
+    issueReported: "Wrong items returned in my package",
+    date: "2023-09-05T11:20:00"
+  },
+  {
+    id: 7,
+    userName: "Emily Martinez",
+    studioId: "STD-005",
+    studioName: "Urban Laundromat",
+    issueReported: "Rude staff behavior and unprofessional service",
+    date: "2023-09-03T13:10:00"
+  },
+  {
+    id: 8,
+    userName: "David Rodriguez",
+    studioId: "STD-003",
+    studioName: "Premium Laundry Services",
+    issueReported: "Delayed service without notification",
+    date: "2023-09-01T10:30:00"
+  },
+  {
+    id: 9,
+    userName: "Linda Harris",
+    studioId: "STD-006",
+    studioName: "Fresh & Clean",
+    issueReported: "Strong chemical smell on clothes after washing",
+    date: "2023-08-28T15:45:00"
+  },
+  {
+    id: 10,
+    userName: "James Wilson",
+    studioId: "STD-004",
+    studioName: "EcoWash Studio",
+    issueReported: "App glitches when trying to contact the studio",
+    date: "2023-08-25T09:20:00"
+  }
+];
+
 const Feedback = () => {
   const navigate = useNavigate();
   
@@ -207,6 +292,9 @@ const Feedback = () => {
   const [customDateTo, setCustomDateTo] = useState<Date | undefined>(undefined);
   const [selectedRating, setSelectedRating] = useState('all');
   const [sortOrder, setSortOrder] = useState<'latest' | 'highest' | 'lowest'>('latest');
+  
+  // Active tab state
+  const [activeTab, setActiveTab] = useState<'feedback' | 'reportedStudios'>('feedback');
 
   // Handle back button click
   const handleBackClick = () => {
@@ -356,22 +444,71 @@ const Feedback = () => {
           </CardContent>
         </Card>
         
-        <div className="grid grid-cols-1 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Feedback</CardTitle>
-              <CardDescription>
-                View and manage feedback submitted by users
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FeedbackTable 
-                feedback={sortedFeedback}
-                sortOrder={sortOrder}
-              />
-            </CardContent>
-          </Card>
+        {/* Tab Navigation */}
+        <div className="flex border-b border-gray-200">
+          <button
+            className={`py-2 px-4 font-medium text-sm ${
+              activeTab === 'feedback' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('feedback')}
+          >
+            User Feedback
+          </button>
+          <button
+            className={`py-2 px-4 font-medium text-sm flex items-center ${
+              activeTab === 'reportedStudios' 
+                ? 'text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('reportedStudios')}
+          >
+            <span>Reported Studios</span>
+            <span className="ml-2 bg-red-100 text-red-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+              {mockReportedStudios.length}
+            </span>
+          </button>
         </div>
+        
+        {/* Content based on active tab */}
+        {activeTab === 'feedback' ? (
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Feedback</CardTitle>
+                <CardDescription>
+                  View and manage feedback submitted by users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FeedbackTable 
+                  feedback={sortedFeedback}
+                  sortOrder={sortOrder}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  Reported Studios
+                </CardTitle>
+                <CardDescription>
+                  Studios that have been reported by users for various issues
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReportedStudiosTable 
+                  reportedStudios={mockReportedStudios}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </Layout>
   );
