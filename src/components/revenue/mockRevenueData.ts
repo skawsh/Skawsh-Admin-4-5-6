@@ -5,26 +5,26 @@ import { RevenueOrder } from './RevenueTable';
 export const mockOrders: RevenueOrder[] = [
   {
     id: 1,
-    orderId: 'ORD-2025-001',
-    orderDate: new Date(2025, 2, 20), // March 20, 2025
-    washType: 'Standard',
+    orderId: 'ORD-RT001',
+    orderDate: new Date(2024, 2, 23), // March 23, 2024
+    washType: 'Express',
     paymentStatus: 'Paid',
-    amount: 450,
-    deliveredDate: new Date(2025, 2, 22), // March 22, 2025
+    amount: 3000,
+    deliveredDate: null,
   },
   {
     id: 2,
-    orderId: 'ORD-2025-002',
-    orderDate: new Date(2025, 2, 21), // March 21, 2025
-    washType: 'Express',
+    orderId: 'ORD-RT002',
+    orderDate: new Date(2024, 2, 21), // March 21, 2024
+    washType: 'Standard',
     paymentStatus: 'Paid',
     amount: 750,
-    deliveredDate: new Date(2025, 2, 22), // March 22, 2025
+    deliveredDate: new Date(2024, 2, 22), // March 22, 2024
   },
   {
     id: 3,
-    orderId: 'ORD-2025-003',
-    orderDate: new Date(2025, 2, 22), // March 22, 2025
+    orderId: 'ORD-RT003',
+    orderDate: new Date(2024, 2, 22), // March 22, 2024
     washType: 'Standard & Express',
     paymentStatus: 'Pending',
     amount: 800,
@@ -32,17 +32,17 @@ export const mockOrders: RevenueOrder[] = [
   },
   {
     id: 4,
-    orderId: 'ORD-2025-004',
-    orderDate: new Date(2025, 2, 22), // March 22, 2025
+    orderId: 'ORD-RT004',
+    orderDate: new Date(2024, 2, 22), // March 22, 2024
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 1200,
-    deliveredDate: new Date(2025, 2, 24), // March 24, 2025
+    deliveredDate: new Date(2024, 2, 24), // March 24, 2024
   },
   {
     id: 5,
-    orderId: 'ORD-2025-005',
-    orderDate: new Date(2025, 2, 22), // March 22, 2025
+    orderId: 'ORD-RT005',
+    orderDate: new Date(2024, 2, 22), // March 22, 2024
     washType: 'Standard',
     paymentStatus: 'Failed',
     amount: 350,
@@ -50,17 +50,17 @@ export const mockOrders: RevenueOrder[] = [
   },
   {
     id: 6,
-    orderId: 'ORD-2025-006',
-    orderDate: new Date(2025, 2, 23), // March 23, 2025
+    orderId: 'ORD-RT006',
+    orderDate: new Date(2024, 2, 23), // March 23, 2024
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 650,
-    deliveredDate: new Date(2025, 2, 24), // March 24, 2025
+    deliveredDate: new Date(2024, 2, 24), // March 24, 2024
   },
   {
     id: 7,
-    orderId: 'ORD-2025-007',
-    orderDate: new Date(2025, 2, 23), // March 23, 2025
+    orderId: 'ORD-RT007',
+    orderDate: new Date(2024, 2, 23), // March 23, 2024
     washType: 'Standard & Express',
     paymentStatus: 'Pending',
     amount: 400,

@@ -3,8 +3,16 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Calendar, ShoppingBag, Truck, CreditCard, User, MapPin } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { 
+  ArrowLeft, 
+  Package, 
+  User, 
+  MapPin, 
+  Building, 
+  FileText, 
+  Truck
+} from 'lucide-react';
 import { mockOrders } from '@/components/revenue/mockRevenueData';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
@@ -48,158 +56,222 @@ const OrderDetails: React.FC = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Order Details</h1>
-            <p className="text-gray-600 mt-1">Order #{orderId}</p>
+            <h1 className="text-3xl font-bold text-gray-800">Order Details: {orderId}</h1>
+            <p className="text-gray-600 mt-1">View details for order {orderId}</p>
           </div>
         </div>
         
         {order ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>Order Information</span>
-                  <Badge 
-                    variant="outline" 
-                    className={getPaymentStatusColor(order.paymentStatus)}
-                  >
-                    {order.paymentStatus}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <ShoppingBag className="h-4 w-4" />
-                      Order ID
-                    </p>
-                    <p className="font-medium">#{order.orderId}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Order Date
-                    </p>
-                    <p className="font-medium">{format(order.orderDate, 'dd MMMM yyyy')}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <ShoppingBag className="h-4 w-4" />
-                      Wash Type
-                    </p>
-                    <p className="font-medium">{order.washType}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Truck className="h-4 w-4" />
-                      Delivery Status
-                    </p>
-                    <p className="font-medium">{order.deliveredDate ? 'Delivered' : 'Pending'}</p>
-                  </div>
-                  {order.deliveredDate && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500 flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        Delivered Date
-                      </p>
-                      <p className="font-medium">{format(order.deliveredDate, 'dd MMMM yyyy')}</p>
-                    </div>
-                  )}
+          <div className="space-y-6">
+            {/* Order Information */}
+            <Card className="p-6 border-l-4 border-l-green-500">
+              <div className="flex items-center gap-2 text-xl font-semibold text-green-700 mb-6">
+                <Package className="h-6 w-6" />
+                <h2>Order Information</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                <div>
+                  <p className="text-sm text-gray-500">Order ID</p>
+                  <p className="font-medium">{order.orderId}</p>
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Customer Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500">Name</p>
-                      <p className="font-medium">Jane Smith</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500">Phone</p>
-                      <p className="font-medium">+91 98765 43210</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium">jane.smith@example.com</p>
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-sm text-gray-500">Ordered Date</p>
+                  <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy')}</p>
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Delivery Address
-                  </h3>
-                  <p>123 Main Street, Apartment 4B<br />Mumbai, Maharashtra 400001<br />India</p>
+                <div>
+                  <p className="text-sm text-gray-500">Order Delivered date</p>
+                  <p className="font-medium">
+                    {order.deliveredDate ? format(order.deliveredDate, 'dd MMM yyyy') : 'N/A'}
+                  </p>
                 </div>
-              </CardContent>
+                <div>
+                  <p className="text-sm text-gray-500">Wash Type</p>
+                  <p className="font-medium text-red-600">{order.washType}</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Customer Information */}
+            <Card className="p-6 border-l-4 border-l-blue-500">
+              <div className="flex items-center gap-2 text-xl font-semibold text-blue-700 mb-6">
+                <User className="h-6 w-6" />
+                <h2>Customer Information</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                <div>
+                  <p className="text-sm text-gray-500">Customer Name</p>
+                  <p className="font-medium">Vijay Malhotra</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Number</p>
+                  <p className="font-medium">+91 9998887770</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-medium">204, Jubilee Heights, Madhapur, Hyderabad</p>
+                </div>
+              </div>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Payment Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span>₹ {(order.amount * 0.85).toFixed(0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Tax (GST - 18%)</span>
-                    <span>₹ {(order.amount * 0.15).toFixed(0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Delivery Fee</span>
-                    <span>₹ 0</span>
-                  </div>
+            {/* Studio Information */}
+            <Card className="p-6 border-l-4 border-l-blue-500">
+              <div className="flex items-center gap-2 text-xl font-semibold text-blue-700 mb-6">
+                <Building className="h-6 w-6" />
+                <h2>Studio Information</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                <div>
+                  <p className="text-sm text-gray-500">Studio Name</p>
+                  <p className="font-medium">CleanCorp</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Studio ID</p>
+                  <p className="font-medium">STD-RT001</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Contact</p>
+                  <p className="font-medium">+91 8887776660</p>
+                </div>
+              </div>
+            </Card>
+            
+            {/* Services Information */}
+            <Card className="p-6 border-l-4 border-l-yellow-500">
+              <div className="flex items-center gap-2 text-xl font-semibold text-yellow-700 mb-6">
+                <FileText className="h-6 w-6" />
+                <h2>Services Information</h2>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm text-gray-500">Wash Type</p>
+                  <p className="font-medium text-red-600">Express Wash</p>
                 </div>
                 
-                <Separator />
-                
-                <div className="flex justify-between font-semibold text-lg">
-                  <span>Total</span>
-                  <span>₹ {order.amount}</span>
-                </div>
-                
-                <div className="pt-4">
-                  <h4 className="font-medium mb-2">Payment Method</h4>
-                  <div className="bg-gray-50 p-3 rounded-md flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium">Credit Card</p>
-                      <p className="text-sm text-gray-500">**** **** **** 1234</p>
+                {/* Dry Cleaning Services */}
+                <div className="border rounded-md p-4">
+                  <h3 className="font-semibold text-lg mb-4">Dry Cleaning Services</h3>
+                  <div className="space-y-4">
+                    <p className="font-medium">Bottom Wear</p>
+                    <div className="flex justify-between items-center">
+                      <p>1) Jeans</p>
+                      <p className="text-gray-600">2 X 200</p>
+                      <p className="font-medium">₹400</p>
                     </div>
                   </div>
                 </div>
-              </CardContent>
+                
+                {/* Shoe Cleaning Services */}
+                <div className="border rounded-md p-4">
+                  <h3 className="font-semibold text-lg mb-4">Shoe Cleaning Services</h3>
+                  <div className="space-y-4">
+                    <p className="font-medium">Regular</p>
+                    <div className="flex justify-between items-center">
+                      <p></p>
+                      <p className="text-gray-600">2 X 598/Pair</p>
+                      <p className="font-medium">₹1196</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Fee and Taxes */}
+                <div className="space-y-3 mt-4">
+                  <div className="flex justify-between">
+                    <p>Delivery Fee</p>
+                    <p className="font-medium">₹50</p>
+                  </div>
+                  
+                  <p className="font-medium">Taxes</p>
+                  
+                  <div className="flex justify-between">
+                    <p className="text-gray-600">GST on Services (18%)</p>
+                    <p className="font-medium">₹449.64</p>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <p className="text-gray-600">GST on Delivery (5%)</p>
+                    <p className="font-medium">₹2.50</p>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex justify-between font-bold text-lg">
+                    <p>Total</p>
+                    <p>₹3000</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+            
+            {/* Delivery Information */}
+            <Card className="p-6 border-l-4 border-l-purple-500">
+              <div className="flex items-center gap-2 text-xl font-semibold text-purple-700 mb-6">
+                <Truck className="h-6 w-6" />
+                <h2>Delivery Information</h2>
+              </div>
+              
+              <div className="space-y-8">
+                <div>
+                  <h3 className="font-medium text-lg mb-4">Pickup and Drop</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                    <div>
+                      <p className="text-sm text-gray-500">Assigned to</p>
+                      <p className="font-medium">Deepak</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Vehicle details</p>
+                      <p className="font-medium">Passion Pro - TS02EF0808</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Picked up date & time</p>
+                      <p className="font-medium">Jun 10, 2024 at 10:30 AM</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Dropped off date & time</p>
+                      <p className="font-medium">Jun 11, 2024 at 04:30 PM</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium text-lg mb-4">Collect and Delivery</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6">
+                    <div>
+                      <p className="text-sm text-gray-500">Assigned to</p>
+                      <p className="font-medium">Saiteja</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Vehicle details</p>
+                      <p className="font-medium">Honda Activa - TS02FF2703</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Collected date & time</p>
+                      <p className="font-medium">Jun 12, 2024 at 09:45 AM</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Delivered date & time</p>
+                      <p className="font-medium">Jun 15, 2024 at 06:15 PM</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Card>
           </div>
         ) : (
-          <Card>
-            <CardContent className="py-10">
-              <div className="text-center">
-                <h3 className="text-lg font-medium">Order Not Found</h3>
-                <p className="text-gray-500 mt-2">The order you're looking for doesn't exist or has been removed.</p>
-                <Button 
-                  className="mt-4" 
-                  onClick={handleGoBack}
-                >
-                  Go Back
-                </Button>
-              </div>
-            </CardContent>
+          <Card className="p-6">
+            <div className="text-center py-8">
+              <h3 className="text-lg font-medium">Order Not Found</h3>
+              <p className="text-gray-500 mt-2">The order you're looking for doesn't exist or has been removed.</p>
+              <Button 
+                className="mt-4" 
+                onClick={handleGoBack}
+              >
+                Go Back
+              </Button>
+            </div>
           </Card>
         )}
       </div>
