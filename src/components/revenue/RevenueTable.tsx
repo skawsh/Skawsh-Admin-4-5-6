@@ -27,7 +27,7 @@ export interface RevenueOrder {
   orderId: string;
   orderDate: Date;
   washType: 'Standard' | 'Express' | 'Standard & Express';
-  paymentStatus: 'Paid' | 'Pending' | 'Failed';
+  paymentStatus: 'Paid' | 'Pending' | 'Failed' | 'Refunded';
   amount: number;
   deliveredDate: Date | null;
 }
@@ -49,6 +49,8 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
         return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
       case 'Failed':
         return 'bg-red-100 text-red-800 hover:bg-red-100';
+      case 'Refunded':
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-100';
       default:
         return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
     }
@@ -68,7 +70,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
     }).format(amount).replace('₹', '₹ ');
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: 'Paid' | 'Pending' | 'Failed') => {
+  const updateOrderStatus = (orderId: string, newStatus: 'Paid' | 'Pending' | 'Failed' | 'Refunded') => {
     const updatedOrders = ordersData.map(order => {
       if (order.orderId === orderId) {
         return { ...order, paymentStatus: newStatus };
@@ -90,11 +92,29 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
   const getStatusOptions = (currentStatus: string) => {
     switch (currentStatus) {
       case 'Pending':
-        return [{ label: 'Mark as Paid', value: 'Paid' }, { label: 'Mark as Failed', value: 'Failed' }];
+        return [
+          { label: 'Mark as Paid', value: 'Paid' }, 
+          { label: 'Mark as Failed', value: 'Failed' },
+          { label: 'Mark as Refunded', value: 'Refunded' }
+        ];
       case 'Paid':
-        return [{ label: 'Mark as Pending', value: 'Pending' }, { label: 'Mark as Failed', value: 'Failed' }];
+        return [
+          { label: 'Mark as Pending', value: 'Pending' }, 
+          { label: 'Mark as Failed', value: 'Failed' },
+          { label: 'Mark as Refunded', value: 'Refunded' }
+        ];
       case 'Failed':
-        return [{ label: 'Mark as Pending', value: 'Pending' }, { label: 'Mark as Paid', value: 'Paid' }];
+        return [
+          { label: 'Mark as Pending', value: 'Pending' }, 
+          { label: 'Mark as Paid', value: 'Paid' },
+          { label: 'Mark as Refunded', value: 'Refunded' }
+        ];
+      case 'Refunded':
+        return [
+          { label: 'Mark as Pending', value: 'Pending' }, 
+          { label: 'Mark as Paid', value: 'Paid' },
+          { label: 'Mark as Failed', value: 'Failed' }
+        ];
       default:
         return [{ label: 'Mark as Paid', value: 'Paid' }];
     }
@@ -154,7 +174,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
                       {getStatusOptions(order.paymentStatus).map((option) => (
                         <DropdownMenuItem 
                           key={option.value}
-                          onClick={() => updateOrderStatus(order.orderId, option.value as 'Paid' | 'Pending' | 'Failed')}
+                          onClick={() => updateOrderStatus(order.orderId, option.value as 'Paid' | 'Pending' | 'Failed' | 'Refunded')}
                         >
                           {option.label}
                         </DropdownMenuItem>

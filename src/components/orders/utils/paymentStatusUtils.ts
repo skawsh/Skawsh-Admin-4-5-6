@@ -10,6 +10,8 @@ export const getPaymentStatusColor = (status: string) => {
       return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
     case 'Failed':
       return 'bg-red-100 text-red-800 hover:bg-red-100';
+    case 'Refunded':
+      return 'bg-blue-100 text-blue-800 hover:bg-blue-100';
     default:
       return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
   }
