@@ -18,20 +18,20 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
   const receivedPayments = totalRevenue - pendingPayments;
   const pendingCount = orders.filter(order => order.paymentStatus === 'Pending').length;
   
-  // Calculate markup revenue (subtotal - 10%)
-  const markupRevenue = Math.round(totalRevenue * 0.9);
+  // Calculate markup revenue (subtotal + 10%)
+  // First, we calculate the base subtotal (without delivery fees)
+  const baseSubtotal = Math.round(totalRevenue * 0.85); // Assuming 15% of total is delivery
+  const markupRevenue = Math.round(baseSubtotal * 1.1); // 10% markup on the subtotal
   
-  // Set delivery fee as 50 per order
-  const deliveryFee = 50;
-  const totalDeliveryRevenue = orders.length * deliveryFee;
+  // Delivery revenue calculation - varies by order based on distance
+  const totalDeliveryRevenue = Math.round(totalRevenue * 0.15); // Assuming 15% of total amount
   
   // Calculate taxes
-  const subtotalTaxRate = 0.18; // 18%
-  const deliveryTaxRate = 0.05; // 5%
+  const servicesTaxRate = 0.18; // 18% on services
+  const deliveryTaxRate = 0.05; // 5% on delivery
   
-  const subtotalTax = Math.round((totalRevenue - totalDeliveryRevenue) * subtotalTaxRate);
+  const servicesTax = Math.round(baseSubtotal * servicesTaxRate);
   const deliveryTax = Math.round(totalDeliveryRevenue * deliveryTaxRate);
-  const totalTaxes = subtotalTax + deliveryTax;
   
   return {
     totalRevenue,
@@ -40,9 +40,8 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
     pendingCount,
     markupRevenue,
     totalDeliveryRevenue,
-    subtotalTax,
-    deliveryTax,
-    totalTaxes
+    servicesTax,
+    deliveryTax
   };
 };
 
