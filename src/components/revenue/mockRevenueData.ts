@@ -7,7 +7,7 @@ export const mockOrders: RevenueOrder[] = [
     id: 1,
     orderId: 'ORD-2025-001',
     orderDate: new Date(2025, 2, 20), // March 20, 2025
-    washType: 'Regular',
+    washType: 'Standard',
     paymentStatus: 'Paid',
     amount: 450,
     deliveredDate: new Date(2025, 2, 22), // March 22, 2025
@@ -25,7 +25,7 @@ export const mockOrders: RevenueOrder[] = [
     id: 3,
     orderId: 'ORD-2025-003',
     orderDate: new Date(2025, 2, 22), // March 22, 2025
-    washType: 'Delicate',
+    washType: 'Standard & Express',
     paymentStatus: 'Pending',
     amount: 800,
     deliveredDate: null,
@@ -34,7 +34,7 @@ export const mockOrders: RevenueOrder[] = [
     id: 4,
     orderId: 'ORD-2025-004',
     orderDate: new Date(2025, 2, 22), // March 22, 2025
-    washType: 'Dry Clean',
+    washType: 'Express',
     paymentStatus: 'Paid',
     amount: 1200,
     deliveredDate: new Date(2025, 2, 24), // March 24, 2025
@@ -43,7 +43,7 @@ export const mockOrders: RevenueOrder[] = [
     id: 5,
     orderId: 'ORD-2025-005',
     orderDate: new Date(2025, 2, 22), // March 22, 2025
-    washType: 'Regular',
+    washType: 'Standard',
     paymentStatus: 'Failed',
     amount: 350,
     deliveredDate: null,
@@ -61,7 +61,7 @@ export const mockOrders: RevenueOrder[] = [
     id: 7,
     orderId: 'ORD-2025-007',
     orderDate: new Date(2025, 2, 23), // March 23, 2025
-    washType: 'Regular',
+    washType: 'Standard & Express',
     paymentStatus: 'Pending',
     amount: 400,
     deliveredDate: null,

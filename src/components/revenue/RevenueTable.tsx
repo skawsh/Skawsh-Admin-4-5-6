@@ -12,13 +12,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Define an order type for revenue data
 export interface RevenueOrder {
   id: number;
   orderId: string;
   orderDate: Date;
-  washType: 'Regular' | 'Express' | 'Delicate' | 'Dry Clean';
+  washType: 'Standard' | 'Express' | 'Standard & Express';
   paymentStatus: 'Paid' | 'Pending' | 'Failed';
   amount: number;
   deliveredDate: Date | null;
@@ -29,6 +30,8 @@ interface RevenueTableProps {
 }
 
 export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
+  const navigate = useNavigate();
+  
   // Function to determine badge color based on payment status
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -44,8 +47,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
   };
 
   const handleViewOrderDetails = (orderId: string) => {
-    console.log(`Viewing details for order ${orderId}`);
-    // This would typically open a modal or navigate to order details page
+    navigate(`/orders/${orderId}/details`);
   };
 
   return (
