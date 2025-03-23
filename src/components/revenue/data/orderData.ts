@@ -99,7 +99,7 @@ export const mockOrders: RevenueOrder[] = [
     orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 10)), // 10 minutes ago - for last15Minutes view
     washType: 'Express',
     paymentStatus: 'Pending',
-    amount: 1800,
+    amount: 1935.78, // Updated to match grand total in services section (was 1800)
     deliveredDate: null,
   },
   {

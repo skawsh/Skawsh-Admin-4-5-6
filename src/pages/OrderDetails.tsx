@@ -212,7 +212,7 @@ const OrderDetails: React.FC = () => {
                 {/* Grand Total */}
                 <div className="grid grid-cols-3 gap-4 font-bold text-lg">
                   <div className="col-span-2 text-left">Grand Total</div>
-                  <div className="text-right">₹1935.78</div>
+                  <div className="text-right">₹{order.amount.toFixed(2)}</div>
                 </div>
               </div>
             </Card>
