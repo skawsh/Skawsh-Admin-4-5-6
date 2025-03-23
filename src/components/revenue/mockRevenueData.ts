@@ -10,7 +10,7 @@ export const getFilteredOrders = (timeFilter: string) => {
 
 // Calculate additional revenue metrics
 export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
-  // Calculate total order amounts from raw data
+  // Calculate total order amounts from filtered orders
   const totalOrderAmount = orders.reduce((sum, order) => sum + order.amount, 0);
   const pendingPayments = orders
     .filter(order => order.paymentStatus === 'Pending')
@@ -21,15 +21,12 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
   const pendingCount = orders.filter(order => order.paymentStatus === 'Pending').length;
   
   // Calculate subtotal - This is the base service cost
-  // For example, ORD-RT011 has a subtotal of 1596 (based on item pricing)
   const subtotal = Math.round(totalOrderAmount * 0.85); // Using 85% as approximation for all orders
   
   // Calculate markup revenue - 10% of subtotal
-  // For ORD-RT011, markup revenue would be 159.6 (10% of 1596)
   const markupRevenue = Math.round(subtotal * 0.1);
   
   // Delivery revenue - varies by distance, approximated as flat fee
-  // This is the delivery fee (e.g., 50 per order)
   const totalDeliveryRevenue = Math.round(totalOrderAmount * 0.05); // Using 5% approximation
   
   // Calculate taxes
@@ -39,9 +36,8 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
   // Delivery Tax: 5% on delivery revenue
   const deliveryTax = Math.round(totalDeliveryRevenue * 0.05);
   
-  // Calculate total revenue as the sum of components:
-  // subtotal + delivery revenue + services tax + delivery tax
-  const totalRevenue = totalOrderAmount; // Changed to directly use the total order amount
+  // Total revenue is the direct sum of all order amounts
+  const totalRevenue = totalOrderAmount;
   
   return {
     totalRevenue,
@@ -52,7 +48,7 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
     totalDeliveryRevenue,
     servicesTax,
     deliveryTax,
-    subtotal // Expose subtotal to components
+    subtotal
   };
 };
 
