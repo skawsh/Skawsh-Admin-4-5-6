@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, BarChart, Calendar, CreditCard, PieChart, TrendingUp, Wallet, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Wallet, CreditCard, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,8 +21,8 @@ import { format } from "date-fns";
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { RevenueTable } from '@/components/revenue/RevenueTable';
 import { getFilteredOrders } from '@/components/revenue/mockRevenueData';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// Mock revenue data for different time periods
 const mockRevenueData = {
   all: {
     totalRevenue: 145280,
@@ -144,12 +143,15 @@ const Revenue: React.FC = () => {
     to: "23:59"
   });
   
-  const [orders, setOrders] = useState(getFilteredOrders('all'));
+  const [allOrders, setAllOrders] = useState(getFilteredOrders('all'));
+  const [activeTab, setActiveTab] = useState("all");
 
-  // Update orders when time filter changes
   useEffect(() => {
-    setOrders(getFilteredOrders(timeFilter));
+    setAllOrders(getFilteredOrders(timeFilter));
   }, [timeFilter]);
+
+  const pendingOrders = allOrders.filter(order => order.paymentStatus === 'Pending');
+  const paidOrders = allOrders.filter(order => order.paymentStatus === 'Paid');
 
   const filterDisplayNames: Record<string, string> = {
     all: "All Time",
@@ -194,7 +196,6 @@ const Revenue: React.FC = () => {
     }
   };
 
-  // Get data based on selected filter
   const revenueData = mockRevenueData[timeFilter as keyof typeof mockRevenueData] || mockRevenueData.all;
 
   return (
@@ -474,7 +475,6 @@ const Revenue: React.FC = () => {
                   <p className="text-blue-600 font-medium mb-1">Total Revenue</p>
                   <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueData.totalRevenue)}</h3>
                   <p className="text-green-600 text-sm mt-1 flex items-center">
-                    <TrendingUp className="h-4 w-4 mr-1" />
                     <span>{revenueData.totalGrowth} from last month</span>
                   </p>
                 </div>
@@ -492,12 +492,11 @@ const Revenue: React.FC = () => {
                   <p className="text-purple-600 font-medium mb-1">Payments Pending</p>
                   <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueData.pendingPayments)}</h3>
                   <p className="text-amber-600 text-sm mt-1 flex items-center">
-                    <CreditCard className="h-4 w-4 mr-1" />
                     <span>{revenueData.pendingCount} pending transactions</span>
                   </p>
                 </div>
                 <div className="bg-purple-500 p-3 rounded-lg">
-                  <Calendar className="h-6 w-6 text-white" />
+                  <CreditCard className="h-6 w-6 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -510,7 +509,6 @@ const Revenue: React.FC = () => {
                   <p className="text-green-600 font-medium mb-1">Payments Received</p>
                   <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueData.receivedPayments)}</h3>
                   <p className="text-green-600 text-sm mt-1 flex items-center">
-                    <TrendingUp className="h-4 w-4 mr-1" />
                     <span>{revenueData.receivedGrowth} from last month</span>
                   </p>
                 </div>
@@ -522,43 +520,29 @@ const Revenue: React.FC = () => {
           </Card>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="card-hover-effect border border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-800">Revenue Breakdown</h3>
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <PieChart className="h-5 w-5 text-blue-600" />
-                </div>
-              </div>
-              <div className="min-h-[200px] flex items-center justify-center">
-                <p className="text-gray-500">Revenue breakdown charts coming soon</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-hover-effect border border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-800">Monthly Trends</h3>
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <BarChart className="h-5 w-5 text-purple-600" />
-                </div>
-              </div>
-              <div className="min-h-[200px] flex items-center justify-center">
-                <p className="text-gray-500">Monthly trend analysis coming soon</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Revenue Table Section */}
         <div className="mt-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-800">Recent Orders</h3>
-            <Button variant="outline">Export Data</Button>
-          </div>
-          <RevenueTable orders={orders} />
+          <Tabs defaultValue="all" onValueChange={setActiveTab}>
+            <div className="flex items-center justify-between mb-6">
+              <TabsList>
+                <TabsTrigger value="all">All Orders</TabsTrigger>
+                <TabsTrigger value="pending">Payments Pending</TabsTrigger>
+                <TabsTrigger value="paid">Payments Received</TabsTrigger>
+              </TabsList>
+              <Button variant="outline">Export Data</Button>
+            </div>
+            
+            <TabsContent value="all">
+              <RevenueTable orders={allOrders} />
+            </TabsContent>
+            
+            <TabsContent value="pending">
+              <RevenueTable orders={pendingOrders} />
+            </TabsContent>
+            
+            <TabsContent value="paid">
+              <RevenueTable orders={paidOrders} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </Layout>

@@ -11,13 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { Eye, Download, MoreHorizontal } from 'lucide-react';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Eye } from 'lucide-react';
 
 // Define an order type for revenue data
 export interface RevenueOrder {
@@ -47,6 +41,11 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
       default:
         return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
     }
+  };
+
+  const handleViewOrderDetails = (orderId: string) => {
+    console.log(`Viewing details for order ${orderId}`);
+    // This would typically open a modal or navigate to order details page
   };
 
   return (
@@ -84,23 +83,15 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({ orders }) => {
                   : '-'}
               </TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <Eye className="mr-2 h-4 w-4" />
-                      <span>View Details</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <Download className="mr-2 h-4 w-4" />
-                      <span>Download Invoice</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1"
+                  onClick={() => handleViewOrderDetails(order.orderId)}
+                >
+                  <Eye className="h-4 w-4" />
+                  <span>Order Details</span>
+                </Button>
               </TableCell>
             </TableRow>
           ))}
