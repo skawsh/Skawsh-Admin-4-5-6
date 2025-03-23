@@ -5,10 +5,10 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 1,
     orderId: 'ORD-RT001',
-    orderDate: new Date(2025, 2, 23), // March 23, 2025
+    orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 10)), // 10 minutes ago - for last15Minutes view
     washType: 'Express',
     paymentStatus: 'Paid',
-    amount: 1935.78, // Updated from 3000 to match order details
+    amount: 1935.78, // Update to match the amount shown in the image (₹ 1,936 rounded)
     deliveredDate: null,
   },
   {

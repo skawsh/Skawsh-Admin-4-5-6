@@ -15,7 +15,9 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
   const pendingPayments = orders
     .filter(order => order.paymentStatus === 'Pending')
     .reduce((sum, order) => sum + order.amount, 0);
-  const receivedPayments = totalOrderAmount - pendingPayments;
+  const receivedPayments = orders
+    .filter(order => order.paymentStatus === 'Paid')
+    .reduce((sum, order) => sum + order.amount, 0);
   const pendingCount = orders.filter(order => order.paymentStatus === 'Pending').length;
   
   // Calculate subtotal - This is the base service cost
@@ -39,7 +41,7 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
   
   // Calculate total revenue as the sum of components:
   // subtotal + delivery revenue + services tax + delivery tax
-  const totalRevenue = subtotal + totalDeliveryRevenue + servicesTax + deliveryTax;
+  const totalRevenue = totalOrderAmount; // Changed to directly use the total order amount
   
   return {
     totalRevenue,
