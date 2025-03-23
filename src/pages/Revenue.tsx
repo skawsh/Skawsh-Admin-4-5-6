@@ -473,9 +473,6 @@ const Revenue: React.FC = () => {
                 <div>
                   <p className="text-blue-600 font-medium mb-1">Total Revenue</p>
                   <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueData.totalRevenue)}</h3>
-                  <p className="text-green-600 text-sm mt-1 flex items-center">
-                    <span>{revenueData.totalGrowth} from last month</span>
-                  </p>
                 </div>
                 <div className="bg-blue-500 p-3 rounded-lg">
                   <Wallet className="h-6 w-6 text-white" />
@@ -507,9 +504,6 @@ const Revenue: React.FC = () => {
                 <div>
                   <p className="text-green-600 font-medium mb-1">Payments Received</p>
                   <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueData.receivedPayments)}</h3>
-                  <p className="text-green-600 text-sm mt-1 flex items-center">
-                    <span>{revenueData.receivedGrowth} from last month</span>
-                  </p>
                 </div>
                 <div className="bg-green-500 p-3 rounded-lg">
                   <CheckCircle className="h-6 w-6 text-white" />
@@ -549,4 +543,3 @@ const Revenue: React.FC = () => {
 };
 
 export default Revenue;
-
