@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 
 export interface FeedbackItem {
@@ -13,6 +14,7 @@ export interface FeedbackItem {
 export interface ReportedStudio {
   id: number;
   userName: string;
+  mobileNumber: string; // Added mobile number field
   studioId: string;
   studioName: string;
   issueReported: string;

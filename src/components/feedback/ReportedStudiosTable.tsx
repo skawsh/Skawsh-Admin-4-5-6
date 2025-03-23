@@ -43,11 +43,12 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[5%] bg-gray-50 font-semibold">S.NO</TableHead>
-              <TableHead className="w-[15%] bg-gray-50 font-semibold">User Name</TableHead>
-              <TableHead className="w-[10%] bg-gray-50 font-semibold">Studio ID</TableHead>
-              <TableHead className="w-[15%] bg-gray-50 font-semibold">Studio Name</TableHead>
-              <TableHead className="w-[25%] bg-gray-50 font-semibold">Issue Reported</TableHead>
-              <TableHead className="w-[10%] bg-gray-50 font-semibold">Reports Count</TableHead>
+              <TableHead className="w-[12%] bg-gray-50 font-semibold">User Name</TableHead>
+              <TableHead className="w-[13%] bg-gray-50 font-semibold">Mobile Number</TableHead>
+              <TableHead className="w-[8%] bg-gray-50 font-semibold">Studio ID</TableHead>
+              <TableHead className="w-[12%] bg-gray-50 font-semibold">Studio Name</TableHead>
+              <TableHead className="w-[22%] bg-gray-50 font-semibold">Issue Reported</TableHead>
+              <TableHead className="w-[8%] bg-gray-50 font-semibold">Reports Count</TableHead>
               <TableHead className="w-[20%] bg-gray-50 font-semibold">Date & Time</TableHead>
             </TableRow>
           </TableHeader>
@@ -62,6 +63,7 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
                     {(page - 1) * itemsPerPage + index + 1}
                   </TableCell>
                   <TableCell>{item.userName}</TableCell>
+                  <TableCell>{item.mobileNumber}</TableCell>
                   <TableCell>{item.studioId}</TableCell>
                   <TableCell>{item.studioName}</TableCell>
                   <TableCell>{item.issueReported}</TableCell>
@@ -77,7 +79,7 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-10 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-10 text-gray-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <p className="font-medium">No reported studios found</p>
                     <p className="text-sm">Try adjusting your filters to see more results</p>
@@ -89,6 +91,7 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
         </Table>
       </div>
       
+      {/* Pagination code */}
       {totalPages > 1 && (
         <Pagination>
           <PaginationContent>
@@ -99,6 +102,7 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
               />
             </PaginationItem>
             
+            {/* Page numbers */}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
               <PaginationItem key={pageNum}>
                 <PaginationLink

@@ -1,3 +1,4 @@
+
 import { FeedbackItem, ReportedStudio } from './FeedbackUtils';
 
 // Mock data for feedback items
@@ -190,6 +191,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 1,
     userName: "Rahul Sharma",
+    mobileNumber: "+91 9876543210",
     studioId: "STU-001",
     studioName: "Cleaners Hub",
     issueReported: "Unhygienic washing process",
@@ -199,6 +201,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 2,
     userName: "Priya Patel",
+    mobileNumber: "+91 8765432109",
     studioId: "STU-005",
     studioName: "Eco Laundry",
     issueReported: "Wrong service provided",
@@ -208,6 +211,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 3,
     userName: "Amit Singh",
+    mobileNumber: "+91 7654321098",
     studioId: "STU-008",
     studioName: "Quick Wash",
     issueReported: "Poor quality of cleaning, stains remained",
@@ -217,6 +221,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 4,
     userName: "Neha Gupta",
+    mobileNumber: "+91 6543210987",
     studioId: "STU-012",
     studioName: "SteamPress Pro",
     issueReported: "Strong chemical smell on clothes after washing",
@@ -226,6 +231,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 5,
     userName: "Vikram Joshi",
+    mobileNumber: "+91 5432109876",
     studioId: "STU-003",
     studioName: "Cleaners Hub",
     issueReported: "Unhygienic washing process",
@@ -235,6 +241,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 6,
     userName: "Deepika Shah",
+    mobileNumber: "+91 4321098765",
     studioId: "STU-009",
     studioName: "Quick Wash",
     issueReported: "Poor quality of cleaning, stains remained",
@@ -244,6 +251,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 7,
     userName: "Rajesh Kumar",
+    mobileNumber: "+91 3210987654",
     studioId: "STU-017",
     studioName: "Fresh Fold",
     issueReported: "Wrong service provided",
@@ -253,6 +261,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 8,
     userName: "Ananya Reddy",
+    mobileNumber: "+91 2109876543",
     studioId: "STU-021",
     studioName: "Laundry Express",
     issueReported: "Strong chemical smell on clothes after washing",
@@ -262,6 +271,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 9,
     userName: "Sanjay Mehta",
+    mobileNumber: "+91 1098765432",
     studioId: "STU-014",
     studioName: "Royal Wash",
     issueReported: "Unhygienic washing process",
@@ -271,6 +281,7 @@ export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 10,
     userName: "Kavita Verma",
+    mobileNumber: "+91 0987654321",
     studioId: "STU-007",
     studioName: "Green Clean",
     issueReported: "Poor quality of cleaning, stains remained",
