@@ -1,4 +1,3 @@
-
 import { RevenueOrder } from '../RevenueTable';
 
 // Create mock data for revenue orders
@@ -99,7 +98,7 @@ export const mockOrders: RevenueOrder[] = [
     orderDate: new Date(new Date().setMinutes(new Date().getMinutes() - 10)), // 10 minutes ago - for last15Minutes view
     washType: 'Express',
     paymentStatus: 'Pending',
-    amount: 1935.78, // Updated to match grand total in services section (was 1800)
+    amount: 1935.78, // Updated to match calculated grand total (400 + 1196 + 50 + 287.28 + 2.50 = 1935.78)
     deliveredDate: null,
   },
   {
