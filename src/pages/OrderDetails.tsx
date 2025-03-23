@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
@@ -77,13 +76,13 @@ const OrderDetails: React.FC = () => {
                   <p className="font-medium">{order.orderId}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Ordered Date</p>
-                  <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy')}</p>
+                  <p className="text-sm text-gray-500">Ordered Date & Time</p>
+                  <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy, h:mm a')}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Order Delivered date</p>
+                  <p className="text-sm text-gray-500">Order Delivered Date & Time</p>
                   <p className="font-medium">
-                    {order.deliveredDate ? format(order.deliveredDate, 'dd MMM yyyy') : 'N/A'}
+                    {order.deliveredDate ? format(order.deliveredDate, 'dd MMM yyyy, h:mm a') : 'N/A'}
                   </p>
                 </div>
                 <div>
@@ -233,8 +232,8 @@ const OrderDetails: React.FC = () => {
                     <p className="font-medium">TXN123456789</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Payment Date</p>
-                    <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy')}</p>
+                    <p className="text-sm text-gray-500">Payment Date & Time</p>
+                    <p className="font-medium">{format(order.orderDate, 'dd MMM yyyy, h:mm a')}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Payment Status</p>
@@ -265,11 +264,11 @@ const OrderDetails: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Picked up date & time</p>
-                      <p className="font-medium">Jun 10, 2024 at 10:30 AM</p>
+                      <p className="font-medium">Jun 10, 2025 at 10:30 AM</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Dropped off date & time</p>
-                      <p className="font-medium">Jun 11, 2024 at 04:30 PM</p>
+                      <p className="font-medium">Jun 11, 2025 at 04:30 PM</p>
                     </div>
                   </div>
                 </div>
@@ -289,11 +288,11 @@ const OrderDetails: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Collected date & time</p>
-                        <p className="font-medium">Jun 12, 2024 at 09:45 AM</p>
+                        <p className="font-medium">Jun 12, 2025 at 09:45 AM</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Delivered date & time</p>
-                        <p className="font-medium">Jun 15, 2024 at 06:15 PM</p>
+                        <p className="font-medium">Jun 15, 2025 at 06:15 PM</p>
                       </div>
                     </div>
                   </div>
