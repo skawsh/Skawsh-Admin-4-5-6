@@ -8,7 +8,7 @@ export const mockOrders: RevenueOrder[] = [
     orderDate: new Date(2025, 2, 23), // March 23, 2025
     washType: 'Express',
     paymentStatus: 'Paid',
-    amount: 3000,
+    amount: 1935.78, // Updated from 3000 to match order details
     deliveredDate: null,
   },
   {
