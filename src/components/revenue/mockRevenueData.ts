@@ -6,7 +6,7 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 1,
     orderId: 'ORD-RT001',
-    orderDate: new Date(2024, 2, 23), // March 23, 2024
+    orderDate: new Date(2025, 2, 23), // March 23, 2025
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 3000,
@@ -15,16 +15,16 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 2,
     orderId: 'ORD-RT002',
-    orderDate: new Date(2024, 2, 21), // March 21, 2024
+    orderDate: new Date(2025, 2, 21), // March 21, 2025
     washType: 'Standard',
     paymentStatus: 'Paid',
     amount: 750,
-    deliveredDate: new Date(2024, 2, 22), // March 22, 2024
+    deliveredDate: new Date(2025, 2, 22), // March 22, 2025
   },
   {
     id: 3,
     orderId: 'ORD-RT003',
-    orderDate: new Date(2024, 2, 22), // March 22, 2024
+    orderDate: new Date(2025, 2, 22), // March 22, 2025
     washType: 'Standard & Express',
     paymentStatus: 'Pending',
     amount: 800,
@@ -33,16 +33,16 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 4,
     orderId: 'ORD-RT004',
-    orderDate: new Date(2024, 2, 22), // March 22, 2024
+    orderDate: new Date(2025, 2, 22), // March 22, 2025
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 1200,
-    deliveredDate: new Date(2024, 2, 24), // March 24, 2024
+    deliveredDate: new Date(2025, 2, 24), // March 24, 2025
   },
   {
     id: 5,
     orderId: 'ORD-RT005',
-    orderDate: new Date(2024, 2, 22), // March 22, 2024
+    orderDate: new Date(2025, 2, 22), // March 22, 2025
     washType: 'Standard',
     paymentStatus: 'Failed',
     amount: 350,
@@ -51,16 +51,16 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 6,
     orderId: 'ORD-RT006',
-    orderDate: new Date(2024, 2, 23), // March 23, 2024
+    orderDate: new Date(2025, 2, 23), // March 23, 2025
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 650,
-    deliveredDate: new Date(2024, 2, 24), // March 24, 2024
+    deliveredDate: new Date(2025, 2, 24), // March 24, 2025
   },
   {
     id: 7,
     orderId: 'ORD-RT007',
-    orderDate: new Date(2024, 2, 23), // March 23, 2024
+    orderDate: new Date(2025, 2, 23), // March 23, 2025
     washType: 'Standard & Express',
     paymentStatus: 'Pending',
     amount: 400,
@@ -70,29 +70,29 @@ export const mockOrders: RevenueOrder[] = [
   {
     id: 8,
     orderId: 'ORD-RT008',
-    orderDate: new Date(2024, 2, 10), // March 10, 2024 - for monthly view
+    orderDate: new Date(2025, 2, 10), // March 10, 2025 - for monthly view
     washType: 'Standard',
     paymentStatus: 'Paid',
     amount: 1500,
-    deliveredDate: new Date(2024, 2, 12),
+    deliveredDate: new Date(2025, 2, 12), // March 12, 2025
   },
   {
     id: 9,
     orderId: 'ORD-RT009',
-    orderDate: new Date(2024, 1, 15), // February 15, 2024 - for monthly view
+    orderDate: new Date(2025, 1, 15), // February 15, 2025 - for monthly view
     washType: 'Express',
     paymentStatus: 'Paid',
     amount: 2100,
-    deliveredDate: new Date(2024, 1, 16),
+    deliveredDate: new Date(2025, 1, 16), // February 16, 2025
   },
   {
     id: 10,
     orderId: 'ORD-RT010',
-    orderDate: new Date(2024, 0, 5), // January 5, 2024 - for yearly view
+    orderDate: new Date(2025, 0, 5), // January 5, 2025 - for yearly view
     washType: 'Standard & Express',
     paymentStatus: 'Paid',
     amount: 3200,
-    deliveredDate: new Date(2024, 0, 7),
+    deliveredDate: new Date(2025, 0, 7), // January 7, 2025
   },
   {
     id: 11,
