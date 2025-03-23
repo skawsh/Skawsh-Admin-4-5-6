@@ -22,7 +22,7 @@ interface RevenueTilesProps {
     totalDeliveryRevenue: number;
     servicesTax: number;
     deliveryTax: number;
-    subtotal: number; // Add subtotal to props
+    subtotal: number; // This will be renamed but keep the same property name
   };
   formatIndianCurrency: (amount: number) => string;
 }
@@ -45,14 +45,14 @@ export const RevenueTiles: React.FC<RevenueTilesProps> = ({ revenueMetrics, form
         </CardContent>
       </Card>
 
-      {/* Service Total Value Card (renamed from Subtotal) */}
+      {/* Total Service Revenue Card (renamed from Service Total) */}
       <Card className="overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100 card-hover-effect">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-emerald-600 font-medium mb-1">Service Total</p>
+              <p className="text-emerald-600 font-medium mb-1">Total Service Revenue</p>
               <h3 className="text-2xl font-bold text-gray-800">{formatIndianCurrency(revenueMetrics.subtotal)}</h3>
-              <p className="text-gray-600 text-sm mt-1">Base service cost</p>
+              <p className="text-gray-600 text-sm mt-1">Sum of service costs</p>
             </div>
             <div className="bg-emerald-500 p-3 rounded-lg">
               <DollarSign className="h-6 w-6 text-white" />

@@ -20,8 +20,9 @@ export const calculateRevenueMetrics = (orders: RevenueOrder[]) => {
     .reduce((sum, order) => sum + order.amount, 0);
   const pendingCount = orders.filter(order => order.paymentStatus === 'Pending').length;
   
-  // Calculate subtotal - This is the base service cost
-  const subtotal = Math.round(totalOrderAmount * 0.85); // Using 85% as approximation for all orders
+  // Calculate total service revenue - This is the sum of all service costs
+  // Using 85% as approximation of each order's service cost
+  const subtotal = orders.reduce((sum, order) => sum + Math.round(order.amount * 0.85), 0);
   
   // Calculate markup revenue - 10% of subtotal
   const markupRevenue = Math.round(subtotal * 0.1);
