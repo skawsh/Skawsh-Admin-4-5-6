@@ -1,6 +1,7 @@
+import { FeedbackItem, ReportedStudio } from './FeedbackUtils';
 
 // Mock data for feedback items
-export const mockFeedback = [
+export const mockFeedback: FeedbackItem[] = [
   {
     id: 1,
     userName: "John Smith",
@@ -185,85 +186,95 @@ export const mockFeedback = [
 ];
 
 // Mock data for reported studios
-export const mockReportedStudios = [
+export const mockReportedStudios: ReportedStudio[] = [
   {
     id: 1,
-    userName: "Mary Johnson",
-    studioId: "STD-001",
-    studioName: "CleanWash Laundry",
-    issueReported: "Items were damaged during washing process",
-    date: new Date().toISOString() // Today's date
+    userName: "Rahul Sharma",
+    studioId: "STU-001",
+    studioName: "Cleaners Hub",
+    issueReported: "Unhygienic washing process",
+    date: "2023-10-15T10:30:00",
+    reportsCount: 3
   },
   {
     id: 2,
-    userName: "Robert Davis",
-    studioId: "STD-002",
-    studioName: "SpeedyWash",
-    issueReported: "Late delivery and poor customer service",
-    date: new Date().toISOString() // Today's date
+    userName: "Priya Patel",
+    studioId: "STU-005",
+    studioName: "Eco Laundry",
+    issueReported: "Wrong service provided",
+    date: "2023-10-14T14:45:00",
+    reportsCount: 1
   },
   {
     id: 3,
-    userName: "Sarah Wilson",
-    studioId: "STD-001",
-    studioName: "CleanWash Laundry",
-    issueReported: "Missing items from my order",
-    date: "2023-09-15T14:30:00"
+    userName: "Amit Singh",
+    studioId: "STU-008",
+    studioName: "Quick Wash",
+    issueReported: "Poor quality of cleaning, stains remained",
+    date: "2023-10-13T09:15:00",
+    reportsCount: 5
   },
   {
     id: 4,
-    userName: "Thomas Brown",
-    studioId: "STD-003",
-    studioName: "Premium Laundry Services",
-    issueReported: "Overcharged for basic washing services",
-    date: "2023-09-10T09:15:00"
+    userName: "Neha Gupta",
+    studioId: "STU-012",
+    studioName: "SteamPress Pro",
+    issueReported: "Strong chemical smell on clothes after washing",
+    date: "2023-10-12T16:20:00",
+    reportsCount: 2
   },
   {
     id: 5,
-    userName: "Jennifer Lee",
-    studioId: "STD-004",
-    studioName: "EcoWash Studio",
-    issueReported: "Poor quality of cleaning, stains remained",
-    date: "2023-09-08T16:45:00"
+    userName: "Vikram Joshi",
+    studioId: "STU-003",
+    studioName: "Cleaners Hub",
+    issueReported: "Unhygienic washing process",
+    date: "2023-10-11T11:00:00",
+    reportsCount: 4
   },
   {
     id: 6,
-    userName: "Michael Garcia",
-    studioId: "STD-002",
-    studioName: "SpeedyWash",
-    issueReported: "Wrong items returned in my package",
-    date: "2023-09-05T11:20:00"
+    userName: "Deepika Shah",
+    studioId: "STU-009",
+    studioName: "Quick Wash",
+    issueReported: "Poor quality of cleaning, stains remained",
+    date: "2023-10-10T13:30:00",
+    reportsCount: 1
   },
   {
     id: 7,
-    userName: "Emily Martinez",
-    studioId: "STD-005",
-    studioName: "Urban Laundromat",
-    issueReported: "Rude staff behavior and unprofessional service",
-    date: "2023-09-03T13:10:00"
+    userName: "Rajesh Kumar",
+    studioId: "STU-017",
+    studioName: "Fresh Fold",
+    issueReported: "Wrong service provided",
+    date: "2023-10-09T15:45:00",
+    reportsCount: 3
   },
   {
     id: 8,
-    userName: "David Rodriguez",
-    studioId: "STD-003",
-    studioName: "Premium Laundry Services",
-    issueReported: "Delayed service without notification",
-    date: "2023-09-01T10:30:00"
+    userName: "Ananya Reddy",
+    studioId: "STU-021",
+    studioName: "Laundry Express",
+    issueReported: "Strong chemical smell on clothes after washing",
+    date: "2023-10-08T10:10:00",
+    reportsCount: 2
   },
   {
     id: 9,
-    userName: "Linda Harris",
-    studioId: "STD-006",
-    studioName: "Fresh & Clean",
-    issueReported: "Strong chemical smell on clothes after washing",
-    date: "2023-08-28T15:45:00"
+    userName: "Sanjay Mehta",
+    studioId: "STU-014",
+    studioName: "Royal Wash",
+    issueReported: "Unhygienic washing process",
+    date: "2023-10-07T09:30:00",
+    reportsCount: 6
   },
   {
     id: 10,
-    userName: "James Wilson",
-    studioId: "STD-004",
-    studioName: "EcoWash Studio",
-    issueReported: "App glitches when trying to contact the studio",
-    date: "2023-08-25T09:20:00"
+    userName: "Kavita Verma",
+    studioId: "STU-007",
+    studioName: "Green Clean",
+    issueReported: "Poor quality of cleaning, stains remained",
+    date: "2023-10-06T14:15:00",
+    reportsCount: 2
   }
 ];

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 export interface FeedbackItem {
@@ -18,10 +17,16 @@ export interface ReportedStudio {
   studioName: string;
   issueReported: string;
   date: string;
+  reportsCount: number;
 }
 
 export type DateRangeType = 'today' | 'yesterday' | 'last7days' | 'last30days' | 'custom';
 export type SortOrderType = 'latest' | 'highest' | 'lowest';
+export type IssueType = 
+  | "Unhygienic washing process"
+  | "Wrong service provided"
+  | "Poor quality of cleaning, stains remained"
+  | "Strong chemical smell on clothes after washing";
 
 export const useFeedbackFilters = (feedbackData: FeedbackItem[]) => {
   // Filter states

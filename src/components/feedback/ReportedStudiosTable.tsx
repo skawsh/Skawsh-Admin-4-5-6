@@ -17,15 +17,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
-interface ReportedStudio {
-  id: number;
-  userName: string;
-  studioId: string;
-  studioName: string;
-  issueReported: string;
-  date: string;
-}
+import { ReportedStudio } from './FeedbackUtils';
 
 interface ReportedStudiosTableProps {
   reportedStudios: ReportedStudio[];
@@ -51,11 +43,12 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[5%] bg-gray-50 font-semibold">S.NO</TableHead>
-              <TableHead className="w-[20%] bg-gray-50 font-semibold">User Name</TableHead>
+              <TableHead className="w-[15%] bg-gray-50 font-semibold">User Name</TableHead>
               <TableHead className="w-[10%] bg-gray-50 font-semibold">Studio ID</TableHead>
-              <TableHead className="w-[20%] bg-gray-50 font-semibold">Studio Name</TableHead>
-              <TableHead className="w-[30%] bg-gray-50 font-semibold">Issue Reported</TableHead>
-              <TableHead className="w-[15%] bg-gray-50 font-semibold">Date & Time</TableHead>
+              <TableHead className="w-[15%] bg-gray-50 font-semibold">Studio Name</TableHead>
+              <TableHead className="w-[25%] bg-gray-50 font-semibold">Issue Reported</TableHead>
+              <TableHead className="w-[10%] bg-gray-50 font-semibold">Reports Count</TableHead>
+              <TableHead className="w-[20%] bg-gray-50 font-semibold">Date & Time</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,6 +65,11 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
                   <TableCell>{item.studioId}</TableCell>
                   <TableCell>{item.studioName}</TableCell>
                   <TableCell>{item.issueReported}</TableCell>
+                  <TableCell className="text-center">
+                    <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-medium text-xs">
+                      {item.reportsCount}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-gray-600 text-sm">
                     {format(new Date(item.date), 'MMM d, yyyy h:mm a')}
                   </TableCell>
@@ -79,7 +77,7 @@ export const ReportedStudiosTable: React.FC<ReportedStudiosTableProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-10 text-gray-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <p className="font-medium">No reported studios found</p>
                     <p className="text-sm">Try adjusting your filters to see more results</p>
