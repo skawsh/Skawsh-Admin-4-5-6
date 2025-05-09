@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Payment } from '@/hooks/useStudioPayments';
@@ -129,8 +128,8 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
         <TabsContent value="pending" className="mt-0">
           <WashTypeSubTabs value={washTypeSubTab} onChange={setWashTypeSubTab} />
           
-          {/* Add Mark As Paid Button below the wasj type tabs */}
-          {activeTab === 'pending' && selectedPayments.length > 0 && (
+          {/* Add Mark As Paid Button below the wash type tabs */}
+          {selectedPayments.length > 0 && (
             <div className="flex justify-end mt-4 mb-4">
               <Button 
                 variant="green"
@@ -138,14 +137,16 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
                 disabled={selectedPayments.length === 0}
               >
                 <CheckSquare className="mr-2 h-4 w-4" />
-                Mark Selected as Paid
+                Mark Selected as Paid ({selectedPayments.length})
               </Button>
             </div>
           )}
           
           <PendingPaymentsTable 
             payments={filteredPendingPayments} 
-            formatDate={formatDate} 
+            formatDate={formatDate}
+            selectedPayments={selectedPayments}
+            setSelectedPayments={setSelectedPayments}
           />
         </TabsContent>
         
