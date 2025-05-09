@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import PaymentDialog from './PaymentDialog';
+import BulkPaymentDialog from './BulkPaymentDialog';
 
 interface PendingPaymentsTableProps {
   payments: Payment[];
@@ -38,6 +39,7 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [bulkPaymentDialogOpen, setBulkPaymentDialogOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   
   const handleSelectAll = (checked: boolean) => {
@@ -64,6 +66,10 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
     setSelectedPayment(payment);
     setPaymentDialogOpen(true);
   };
+  
+  const handleOpenBulkPaymentDialog = () => {
+    setBulkPaymentDialogOpen(true);
+  };
 
   const handleConfirmPayment = (payment: Payment, referenceNumber: string) => {
     // In a real application, this would make an API call to update the payment status
@@ -76,6 +82,22 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
     if (selectedPayments.includes(payment.id)) {
       setSelectedPayments(selectedPayments.filter(id => id !== payment.id));
     }
+  };
+  
+  const handleConfirmBulkPayments = (selectedPaymentItems: Payment[], referenceNumber: string) => {
+    // In a real application, this would make an API call to update multiple payment statuses
+    toast({
+      title: "Multiple Payments Recorded Successfully",
+      description: `${selectedPaymentItems.length} payments have been recorded with reference: ${referenceNumber || 'N/A'}`,
+    });
+    
+    // Clear the selected payments
+    setSelectedPayments([]);
+  };
+  
+  // Get the full payment objects for selected payment IDs
+  const getSelectedPaymentObjects = () => {
+    return payments.filter(payment => selectedPayments.includes(payment.id));
   };
 
   return (
@@ -169,6 +191,13 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
         onOpenChange={setPaymentDialogOpen}
         payment={selectedPayment}
         onConfirm={handleConfirmPayment}
+      />
+      
+      <BulkPaymentDialog
+        open={bulkPaymentDialogOpen}
+        onOpenChange={setBulkPaymentDialogOpen}
+        selectedPayments={getSelectedPaymentObjects()}
+        onConfirm={handleConfirmBulkPayments}
       />
     </>
   );

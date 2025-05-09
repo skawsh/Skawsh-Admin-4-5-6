@@ -9,12 +9,14 @@ import PaymentTables from '@/components/studio/payments/PaymentTables';
 import PaymentLoading from '@/components/studio/payments/PaymentLoading';
 import StudioNotFound from '@/components/studio/payments/StudioNotFound';
 import { useToast } from '@/hooks/use-toast';
+import BulkPaymentDialog from '@/components/studio/payments/BulkPaymentDialog';
 
 const StudioPayments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { studioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const [bulkPaymentDialogOpen, setBulkPaymentDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const filteredPayments = useMemo(() => {
@@ -40,15 +42,26 @@ const StudioPayments: React.FC = () => {
     };
   }, [studioInfo, searchTerm]);
 
+  const selectedPaymentObjects = useMemo(() => {
+    if (!studioInfo) return [];
+    return studioInfo.payments.filter(payment => 
+      payment.status === 'Pending' && selectedPayments.includes(payment.id)
+    );
+  }, [studioInfo, selectedPayments]);
+
   const handleMarkSelectedAsPaid = () => {
     if (selectedPayments.length === 0) return;
-    
+    setBulkPaymentDialogOpen(true);
+  };
+  
+  const handleConfirmBulkPayments = (payments: any[], referenceNumber: string) => {
     toast({
       title: "Payments Marked as Paid",
-      description: `${selectedPayments.length} payments have been marked as paid successfully.`,
+      description: `${payments.length} payments have been marked as paid successfully with reference: ${referenceNumber || 'N/A'}.`,
     });
     
     setSelectedPayments([]);
+    setBulkPaymentDialogOpen(false);
   };
 
   if (loading) {
@@ -77,6 +90,13 @@ const StudioPayments: React.FC = () => {
           selectedPayments={selectedPayments}
           setSelectedPayments={setSelectedPayments}
           onMarkSelectedAsPaid={handleMarkSelectedAsPaid}
+        />
+        
+        <BulkPaymentDialog
+          open={bulkPaymentDialogOpen}
+          onOpenChange={setBulkPaymentDialogOpen}
+          selectedPayments={selectedPaymentObjects}
+          onConfirm={handleConfirmBulkPayments}
         />
       </div>
     </Layout>
