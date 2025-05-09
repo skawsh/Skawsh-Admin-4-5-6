@@ -2,9 +2,10 @@
 import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Hanger } from 'lucide-react';
 import { useServicesData } from '@/hooks/useServicesData';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 interface ClothingItemTableProps {
   subService: any;
@@ -30,6 +31,16 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
     return item ? item.name : id;
   };
 
+  if (!subService.selectedItems || subService.selectedItems.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+        <Hanger className="h-12 w-12 text-gray-400 mb-2" />
+        <h3 className="text-gray-700 font-medium">No Items Added</h3>
+        <p className="text-gray-500 text-sm">Add clothing items to this subservice to get started</p>
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -50,6 +61,19 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
             <TableRow key={itemId}>
               <TableCell className="flex items-center gap-2 font-medium">
                 {getClothingItemName(itemId)}
+                <Badge variant={isItemActive ? "success" : "secondary"} className="ml-2">
+                  {isItemActive ? 'Active' : 'Inactive'}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-center">₹{standardPrice}</TableCell>
+              <TableCell className="text-center">₹{expressPrice}</TableCell>
+              <TableCell className="flex items-center justify-end gap-2">
+                <Switch 
+                  checked={isItemActive}
+                  onCheckedChange={(checked) => 
+                    onClothingItemStatusChange(serviceIndex, subServiceIndex, itemId, checked)
+                  }
+                />
                 <Button 
                   variant="ghost" 
                   size="icon"
@@ -58,17 +82,6 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
                 >
                   <Edit size={14} />
                 </Button>
-              </TableCell>
-              <TableCell className="text-center">₹{standardPrice}</TableCell>
-              <TableCell className="text-center">₹{expressPrice}</TableCell>
-              <TableCell className="flex items-center justify-end gap-2">
-                <span className="text-sm text-gray-600">Active</span>
-                <Switch 
-                  checked={isItemActive}
-                  onCheckedChange={(checked) => 
-                    onClothingItemStatusChange(serviceIndex, subServiceIndex, itemId, checked)
-                  }
-                />
                 <Button 
                   variant="ghost" 
                   size="icon"

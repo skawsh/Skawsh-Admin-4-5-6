@@ -2,9 +2,10 @@
 import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Edit, Trash2, Plus } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, Trash2, Plus, Tags } from 'lucide-react';
 import { useServicesData } from '@/hooks/useServicesData';
 import ClothingItemTable from './ClothingItemTable';
+import { Badge } from '@/components/ui/badge';
 
 interface SubServiceItemProps {
   serviceId: string;
@@ -62,9 +63,14 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
             <ChevronDown size={18} className="text-gray-600" /> : 
             <ChevronUp size={18} className="text-gray-600" />
           }
-          <div>
+          <div className="flex items-center gap-2">
             <h5 className="font-medium">{getSubServiceName(subService.name)}</h5>
-            <p className="text-xs text-gray-500">{countItems()} items</p>
+            <Badge variant={subService.active !== false ? "success" : "secondary"} className="ml-1">
+              {subService.active !== false ? 'Active' : 'Inactive'}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {countItems()} {countItems() === 1 ? 'item' : 'items'}
+            </Badge>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -102,78 +108,85 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
 
       {/* Subservice Content (shown when expanded) */}
       {isExpanded && (
-        <div className="p-5 border-t">
+        <div className="p-5 border-t bg-gray-50">
           {/* Pricing Information */}
-          <div className="mb-6">
+          <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border">
             <div className="flex justify-between items-center mb-3">
-              <h6 className="font-medium">Pricing Information</h6>
+              <div className="flex items-center gap-2">
+                <Tags size={16} className="text-blue-600" />
+                <h6 className="font-medium">Pricing Information</h6>
+              </div>
               <Button 
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => onEditPrices(serviceIndex, subServiceIndex)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditPrices(serviceIndex, subServiceIndex);
+                }}
                 className="flex items-center gap-1"
               >
                 <Edit size={14} /> Edit Prices
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <p className="text-gray-700">Standard Price per KG: 
-                  <span className="font-medium ml-1">
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span className="text-gray-700">Standard Price per KG:</span>
+                  <span className="font-medium">
                     ₹{subService.standardPricePerKg || '0'}
                   </span>
-                </p>
-                <p className="text-gray-700">Express Price per KG: 
-                  <span className="font-medium ml-1">
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span className="text-gray-700">Express Price per KG:</span>
+                  <span className="font-medium">
                     ₹{subService.expressPricePerKg || '0'}
                   </span>
-                </p>
+                </div>
               </div>
               <div className="space-y-2">
-                <p className="text-gray-700">Standard Price per Item: 
-                  <span className="font-medium ml-1">
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span className="text-gray-700">Standard Price per Item:</span>
+                  <span className="font-medium">
                     ₹{subService.standardPricePerItem || '0'}
                   </span>
-                </p>
-                <p className="text-gray-700">Express Price per Item: 
-                  <span className="font-medium ml-1">
+                </div>
+                <div className="flex justify-between p-2 bg-gray-50 rounded">
+                  <span className="text-gray-700">Express Price per Item:</span>
+                  <span className="font-medium">
                     ₹{subService.expressPricePerItem || '0'}
                   </span>
-                </p>
+                </div>
               </div>
             </div>
           </div>
           
           {/* Items Section */}
-          <div>
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
             <div className="flex justify-between items-center mb-3">
               <h6 className="font-medium">Items</h6>
               <Button 
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => onAddItem(serviceIndex, subServiceIndex)}
-                className="flex items-center gap-1 text-blue-600"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddItem(serviceIndex, subServiceIndex);
+                }}
+                className="flex items-center gap-1 text-blue-600 border-blue-600"
               >
                 <Plus size={14} /> Add Item
               </Button>
             </div>
             
             {/* Items Table */}
-            {subService.selectedItems && subService.selectedItems.length > 0 ? (
-              <ClothingItemTable 
-                subService={subService}
-                serviceIndex={serviceIndex}
-                subServiceIndex={subServiceIndex}
-                onClothingItemStatusChange={onClothingItemStatusChange}
-                onClothingItemEdit={onClothingItemEdit}
-                onClothingItemDelete={onClothingItemDelete}
-              />
-            ) : (
-              <div className="border rounded-lg p-4 text-center text-gray-500">
-                No items added yet. Click "Add Item" to add some.
-              </div>
-            )}
+            <ClothingItemTable 
+              subService={subService}
+              serviceIndex={serviceIndex}
+              subServiceIndex={subServiceIndex}
+              onClothingItemStatusChange={onClothingItemStatusChange}
+              onClothingItemEdit={onClothingItemEdit}
+              onClothingItemDelete={onClothingItemDelete}
+            />
           </div>
         </div>
       )}

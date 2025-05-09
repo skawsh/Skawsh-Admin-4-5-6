@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { StudioService } from '@/types/services';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, WashingMachine } from 'lucide-react';
 import ServiceItem from './ServiceItem';
 
 interface ServiceManagementProps {
@@ -68,7 +68,7 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
         </Button>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-4">
         {studioServices && studioServices.length > 0 ? (
           studioServices.map((service, serviceIndex) => {
             const isServiceExpanded = expandedServices[service.id] || false;
@@ -97,8 +97,17 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
             );
           })
         ) : (
-          <div className="text-center p-8 text-gray-500">
-            No services added yet. Click "Add Service" to create one.
+          <div className="text-center p-12 bg-gray-50 rounded-lg border border-dashed border-gray-300 flex flex-col items-center justify-center">
+            <WashingMachine size={48} className="text-gray-400 mb-3" />
+            <p className="text-gray-700 text-lg font-medium mb-1">No services added yet</p>
+            <p className="text-gray-500 mb-4">Click "Add Service" to create your first laundry service</p>
+            <Button 
+              onClick={() => onServiceEdit(-1)}
+              variant="default"
+              className="flex items-center gap-1"
+            >
+              <Plus size={16} /> Add Service
+            </Button>
           </div>
         )}
       </div>
