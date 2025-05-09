@@ -54,7 +54,7 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
     <div className="border rounded-lg overflow-hidden">
       {/* Subservice Header */}
       <div 
-        className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+        className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={onToggleExpansion}
       >
         <div className="flex items-center gap-2">
@@ -72,8 +72,7 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
             <span className="text-sm text-gray-600">Active</span>
             <Switch 
               checked={subService.active !== false}
-              onCheckedChange={(checked) => onSubServiceStatusChange(serviceIndex, subServiceIndex, checked)} 
-              className="scale-110"
+              onCheckedChange={(checked) => onSubServiceStatusChange(serviceIndex, subServiceIndex, checked)}
             />
           </div>
           <Button 
@@ -83,9 +82,9 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
               e.stopPropagation();
               onSubServiceEdit(serviceIndex, subServiceIndex);
             }}
-            className="h-8 w-8 text-gray-600 hover:text-blue-600"
+            className="h-8 w-8"
           >
-            <Edit size={16} />
+            <Edit size={16} className="text-gray-600" />
           </Button>
           <Button 
             variant="ghost" 
@@ -94,16 +93,16 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
               e.stopPropagation();
               onSubServiceDelete(serviceIndex, subServiceIndex);
             }}
-            className="h-8 w-8 text-gray-600 hover:text-red-600"
+            className="h-8 w-8"
           >
-            <Trash2 size={16} />
+            <Trash2 size={16} className="text-red-500" />
           </Button>
         </div>
       </div>
 
       {/* Subservice Content (shown when expanded) */}
       {isExpanded && (
-        <div className="p-4 border-t">
+        <div className="p-5 border-t">
           {/* Pricing Information */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-3">
@@ -112,32 +111,32 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => onEditPrices(serviceIndex, subServiceIndex)}
-                className="text-gray-600 hover:text-blue-600 flex items-center gap-1"
+                className="flex items-center gap-1"
               >
                 <Edit size={14} /> Edit Prices
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-600 mb-2">Standard Price per KG: 
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <p className="text-gray-700">Standard Price per KG: 
                   <span className="font-medium ml-1">
                     ₹{subService.standardPricePerKg || '0'}
                   </span>
                 </p>
-                <p className="text-gray-600">Express Price per KG: 
+                <p className="text-gray-700">Express Price per KG: 
                   <span className="font-medium ml-1">
                     ₹{subService.expressPricePerKg || '0'}
                   </span>
                 </p>
               </div>
-              <div>
-                <p className="text-gray-600 mb-2">Standard Price per Item: 
+              <div className="space-y-2">
+                <p className="text-gray-700">Standard Price per Item: 
                   <span className="font-medium ml-1">
                     ₹{subService.standardPricePerItem || '0'}
                   </span>
                 </p>
-                <p className="text-gray-600">Express Price per Item: 
+                <p className="text-gray-700">Express Price per Item: 
                   <span className="font-medium ml-1">
                     ₹{subService.expressPricePerItem || '0'}
                   </span>
@@ -151,10 +150,10 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
             <div className="flex justify-between items-center mb-3">
               <h6 className="font-medium">Items</h6>
               <Button 
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => onAddItem(serviceIndex, subServiceIndex)}
-                className="flex items-center gap-1 text-xs"
+                className="flex items-center gap-1 text-blue-600"
               >
                 <Plus size={14} /> Add Item
               </Button>

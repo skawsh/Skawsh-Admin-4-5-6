@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { useServicesData } from '@/hooks/useServicesData';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 
 interface ClothingItemTableProps {
   subService: any;
@@ -30,60 +31,58 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
-      {/* Table Header */}
-      <div className="grid grid-cols-4 bg-gray-50 p-3">
-        <div className="font-medium">Name</div>
-        <div className="text-center font-medium">Standard Price</div>
-        <div className="text-center font-medium">Express Price</div>
-        <div className="text-right font-medium">Status</div>
-      </div>
-      
-      {/* Table Body */}
-      <div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead className="text-center">Standard Price</TableHead>
+          <TableHead className="text-center">Express Price</TableHead>
+          <TableHead className="text-right">Status</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {subService.selectedItems.map((itemId: string) => {
           const isItemActive = subService.clothingItemsStatus?.[itemId] !== false;
           const standardPrice = subService.standardItemPrices?.[itemId] || '0';
           const expressPrice = subService.expressItemPrices?.[itemId] || '0';
           
           return (
-            <div key={itemId} className="grid grid-cols-4 p-3 border-t items-center">
-              <div className="flex items-center gap-2">
-                <span>{getClothingItemName(itemId)}</span>
+            <TableRow key={itemId}>
+              <TableCell className="flex items-center gap-2 font-medium">
+                {getClothingItemName(itemId)}
                 <Button 
                   variant="ghost" 
                   size="icon"
                   onClick={() => onClothingItemEdit(serviceIndex, subServiceIndex, itemId)}
-                  className="h-6 w-6 text-gray-500 hover:text-blue-600"
+                  className="h-6 w-6 ml-2"
                 >
                   <Edit size={14} />
                 </Button>
-              </div>
-              <div className="text-center">₹{standardPrice}</div>
-              <div className="text-center">₹{expressPrice}</div>
-              <div className="flex items-center justify-end gap-2">
+              </TableCell>
+              <TableCell className="text-center">₹{standardPrice}</TableCell>
+              <TableCell className="text-center">₹{expressPrice}</TableCell>
+              <TableCell className="flex items-center justify-end gap-2">
                 <span className="text-sm text-gray-600">Active</span>
                 <Switch 
                   checked={isItemActive}
                   onCheckedChange={(checked) => 
                     onClothingItemStatusChange(serviceIndex, subServiceIndex, itemId, checked)
-                  } 
-                  className="scale-100"
+                  }
                 />
                 <Button 
                   variant="ghost" 
                   size="icon"
                   onClick={() => onClothingItemDelete(serviceIndex, subServiceIndex, itemId)}
-                  className="h-6 w-6 text-gray-500 hover:text-red-600"
+                  className="h-6 w-6 ml-2"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={14} className="text-red-500" />
                 </Button>
-              </div>
-            </div>
+              </TableCell>
+            </TableRow>
           );
         })}
-      </div>
-    </div>
+      </TableBody>
+    </Table>
   );
 };
 

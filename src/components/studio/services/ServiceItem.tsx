@@ -53,7 +53,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
     <div className="border rounded-lg overflow-hidden mb-4">
       {/* Service Header */}
       <div 
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors" 
+        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors" 
         onClick={onToggleExpansion}
       >
         <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
             <ChevronUp size={20} className="text-gray-600" />
           }
           <div>
-            <h3 className="text-lg font-medium">{service.name}</h3>
+            <h3 className="text-lg font-semibold">{service.name}</h3>
             <p className="text-sm text-gray-500">{countSubServices(service)} subservices</p>
           </div>
         </div>
@@ -71,8 +71,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
             <span className="text-sm text-gray-600">Active</span>
             <Switch 
               checked={service.active}
-              onCheckedChange={() => onServiceStatusChange(serviceIndex)} 
-              className="scale-110"
+              onCheckedChange={() => onServiceStatusChange(serviceIndex)}
             />
           </div>
           <Button 
@@ -82,9 +81,8 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
               e.stopPropagation();
               onServiceEdit(serviceIndex);
             }}
-            className="text-gray-600 hover:text-blue-600"
           >
-            <Edit size={18} />
+            <Edit size={18} className="text-gray-600" />
           </Button>
           <Button 
             variant="ghost" 
@@ -93,25 +91,23 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
               e.stopPropagation();
               onServiceDelete(serviceIndex);
             }}
-            className="text-gray-600 hover:text-red-600"
           >
-            <Trash2 size={18} />
+            <Trash2 size={18} className="text-red-500" />
           </Button>
         </div>
       </div>
 
       {/* Service Content (shown when expanded) */}
       {isExpanded && (
-        <div className="p-4 border-t">
+        <div className="px-6 py-4 border-t">
           {/* Subservices Section */}
           <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-lg font-medium">Subservices</h4>
               <Button 
-                variant="outline"
-                size="sm"
+                variant="ghost"
                 onClick={() => onSubServiceEdit(serviceIndex, -1)} // -1 indicates new subservice
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 text-blue-600"
               >
                 <Plus size={16} /> Add Subservice
               </Button>

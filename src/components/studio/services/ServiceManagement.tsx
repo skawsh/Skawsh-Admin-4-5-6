@@ -59,7 +59,7 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
           <p className="text-gray-600 mt-1">Manage your services, subservices, and item details</p>
         </div>
         <Button 
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 px-4"
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 px-6"
           onClick={() => onServiceEdit(-1)} // -1 indicates new service
         >
           <Plus size={18} /> Add Service
