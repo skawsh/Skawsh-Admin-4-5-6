@@ -68,18 +68,7 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Action button area - Always visible but conditionally enabled */}
-      <div className="flex justify-end mb-2">
-        <Button 
-          variant="blue" 
-          onClick={handleMarkSelectedAsPaid}
-          disabled={selectedPayments.length === 0}
-          className="flex items-center gap-2"
-        >
-          <CheckSquare className="h-4 w-4" />
-          Mark selected as paid
-        </Button>
-      </div>
+      {/* Button now removed from here */}
 
       <div className="rounded-md border">
         <Table>
@@ -164,6 +153,17 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
           </TableBody>
         </Table>
       </div>
+
+      {/* Export handleMarkSelectedAsPaid function and selectedPayments state to be used by the parent component */}
+      <Button 
+        variant="primary" 
+        onClick={handleMarkSelectedAsPaid}
+        disabled={selectedPayments.length === 0}
+        className="hidden"
+      >
+        <CheckSquare className="h-4 w-4" />
+        Mark selected as paid
+      </Button>
     </div>
   );
 };

@@ -1,6 +1,8 @@
 
 import React from 'react';
 import SearchBar from './SearchBar';
+import { Button } from '@/components/ui/button';
+import { CheckSquare } from 'lucide-react';
 
 interface ServicesHeaderProps {
   activeTab: string;
@@ -12,6 +14,9 @@ interface ServicesHeaderProps {
   onSearchChange: (value: string) => void;
   onClearSearch: () => void;
   onAddButtonClick: () => void;
+  showMarkAsPaidButton?: boolean;
+  onMarkAsPaid?: () => void;
+  markAsPaidDisabled?: boolean;
 }
 
 const ServicesHeader: React.FC<ServicesHeaderProps> = ({
@@ -20,7 +25,10 @@ const ServicesHeader: React.FC<ServicesHeaderProps> = ({
   searchPlaceholder,
   searchTerm,
   onSearchChange,
-  onClearSearch
+  onClearSearch,
+  showMarkAsPaidButton = false,
+  onMarkAsPaid,
+  markAsPaidDisabled = true
 }) => {
   return (
     <>
@@ -29,13 +37,25 @@ const ServicesHeader: React.FC<ServicesHeaderProps> = ({
         <p className="text-gray-500">{description}</p>
       </div>
       
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-4">
         <SearchBar 
           searchTerm={searchTerm}
           placeholder={searchPlaceholder}
           onSearchChange={onSearchChange}
           onClearSearch={onClearSearch}
         />
+        
+        {showMarkAsPaidButton && (
+          <Button 
+            variant="primary"
+            className="bg-green-400 hover:bg-green-500 text-white"
+            onClick={onMarkAsPaid}
+            disabled={markAsPaidDisabled}
+          >
+            <CheckSquare className="mr-2 h-4 w-4" />
+            Mark Selected as Paid
+          </Button>
+        )}
       </div>
     </>
   );

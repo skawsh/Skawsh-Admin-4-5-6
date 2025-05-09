@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, CalendarIcon } from 'lucide-react';
+import { Search, CalendarIcon, CheckSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
@@ -23,6 +23,9 @@ interface PaymentFiltersProps {
   setDateRangeDialogOpen: (open: boolean) => void;
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  showMarkAsPaidButton?: boolean;
+  onMarkAsPaid?: () => void;
+  markAsPaidDisabled?: boolean;
 }
 
 const PaymentFilters: React.FC<PaymentFiltersProps> = ({
@@ -32,50 +35,67 @@ const PaymentFilters: React.FC<PaymentFiltersProps> = ({
   dateRangeDialogOpen,
   setDateRangeDialogOpen,
   searchTerm,
-  onSearchChange
+  onSearchChange,
+  showMarkAsPaidButton = false,
+  onMarkAsPaid,
+  markAsPaidDisabled = true
 }) => {
   return (
-    <div className="flex items-center gap-4">
-      <Select value={dateFilter} onValueChange={onDateFilterChange}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by date" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Dates</SelectItem>
-          <SelectItem value="today">Today</SelectItem>
-          <SelectItem value="thisWeek">This Week</SelectItem>
-          <SelectItem value="thisMonth">This Month</SelectItem>
-          <SelectItem value="custom">Custom Date Range</SelectItem>
-        </SelectContent>
-      </Select>
-      
-      {dateFilter === "custom" && !dateRangeDialogOpen && (
+    <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center gap-4">
+        <Select value={dateFilter} onValueChange={onDateFilterChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by date" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Dates</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="thisWeek">This Week</SelectItem>
+            <SelectItem value="thisMonth">This Month</SelectItem>
+            <SelectItem value="custom">Custom Date Range</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        {dateFilter === "custom" && !dateRangeDialogOpen && (
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setDateRangeDialogOpen(true)}
+          >
+            <span>
+              {dateRange.from && dateRange.to ? (
+                `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`
+              ) : (
+                "Select date range"
+              )}
+            </span>
+            <CalendarIcon className="h-4 w-4" />
+          </Button>
+        )}
+
+        <div className="relative w-64">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Input 
+            type="text" 
+            placeholder="Search order ID..." 
+            className="pl-10 pr-4 py-2"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {showMarkAsPaidButton && (
         <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={() => setDateRangeDialogOpen(true)}
+          variant="primary"
+          className="bg-green-400 hover:bg-green-500 text-white"
+          onClick={onMarkAsPaid}
+          disabled={markAsPaidDisabled}
         >
-          <span>
-            {dateRange.from && dateRange.to ? (
-              `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`
-            ) : (
-              "Select date range"
-            )}
-          </span>
-          <CalendarIcon className="h-4 w-4" />
+          <CheckSquare className="mr-2 h-4 w-4" />
+          Mark Selected as Paid
         </Button>
       )}
-
-      <div className="relative w-64">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-        <Input 
-          type="text" 
-          placeholder="Search order ID..." 
-          className="pl-10 pr-4 py-2"
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-      </div>
     </div>
   );
 };

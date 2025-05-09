@@ -13,6 +13,7 @@ const StudioPayments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { studioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
 
   const filteredPayments = useMemo(() => {
     if (!studioInfo) return { pending: [], completed: [] };
@@ -37,6 +38,14 @@ const StudioPayments: React.FC = () => {
     };
   }, [studioInfo, searchTerm]);
 
+  const handleMarkSelectedAsPaid = () => {
+    if (selectedPayments.length === 0) return;
+    
+    // Here you would implement the actual payment marking logic
+    
+    setSelectedPayments([]);
+  };
+
   if (loading) {
     return <PaymentLoading />;
   }
@@ -48,7 +57,9 @@ const StudioPayments: React.FC = () => {
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
-        <StudioPaymentHeader studioInfo={studioInfo} />
+        <StudioPaymentHeader 
+          studioInfo={studioInfo} 
+        />
         <PaymentSummaryCards studioInfo={studioInfo} />
         <PaymentTables 
           activeTab={activeTab} 
@@ -58,6 +69,9 @@ const StudioPayments: React.FC = () => {
           formatDate={formatDate}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
+          selectedPayments={selectedPayments}
+          setSelectedPayments={setSelectedPayments}
+          onMarkSelectedAsPaid={handleMarkSelectedAsPaid}
         />
       </div>
     </Layout>
