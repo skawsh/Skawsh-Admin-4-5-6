@@ -70,7 +70,6 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 <table className="w-full">
                   <thead className="bg-muted/50 sticky top-0">
                     <tr>
-                      <th className="px-3 py-2 text-left text-sm">Select</th>
                       <th className="px-3 py-2 text-left text-sm">Order ID</th>
                       <th className="px-3 py-2 text-right text-sm">Amount</th>
                     </tr>
@@ -78,11 +77,6 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
                   <tbody>
                     {selectedPayments.map((payment) => (
                       <tr key={payment.id} className="border-t">
-                        <td className="px-3 py-2">
-                          <div className="flex items-center justify-center">
-                            <Check size={16} className="text-green-500" />
-                          </div>
-                        </td>
                         <td className="px-3 py-2">{payment.transactionId}</td>
                         <td className="px-3 py-2 text-right">₹{payment.amount.toFixed(2)}</td>
                       </tr>
