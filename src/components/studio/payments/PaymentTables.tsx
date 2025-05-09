@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Table,
@@ -12,6 +12,13 @@ import {
 import { Payment } from '@/hooks/useStudioPayments';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 
 interface PaymentTablesProps {
   activeTab: string;
@@ -32,6 +39,18 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   searchTerm,
   onSearchChange
 }) => {
+  const [washTypeFilter, setWashTypeFilter] = useState<string>("all");
+
+  const filteredPendingPayments = pendingPayments.filter(payment => {
+    if (washTypeFilter === "all") return true;
+    return payment.serviceType.toLowerCase() === washTypeFilter.toLowerCase();
+  });
+
+  const filteredCompletedPayments = completedPayments.filter(payment => {
+    if (washTypeFilter === "all") return true;
+    return payment.serviceType.toLowerCase() === washTypeFilter.toLowerCase();
+  });
+
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between mb-4">
@@ -41,15 +60,28 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
             <TabsTrigger value="history">Payment History</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <Input 
-            type="text" 
-            placeholder="Search order ID..." 
-            className="pl-10 pr-4 py-2"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+        <div className="flex items-center gap-4">
+          <Select value={washTypeFilter} onValueChange={setWashTypeFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by wash type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Wash Types</SelectItem>
+              <SelectItem value="standard">Standard Wash</SelectItem>
+              <SelectItem value="express">Express Wash</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <div className="relative w-64">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Input 
+              type="text" 
+              placeholder="Search order ID..." 
+              className="pl-10 pr-4 py-2"
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
         </div>
       </div>
       
@@ -62,13 +94,13 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
                   <TableHead className="w-[80px]">S.NO</TableHead>
                   <TableHead>TRANSACTION ID</TableHead>
                   <TableHead>DATE & TIME</TableHead>
-                  <TableHead>SERVICE TYPE</TableHead>
+                  <TableHead>WASH TYPE</TableHead>
                   <TableHead className="text-right">AMOUNT (₹)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pendingPayments.length > 0 ? (
-                  pendingPayments.map((payment, index) => (
+                {filteredPendingPayments.length > 0 ? (
+                  filteredPendingPayments.map((payment, index) => (
                     <TableRow key={payment.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{payment.transactionId}</TableCell>
@@ -79,7 +111,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
                             ? 'bg-blue-100 text-blue-800' 
                             : 'bg-purple-100 text-purple-800'
                         }`}>
-                          {payment.serviceType}
+                          {payment.serviceType} Wash
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-medium">{payment.amount.toFixed(2)}</TableCell>
@@ -107,14 +139,14 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
                   <TableHead className="w-[80px]">S.NO</TableHead>
                   <TableHead>TRANSACTION ID</TableHead>
                   <TableHead>DATE & TIME</TableHead>
-                  <TableHead>SERVICE TYPE</TableHead>
+                  <TableHead>WASH TYPE</TableHead>
                   <TableHead>STATUS</TableHead>
                   <TableHead className="text-right">AMOUNT (₹)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {completedPayments.length > 0 ? (
-                  completedPayments.map((payment, index) => (
+                {filteredCompletedPayments.length > 0 ? (
+                  filteredCompletedPayments.map((payment, index) => (
                     <TableRow key={payment.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{payment.transactionId}</TableCell>
@@ -125,7 +157,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
                             ? 'bg-blue-100 text-blue-800' 
                             : 'bg-purple-100 text-purple-800'
                         }`}>
-                          {payment.serviceType}
+                          {payment.serviceType} Wash
                         </span>
                       </TableCell>
                       <TableCell>
