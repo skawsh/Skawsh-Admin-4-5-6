@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useStudioPayments } from '@/hooks/useStudioPayments';
@@ -12,6 +12,30 @@ import StudioNotFound from '@/components/studio/payments/StudioNotFound';
 const StudioPayments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { studioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredPayments = useMemo(() => {
+    if (!studioInfo) return { pending: [], completed: [] };
+    
+    const filterPayments = (payments: any[]) => {
+      if (!searchTerm.trim()) return payments;
+      
+      const term = searchTerm.toLowerCase().trim();
+      return payments.filter((payment) => 
+        payment.transactionId.toLowerCase().includes(term) || 
+        payment.serviceType.toLowerCase().includes(term) || 
+        payment.amount.toString().includes(term)
+      );
+    };
+    
+    const pendingPayments = studioInfo.payments.filter(p => p.status === 'Pending');
+    const completedPayments = studioInfo.payments.filter(p => p.status === 'Completed');
+    
+    return {
+      pending: filterPayments(pendingPayments),
+      completed: filterPayments(completedPayments)
+    };
+  }, [studioInfo, searchTerm]);
 
   if (loading) {
     return <PaymentLoading />;
@@ -21,9 +45,6 @@ const StudioPayments: React.FC = () => {
     return <StudioNotFound />;
   }
 
-  const pendingPayments = studioInfo.payments.filter(p => p.status === 'Pending');
-  const completedPayments = studioInfo.payments.filter(p => p.status === 'Completed');
-
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
@@ -32,9 +53,11 @@ const StudioPayments: React.FC = () => {
         <PaymentTables 
           activeTab={activeTab} 
           setActiveTab={setActiveTab}
-          pendingPayments={pendingPayments}
-          completedPayments={completedPayments}
+          pendingPayments={filteredPayments.pending}
+          completedPayments={filteredPayments.completed}
           formatDate={formatDate}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
         />
       </div>
     </Layout>
