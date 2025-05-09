@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, CalendarIcon, CheckSquare } from 'lucide-react';
+import { Search, CalendarIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
@@ -35,10 +35,7 @@ const PaymentFilters: React.FC<PaymentFiltersProps> = ({
   dateRangeDialogOpen,
   setDateRangeDialogOpen,
   searchTerm,
-  onSearchChange,
-  showMarkAsPaidButton = false,
-  onMarkAsPaid,
-  markAsPaidDisabled = true
+  onSearchChange
 }) => {
   return (
     <div className="flex items-center justify-between flex-wrap gap-4">
@@ -84,17 +81,6 @@ const PaymentFilters: React.FC<PaymentFiltersProps> = ({
           />
         </div>
       </div>
-
-      {showMarkAsPaidButton && (
-        <Button 
-          variant="green"
-          onClick={onMarkAsPaid}
-          disabled={markAsPaidDisabled}
-        >
-          <CheckSquare className="mr-2 h-4 w-4" />
-          Mark Selected as Paid
-        </Button>
-      )}
     </div>
   );
 };

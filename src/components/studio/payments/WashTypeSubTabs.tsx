@@ -12,7 +12,7 @@ const WashTypeSubTabs: React.FC<WashTypeSubTabsProps> = ({
   onChange
 }) => {
   return (
-    <Tabs value={value} onValueChange={onChange} className="mt-4 mb-6">
+    <Tabs value={value} onValueChange={onChange} className="mb-6">
       <TabsList>
         <TabsTrigger value="all">All Wash Types</TabsTrigger>
         <TabsTrigger value="standard">Standard Wash Type</TabsTrigger>

@@ -108,9 +108,6 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
           setDateRangeDialogOpen={setDateRangeDialogOpen}
           searchTerm={searchTerm}
           onSearchChange={onSearchChange}
-          showMarkAsPaidButton={activeTab === 'pending' && selectedPayments.length > 0}
-          onMarkAsPaid={onMarkSelectedAsPaid}
-          markAsPaidDisabled={selectedPayments.length === 0}
         />
         
         <DateRangeDialog 
@@ -126,21 +123,21 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-0">
         <TabsContent value="pending" className="mt-0">
-          <WashTypeSubTabs value={washTypeSubTab} onChange={setWashTypeSubTab} />
-          
-          {/* Add Mark As Paid Button below the wash type tabs */}
-          {selectedPayments.length > 0 && (
-            <div className="flex justify-end mt-4 mb-4">
+          <div className="flex items-center justify-between">
+            <WashTypeSubTabs value={washTypeSubTab} onChange={setWashTypeSubTab} />
+            
+            {selectedPayments.length > 0 && (
               <Button 
                 variant="green"
                 onClick={onMarkSelectedAsPaid}
                 disabled={selectedPayments.length === 0}
+                className="ml-auto"
               >
                 <CheckSquare className="mr-2 h-4 w-4" />
                 Mark Selected as Paid ({selectedPayments.length})
               </Button>
-            </div>
-          )}
+            )}
+          </div>
           
           <PendingPaymentsTable 
             payments={filteredPendingPayments} 
