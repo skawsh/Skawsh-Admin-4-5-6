@@ -40,6 +40,11 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   const [washTypeSubTab, setWashTypeSubTab] = React.useState<string>("all");
   const [historyWashTypeSubTab, setHistoryWashTypeSubTab] = React.useState<string>("all");
 
+  // Function to switch to history tab
+  const switchToHistoryTab = () => {
+    setActiveTab('history');
+  };
+
   // Filter payments by wash type
   const filteredPendingPayments = filterPaymentsByType(pendingPayments, washTypeSubTab);
   const filteredCompletedPayments = filterPaymentsByType(completedPayments, historyWashTypeSubTab);
@@ -85,6 +90,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
             selectedPayments={selectedPayments}
             setSelectedPayments={setSelectedPayments}
             onMarkSelectedAsPaid={onMarkSelectedAsPaid}
+            onSwitchToHistoryTab={switchToHistoryTab}
           />
         </TabsContent>
         

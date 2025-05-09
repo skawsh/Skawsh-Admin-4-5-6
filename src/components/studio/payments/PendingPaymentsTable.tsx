@@ -27,13 +27,15 @@ interface PendingPaymentsTableProps {
   formatDate: (dateString: string) => string;
   selectedPayments: number[];
   setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;
+  onSwitchToHistoryTab?: () => void;
 }
 
 const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   payments,
   formatDate,
   selectedPayments,
-  setSelectedPayments
+  setSelectedPayments,
+  onSwitchToHistoryTab
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -75,6 +77,11 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
     // Remove from selected payments if it was selected
     if (selectedPayments.includes(payment.id)) {
       setSelectedPayments(selectedPayments.filter(id => id !== payment.id));
+    }
+
+    // Switch to the payment history tab
+    if (onSwitchToHistoryTab) {
+      onSwitchToHistoryTab();
     }
   };
 
