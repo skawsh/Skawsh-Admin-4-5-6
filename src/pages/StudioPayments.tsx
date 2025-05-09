@@ -22,6 +22,7 @@ interface Payment {
   amount: number;
   date: string;
   status: 'Pending' | 'Completed' | 'Failed';
+  serviceType: 'Standard' | 'Express';
 }
 
 interface StudioPaymentInfo {
@@ -29,6 +30,8 @@ interface StudioPaymentInfo {
   studioName: string;
   ownerName: string;
   pendingAmount: number;
+  standardWashPendingAmount: number;
+  expressWashPendingAmount: number;
   totalPaid: number;
   payments: Payment[];
 }
@@ -59,34 +62,46 @@ const StudioPayments: React.FC = () => {
                 transactionId: 'TXN20240501001',
                 amount: 1250,
                 date: '2024-05-01T10:30:00',
-                status: 'Completed'
+                status: 'Completed',
+                serviceType: 'Standard'
               },
               {
                 id: 2,
                 transactionId: 'TXN20240505002',
                 amount: 980,
                 date: '2024-05-05T14:15:00',
-                status: 'Completed'
+                status: 'Completed',
+                serviceType: 'Express'
               },
               {
                 id: 3,
                 transactionId: 'TXN20240508003',
                 amount: 1450,
                 date: '2024-05-08T09:45:00',
-                status: 'Pending'
+                status: 'Pending',
+                serviceType: 'Standard'
               },
               {
                 id: 4,
                 transactionId: 'TXN20240509004',
                 amount: 875,
                 date: '2024-05-09T16:20:00',
-                status: 'Pending'
+                status: 'Pending',
+                serviceType: 'Express'
               }
             ];
             
             // Calculate totals
             const pendingAmount = mockPayments
               .filter(p => p.status === 'Pending')
+              .reduce((sum, p) => sum + p.amount, 0);
+              
+            const standardWashPendingAmount = mockPayments
+              .filter(p => p.status === 'Pending' && p.serviceType === 'Standard')
+              .reduce((sum, p) => sum + p.amount, 0);
+              
+            const expressWashPendingAmount = mockPayments
+              .filter(p => p.status === 'Pending' && p.serviceType === 'Express')
               .reduce((sum, p) => sum + p.amount, 0);
               
             const totalPaid = mockPayments
@@ -98,6 +113,8 @@ const StudioPayments: React.FC = () => {
               studioName: studio.studioName,
               ownerName: studio.ownerName,
               pendingAmount,
+              standardWashPendingAmount,
+              expressWashPendingAmount,
               totalPaid,
               payments: mockPayments
             });
@@ -190,22 +207,22 @@ const StudioPayments: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm">
-            <div className="flex flex-col">
-              <p className="text-gray-600 text-sm">Owner</p>
-              <p className="text-lg font-medium">{studioInfo.ownerName}</p>
-            </div>
-          </Card>
           <Card className="p-6 bg-yellow-50 border-yellow-100 shadow-sm">
             <div className="flex flex-col">
-              <p className="text-gray-600 text-sm">Pending Amount</p>
+              <p className="text-gray-600 text-sm">Total Pending Amount</p>
               <p className="text-2xl font-bold">₹{studioInfo.pendingAmount.toFixed(2)}</p>
             </div>
           </Card>
-          <Card className="p-6 bg-green-50 border-green-100 shadow-sm">
+          <Card className="p-6 bg-blue-50 border-blue-100 shadow-sm">
             <div className="flex flex-col">
-              <p className="text-gray-600 text-sm">Total Paid</p>
-              <p className="text-2xl font-bold">₹{studioInfo.totalPaid.toFixed(2)}</p>
+              <p className="text-gray-600 text-sm">Standard Wash Pending</p>
+              <p className="text-2xl font-bold">₹{studioInfo.standardWashPendingAmount.toFixed(2)}</p>
+            </div>
+          </Card>
+          <Card className="p-6 bg-purple-50 border-purple-100 shadow-sm">
+            <div className="flex flex-col">
+              <p className="text-gray-600 text-sm">Express Wash Pending</p>
+              <p className="text-2xl font-bold">₹{studioInfo.expressWashPendingAmount.toFixed(2)}</p>
             </div>
           </Card>
         </div>
@@ -225,6 +242,7 @@ const StudioPayments: React.FC = () => {
                       <TableHead className="w-[80px]">S.NO</TableHead>
                       <TableHead>TRANSACTION ID</TableHead>
                       <TableHead>DATE & TIME</TableHead>
+                      <TableHead>SERVICE TYPE</TableHead>
                       <TableHead className="text-right">AMOUNT (₹)</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -235,12 +253,21 @@ const StudioPayments: React.FC = () => {
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{payment.transactionId}</TableCell>
                           <TableCell>{formatDate(payment.date)}</TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              payment.serviceType === 'Standard' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-purple-100 text-purple-800'
+                            }`}>
+                              {payment.serviceType}
+                            </span>
+                          </TableCell>
                           <TableCell className="text-right font-medium">{payment.amount.toFixed(2)}</TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-10 text-gray-500">
+                        <TableCell colSpan={5} className="text-center py-10 text-gray-500">
                           <div className="flex flex-col items-center justify-center space-y-2">
                             <p className="font-medium">No pending payments found</p>
                           </div>
@@ -260,6 +287,7 @@ const StudioPayments: React.FC = () => {
                       <TableHead className="w-[80px]">S.NO</TableHead>
                       <TableHead>TRANSACTION ID</TableHead>
                       <TableHead>DATE & TIME</TableHead>
+                      <TableHead>SERVICE TYPE</TableHead>
                       <TableHead>STATUS</TableHead>
                       <TableHead className="text-right">AMOUNT (₹)</TableHead>
                     </TableRow>
@@ -272,6 +300,15 @@ const StudioPayments: React.FC = () => {
                           <TableCell>{payment.transactionId}</TableCell>
                           <TableCell>{formatDate(payment.date)}</TableCell>
                           <TableCell>
+                            <span className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              payment.serviceType === 'Standard' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-purple-100 text-purple-800'
+                            }`}>
+                              {payment.serviceType}
+                            </span>
+                          </TableCell>
+                          <TableCell>
                             <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 font-medium text-xs">
                               {payment.status}
                             </span>
@@ -281,7 +318,7 @@ const StudioPayments: React.FC = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-10 text-gray-500">
+                        <TableCell colSpan={6} className="text-center py-10 text-gray-500">
                           <div className="flex flex-col items-center justify-center space-y-2">
                             <p className="font-medium">No payment history found</p>
                           </div>
