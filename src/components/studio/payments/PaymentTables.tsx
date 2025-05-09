@@ -7,6 +7,8 @@ import DateRangeDialog from './DateRangeDialog';
 import PendingPaymentsTable from './PendingPaymentsTable';
 import CompletedPaymentsTable from './CompletedPaymentsTable';
 import WashTypeSubTabs from './WashTypeSubTabs';
+import { Button } from '@/components/ui/button';
+import { CheckSquare } from 'lucide-react';
 
 interface PaymentTablesProps {
   activeTab: string;
@@ -16,9 +18,9 @@ interface PaymentTablesProps {
   formatDate: (dateString: string) => string;
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  selectedPayments: number[];  // Added this prop
-  setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;  // Added this prop
-  onMarkSelectedAsPaid: () => void;  // This was already here
+  selectedPayments: number[];
+  setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;
+  onMarkSelectedAsPaid: () => void;
 }
 
 const PaymentTables: React.FC<PaymentTablesProps> = ({
@@ -126,7 +128,25 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-0">
         <TabsContent value="pending" className="mt-0">
           <WashTypeSubTabs value={washTypeSubTab} onChange={setWashTypeSubTab} />
-          <PendingPaymentsTable payments={filteredPendingPayments} formatDate={formatDate} />
+          
+          {/* Add Mark As Paid Button below the wasj type tabs */}
+          {activeTab === 'pending' && selectedPayments.length > 0 && (
+            <div className="flex justify-end mt-4 mb-4">
+              <Button 
+                variant="green"
+                onClick={onMarkSelectedAsPaid}
+                disabled={selectedPayments.length === 0}
+              >
+                <CheckSquare className="mr-2 h-4 w-4" />
+                Mark Selected as Paid
+              </Button>
+            </div>
+          )}
+          
+          <PendingPaymentsTable 
+            payments={filteredPendingPayments} 
+            formatDate={formatDate} 
+          />
         </TabsContent>
         
         <TabsContent value="history" className="mt-0">

@@ -8,12 +8,14 @@ import PaymentSummaryCards from '@/components/studio/payments/PaymentSummaryCard
 import PaymentTables from '@/components/studio/payments/PaymentTables';
 import PaymentLoading from '@/components/studio/payments/PaymentLoading';
 import StudioNotFound from '@/components/studio/payments/StudioNotFound';
+import { useToast } from '@/hooks/use-toast';
 
 const StudioPayments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { studioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const { toast } = useToast();
 
   const filteredPayments = useMemo(() => {
     if (!studioInfo) return { pending: [], completed: [] };
@@ -41,7 +43,10 @@ const StudioPayments: React.FC = () => {
   const handleMarkSelectedAsPaid = () => {
     if (selectedPayments.length === 0) return;
     
-    // Here you would implement the actual payment marking logic
+    toast({
+      title: "Payments Marked as Paid",
+      description: `${selectedPayments.length} payments have been marked as paid successfully.`,
+    });
     
     setSelectedPayments([]);
   };

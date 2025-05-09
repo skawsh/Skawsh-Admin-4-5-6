@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Table,
@@ -24,15 +24,23 @@ import {
 interface PendingPaymentsTableProps {
   payments: Payment[];
   formatDate: (dateString: string) => string;
+  selectedPayments?: number[];
+  setSelectedPayments?: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   payments,
-  formatDate
+  formatDate,
+  selectedPayments: externalSelectedPayments,
+  setSelectedPayments: setExternalSelectedPayments
 }) => {
-  const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const [internalSelectedPayments, setInternalSelectedPayments] = useState<number[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Use either external or internal state
+  const selectedPayments = externalSelectedPayments || internalSelectedPayments;
+  const setSelectedPayments = setExternalSelectedPayments || setInternalSelectedPayments;
   
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
