@@ -3,9 +3,8 @@ import React from 'react';
 import { StudioService } from '@/types/services';
 import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Edit, Trash2, Plus, Package } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit, Trash2, Plus } from 'lucide-react';
 import SubServiceItem from './SubServiceItem';
-import { Badge } from '@/components/ui/badge';
 
 interface ServiceItemProps {
   service: StudioService;
@@ -50,50 +49,34 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
     return service.subServices.length;
   };
 
-  const countActiveSubServices = (service: StudioService) => {
-    return service.subServices.filter(s => s.active !== false).length;
-  };
+  const subServiceCount = countSubServices(service);
+  const subServiceLabel = subServiceCount === 1 ? 'subservice' : 'subservices';
 
   return (
-    <div className="border rounded-lg overflow-hidden mb-4 shadow-sm">
-      {/* Service Header */}
+    <div className="border rounded-lg overflow-hidden mb-4 hover:border-gray-300 transition-colors">
+      {/* Service Header - Simplified design */}
       <div 
-        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors bg-white"
+        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={onToggleExpansion}
       >
-        <div className="flex items-center gap-2">
-          <Package size={20} className="text-blue-600" />
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">{service.name}</h3>
-              <Badge variant={service.active ? "success" : "secondary"}>
-                {service.active ? 'Active' : 'Inactive'}
-              </Badge>
-            </div>
-            <div className="flex gap-2 mt-1">
-              <span className="text-sm text-gray-500">{countSubServices(service)} subservices</span>
-              <span className="text-sm text-gray-500">•</span>
-              <span className="text-sm text-gray-500">{countActiveSubServices(service)} active</span>
-            </div>
-          </div>
-        </div>
         <div className="flex items-center gap-3">
           {isExpanded ? 
-            <ChevronUp size={20} className="text-gray-600 mr-2" /> : 
-            <ChevronDown size={20} className="text-gray-600 mr-2" />
+            <ChevronDown size={18} className="text-gray-600" /> : 
+            <ChevronRight size={18} className="text-gray-600" />
           }
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Active</span>
-            <Switch 
-              checked={service.active}
-              onCheckedChange={(checked) => {
-                onServiceStatusChange(serviceIndex);
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            />
+          <div>
+            <h3 className="font-medium">{service.name}</h3>
+            <p className="text-sm text-gray-500">{subServiceCount} {subServiceLabel}</p>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-gray-600">Active</div>
+          <Switch 
+            checked={service.active}
+            onCheckedChange={() => onServiceStatusChange(serviceIndex)}
+            onClick={(e) => e.stopPropagation()}
+          />
           <Button 
             variant="ghost" 
             size="icon" 
@@ -101,6 +84,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
               e.stopPropagation();
               onServiceEdit(serviceIndex);
             }}
+            className="h-8 w-8"
           >
             <Edit size={18} className="text-gray-600" />
           </Button>
@@ -111,6 +95,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
               e.stopPropagation();
               onServiceDelete(serviceIndex);
             }}
+            className="h-8 w-8"
           >
             <Trash2 size={18} className="text-red-500" />
           </Button>
@@ -119,7 +104,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
 
       {/* Service Content (shown when expanded) */}
       {isExpanded && (
-        <div className="px-6 py-4 border-t bg-gray-100">
+        <div className="px-6 py-4 border-t bg-gray-50">
           {/* Subservices Section */}
           <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">

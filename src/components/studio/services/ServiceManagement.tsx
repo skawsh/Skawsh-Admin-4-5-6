@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StudioService } from '@/types/services';
 import { Button } from '@/components/ui/button';
@@ -51,26 +50,24 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
     }));
   };
 
-  console.log("Rendering ServiceManagement with services:", studioServices);
-
   return (
-    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
+    <div className="bg-white rounded-lg border border-gray-100 p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Service Management</h1>
           <p className="text-gray-600 mt-1">Manage your services, subservices, and item details</p>
         </div>
         <Button 
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 px-6"
-          onClick={() => onServiceEdit(-1)} // -1 indicates new service
+          className="flex items-center gap-1 px-5 bg-blue-600 hover:bg-blue-700 text-white" 
+          onClick={() => onServiceEdit(-1)}
         >
           <Plus size={18} /> Add Service
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {studioServices && studioServices.length > 0 ? (
-          studioServices.map((service, serviceIndex) => {
+      {studioServices && studioServices.length > 0 ? (
+        <div className="space-y-2">
+          {studioServices.map((service, serviceIndex) => {
             const isServiceExpanded = expandedServices[service.id] || false;
             
             return (
@@ -95,22 +92,22 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
                 toggleSubServiceExpansion={toggleSubServiceExpansion}
               />
             );
-          })
-        ) : (
-          <div className="text-center p-12 bg-gray-50 rounded-lg border border-dashed border-gray-300 flex flex-col items-center justify-center">
-            <WashingMachine size={48} className="text-gray-400 mb-3" />
-            <p className="text-gray-700 text-lg font-medium mb-1">No services added yet</p>
-            <p className="text-gray-500 mb-4">Click "Add Service" to create your first laundry service</p>
-            <Button 
-              onClick={() => onServiceEdit(-1)}
-              variant="default"
-              className="flex items-center gap-1"
-            >
-              <Plus size={16} /> Add Service
-            </Button>
-          </div>
-        )}
-      </div>
+          })}
+        </div>
+      ) : (
+        <div className="text-center p-12 bg-gray-50 rounded-lg border border-dashed border-gray-300 flex flex-col items-center justify-center">
+          <WashingMachine size={48} className="text-gray-400 mb-3" />
+          <p className="text-gray-700 text-lg font-medium mb-1">No services added yet</p>
+          <p className="text-gray-500 mb-4">Click "Add Service" to create your first laundry service</p>
+          <Button 
+            onClick={() => onServiceEdit(-1)}
+            variant="default"
+            className="flex items-center gap-1"
+          >
+            <Plus size={16} /> Add Service
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
