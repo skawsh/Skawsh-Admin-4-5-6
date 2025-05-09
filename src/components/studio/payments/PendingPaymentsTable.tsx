@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -124,7 +125,7 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
                       {payment.serviceType} Wash
                     </span>
                   </TableCell>
-                  <TableCell>{payment.deliveredDate ? formatDate(payment.deliveredDate) : "Pending"}</TableCell>
+                  <TableCell>{payment.deliveredDate ? formatDate(payment.deliveredDate) : ""}</TableCell>
                   <TableCell className="text-right font-medium">{payment.amount.toFixed(2)}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end">
