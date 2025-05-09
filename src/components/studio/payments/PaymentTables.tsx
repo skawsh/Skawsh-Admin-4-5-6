@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Payment } from '@/hooks/useStudioPayments';
 import PaymentFilters from './PaymentFilters';
 import DateRangeDialog from './DateRangeDialog';
-import PendingPaymentsTable from './PendingPaymentsTable';
-import CompletedPaymentsTable from './CompletedPaymentsTable';
-import WashTypeSubTabs from './WashTypeSubTabs';
-import { Button } from '@/components/ui/button';
-import { CheckSquare } from 'lucide-react';
-import PaymentDialog from './PaymentDialog';
+import useDateRangeState from './useDateRangeState';
+import PendingPaymentsTab from './PendingPaymentsTab';
+import CompletedPaymentsTab from './CompletedPaymentsTab';
+import filterPaymentsByType from './filterPaymentsByType';
 
 interface PaymentTablesProps {
   activeTab: string;
@@ -35,98 +34,15 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   setSelectedPayments,
   onMarkSelectedAsPaid
 }) => {
-  const [dateFilter, setDateFilter] = useState<string>("all");
-  const [washTypeSubTab, setWashTypeSubTab] = useState<string>("all");
-  const [historyWashTypeSubTab, setHistoryWashTypeSubTab] = useState<string>("all");
-  const [dateRangeDialogOpen, setDateRangeDialogOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
-    from: undefined,
-    to: undefined
-  });
-  const [timeRange, setTimeRange] = useState<{
-    from: string;
-    to: string;
-  }>({
-    from: "00:00",
-    to: "23:59"
-  });
-  const [bulkPaymentDialogOpen, setBulkPaymentDialogOpen] = useState(false);
-  const [bulkPayment, setBulkPayment] = useState<Payment | null>(null);
-  const [selectedPaymentItems, setSelectedPaymentItems] = useState<Payment[]>([]);
+  // Use the custom hook for date range state
+  const dateRangeState = useDateRangeState();
+  
+  const [washTypeSubTab, setWashTypeSubTab] = React.useState<string>("all");
+  const [historyWashTypeSubTab, setHistoryWashTypeSubTab] = React.useState<string>("all");
 
-  // Filter payments by wash type subtab first
-  const filterByWashType = (payments: Payment[], tabValue: string) => {
-    if (tabValue === "all") return payments;
-    return payments.filter(payment => 
-      payment.serviceType.toLowerCase() === tabValue.toLowerCase().replace(" wash", "")
-    );
-  };
-
-  // Then filter by date range
-  const filteredPendingPayments = filterByWashType(pendingPayments, washTypeSubTab).filter(payment => {
-    if (dateFilter === "all") return true;
-    
-    // Here you would implement date-based filtering logic
-    // For now we'll keep it simple
-    return true;
-  });
-
-  const filteredCompletedPayments = filterByWashType(completedPayments, historyWashTypeSubTab).filter(payment => {
-    if (dateFilter === "all") return true;
-    
-    // Here you would implement date-based filtering logic
-    // For now we'll keep it simple
-    return true;
-  });
-
-  const handleDateFilterChange = (value: string) => {
-    setDateFilter(value);
-    if (value === "custom") {
-      setDateRangeDialogOpen(true);
-    }
-  };
-
-  const handleApplyDateRange = () => {
-    setDateRangeDialogOpen(false);
-    // Apply the custom date range filter
-    setDateFilter("custom");
-  };
-
-  const handleOpenBulkPaymentDialog = () => {
-    // Create a mock bulk payment object and collect selected payment items
-    if (selectedPayments.length > 0) {
-      const selectedItems = filteredPendingPayments.filter(p => 
-        selectedPayments.includes(p.id)
-      );
-      
-      const totalAmount = selectedItems.reduce((sum, p) => sum + p.amount, 0);
-      
-      setBulkPayment({
-        id: 0,
-        transactionId: `BULK-${selectedPayments.length}-ORDERS`,
-        amount: totalAmount,
-        date: new Date().toISOString(),
-        status: 'Pending',
-        serviceType: 'Standard',
-        customerName: `${selectedPayments.length} Orders`
-      });
-      
-      setSelectedPaymentItems(selectedItems);
-      setBulkPaymentDialogOpen(true);
-    }
-  };
-
-  const handleConfirmBulkPayment = (payment: Payment, referenceNumber: string) => {
-    // Handle the bulk payment confirmation
-    // Here you would typically make an API call
-    onMarkSelectedAsPaid();
-    setBulkPaymentDialogOpen(false);
-    setBulkPayment(null);
-    setSelectedPaymentItems([]);
-  };
+  // Filter payments by wash type
+  const filteredPendingPayments = filterPaymentsByType(pendingPayments, washTypeSubTab);
+  const filteredCompletedPayments = filterPaymentsByType(completedPayments, historyWashTypeSubTab);
 
   return (
     <div className="mt-6">
@@ -139,67 +55,48 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
         </Tabs>
         
         <PaymentFilters 
-          dateFilter={dateFilter}
-          onDateFilterChange={handleDateFilterChange}
-          dateRange={dateRange}
-          dateRangeDialogOpen={dateRangeDialogOpen}
-          setDateRangeDialogOpen={setDateRangeDialogOpen}
+          dateFilter={dateRangeState.dateFilter}
+          onDateFilterChange={dateRangeState.handleDateFilterChange}
+          dateRange={dateRangeState.dateRange}
+          dateRangeDialogOpen={dateRangeState.dateRangeDialogOpen}
+          setDateRangeDialogOpen={dateRangeState.setDateRangeDialogOpen}
           searchTerm={searchTerm}
           onSearchChange={onSearchChange}
         />
         
         <DateRangeDialog 
-          open={dateRangeDialogOpen}
-          onOpenChange={setDateRangeDialogOpen}
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          timeRange={timeRange}
-          setTimeRange={setTimeRange}
-          onApply={handleApplyDateRange}
+          open={dateRangeState.dateRangeDialogOpen}
+          onOpenChange={dateRangeState.setDateRangeDialogOpen}
+          dateRange={dateRangeState.dateRange}
+          setDateRange={dateRangeState.setDateRange}
+          timeRange={dateRangeState.timeRange}
+          setTimeRange={dateRangeState.setTimeRange}
+          onApply={dateRangeState.handleApplyDateRange}
         />
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-0">
         <TabsContent value="pending" className="mt-0">
-          <div className="flex items-center justify-between">
-            <WashTypeSubTabs value={washTypeSubTab} onChange={setWashTypeSubTab} />
-            
-            {selectedPayments.length > 0 && (
-              <Button 
-                variant="green"
-                onClick={handleOpenBulkPaymentDialog}
-                disabled={selectedPayments.length === 0}
-                className="ml-auto"
-              >
-                <CheckSquare className="mr-2 h-4 w-4" />
-                Mark Selected as Paid ({selectedPayments.length})
-              </Button>
-            )}
-          </div>
-          
-          <PendingPaymentsTable 
-            payments={filteredPendingPayments} 
+          <PendingPaymentsTab
+            washTypeSubTab={washTypeSubTab}
+            setWashTypeSubTab={setWashTypeSubTab}
+            pendingPayments={filteredPendingPayments}
             formatDate={formatDate}
             selectedPayments={selectedPayments}
             setSelectedPayments={setSelectedPayments}
+            onMarkSelectedAsPaid={onMarkSelectedAsPaid}
           />
         </TabsContent>
         
         <TabsContent value="history" className="mt-0">
-          <div className="flex items-center justify-between mb-6">
-            <WashTypeSubTabs value={historyWashTypeSubTab} onChange={setHistoryWashTypeSubTab} />
-          </div>
-          <CompletedPaymentsTable payments={filteredCompletedPayments} formatDate={formatDate} />
+          <CompletedPaymentsTab
+            historyWashTypeSubTab={historyWashTypeSubTab}
+            setHistoryWashTypeSubTab={setHistoryWashTypeSubTab}
+            completedPayments={filteredCompletedPayments}
+            formatDate={formatDate}
+          />
         </TabsContent>
       </Tabs>
-      
-      <PaymentDialog
-        open={bulkPaymentDialogOpen}
-        onOpenChange={setBulkPaymentDialogOpen}
-        payment={bulkPayment}
-        onConfirm={handleConfirmBulkPayment}
-        selectedPayments={selectedPaymentItems}
-      />
     </div>
   );
 };
