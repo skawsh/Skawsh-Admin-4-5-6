@@ -2,7 +2,7 @@
 import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Hanger } from 'lucide-react';
+import { Edit, Trash2, ShirtIcon } from 'lucide-react';
 import { useServicesData } from '@/hooks/useServicesData';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +34,7 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
   if (!subService.selectedItems || subService.selectedItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
-        <Hanger className="h-12 w-12 text-gray-400 mb-2" />
+        <ShirtIcon className="h-12 w-12 text-gray-400 mb-2" />
         <h3 className="text-gray-700 font-medium">No Items Added</h3>
         <p className="text-gray-500 text-sm">Add clothing items to this subservice to get started</p>
       </div>

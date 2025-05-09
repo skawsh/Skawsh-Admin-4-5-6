@@ -86,9 +86,11 @@ const ServiceItem: React.FC<ServiceItemProps> = ({
             <span className="text-sm text-gray-600">Active</span>
             <Switch 
               checked={service.active}
-              onCheckedChange={(e) => {
-                e.stopPropagation();
+              onCheckedChange={(checked) => {
                 onServiceStatusChange(serviceIndex);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
               }}
             />
           </div>

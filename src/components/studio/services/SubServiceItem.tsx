@@ -79,6 +79,7 @@ const SubServiceItem: React.FC<SubServiceItemProps> = ({
             <Switch 
               checked={subService.active !== false}
               onCheckedChange={(checked) => onSubServiceStatusChange(serviceIndex, subServiceIndex, checked)}
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
           <Button 
