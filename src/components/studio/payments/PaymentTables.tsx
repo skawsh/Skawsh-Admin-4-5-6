@@ -55,6 +55,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   });
   const [bulkPaymentDialogOpen, setBulkPaymentDialogOpen] = useState(false);
   const [bulkPayment, setBulkPayment] = useState<Payment | null>(null);
+  const [selectedPaymentItems, setSelectedPaymentItems] = useState<Payment[]>([]);
 
   // Filter payments by wash type subtab first
   const filterByWashType = (payments: Payment[]) => {
@@ -95,11 +96,13 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   };
 
   const handleOpenBulkPaymentDialog = () => {
-    // Create a mock bulk payment object
+    // Create a mock bulk payment object and collect selected payment items
     if (selectedPayments.length > 0) {
-      const totalAmount = filteredPendingPayments
-        .filter(p => selectedPayments.includes(p.id))
-        .reduce((sum, p) => sum + p.amount, 0);
+      const selectedItems = filteredPendingPayments.filter(p => 
+        selectedPayments.includes(p.id)
+      );
+      
+      const totalAmount = selectedItems.reduce((sum, p) => sum + p.amount, 0);
       
       setBulkPayment({
         id: 0,
@@ -111,6 +114,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
         customerName: `${selectedPayments.length} Orders`
       });
       
+      setSelectedPaymentItems(selectedItems);
       setBulkPaymentDialogOpen(true);
     }
   };
@@ -121,6 +125,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
     onMarkSelectedAsPaid();
     setBulkPaymentDialogOpen(false);
     setBulkPayment(null);
+    setSelectedPaymentItems([]);
   };
 
   return (
@@ -190,6 +195,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
         onOpenChange={setBulkPaymentDialogOpen}
         payment={bulkPayment}
         onConfirm={handleConfirmBulkPayment}
+        selectedPayments={selectedPaymentItems}
       />
     </div>
   );

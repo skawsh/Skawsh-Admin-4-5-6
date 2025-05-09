@@ -27,7 +27,8 @@ const StudioPayments: React.FC = () => {
       return payments.filter((payment) => 
         payment.transactionId.toLowerCase().includes(term) || 
         payment.serviceType.toLowerCase().includes(term) || 
-        payment.amount.toString().includes(term)
+        payment.amount.toString().includes(term) || 
+        (payment.customerName && payment.customerName.toLowerCase().includes(term))
       );
     };
     
@@ -48,6 +49,8 @@ const StudioPayments: React.FC = () => {
       description: `${selectedPayments.length} payments have been marked as paid successfully.`,
     });
     
+    // In a real application, this is where you would update the payment status in the database
+    // For this demo, we just clear the selection
     setSelectedPayments([]);
   };
 
