@@ -12,11 +12,37 @@ import { useToast } from '@/hooks/use-toast';
 
 const StudioPayments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { studioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
+  const { studioInfo: initialStudioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
   const [paidPaymentIds, setPaidPaymentIds] = useState<number[]>([]);
   const { toast } = useToast();
+
+  // Calculate the updated studioInfo with the correct pending amounts
+  const studioInfo = useMemo(() => {
+    if (!initialStudioInfo) return null;
+
+    // Create a copy of the initial studio info that we'll update
+    const updatedStudioInfo = { ...initialStudioInfo };
+
+    // Filter out payments that have been marked as paid
+    const actualPendingPayments = initialStudioInfo.payments.filter(p => 
+      p.status === 'Pending' && !paidPaymentIds.includes(p.id)
+    );
+
+    // Recalculate pending amounts
+    updatedStudioInfo.pendingAmount = actualPendingPayments.reduce((sum, p) => sum + p.amount, 0);
+    
+    updatedStudioInfo.standardWashPendingAmount = actualPendingPayments
+      .filter(p => p.serviceType === 'Standard')
+      .reduce((sum, p) => sum + p.amount, 0);
+    
+    updatedStudioInfo.expressWashPendingAmount = actualPendingPayments
+      .filter(p => p.serviceType === 'Express')
+      .reduce((sum, p) => sum + p.amount, 0);
+
+    return updatedStudioInfo;
+  }, [initialStudioInfo, paidPaymentIds]);
 
   const filteredPayments = useMemo(() => {
     if (!studioInfo) return { pending: [], completed: [] };
