@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Payment } from '@/hooks/useStudioPayments';
@@ -8,6 +9,7 @@ import CompletedPaymentsTable from './CompletedPaymentsTable';
 import WashTypeSubTabs from './WashTypeSubTabs';
 import { Button } from '@/components/ui/button';
 import { CheckSquare } from 'lucide-react';
+import PaymentDialog from './PaymentDialog';
 
 interface PaymentTablesProps {
   activeTab: string;
@@ -51,6 +53,8 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
     from: "00:00",
     to: "23:59"
   });
+  const [bulkPaymentDialogOpen, setBulkPaymentDialogOpen] = useState(false);
+  const [bulkPayment, setBulkPayment] = useState<Payment | null>(null);
 
   // Filter payments by wash type subtab first
   const filterByWashType = (payments: Payment[]) => {
@@ -88,6 +92,35 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
     setDateRangeDialogOpen(false);
     // Apply the custom date range filter
     setDateFilter("custom");
+  };
+
+  const handleOpenBulkPaymentDialog = () => {
+    // Create a mock bulk payment object
+    if (selectedPayments.length > 0) {
+      const totalAmount = filteredPendingPayments
+        .filter(p => selectedPayments.includes(p.id))
+        .reduce((sum, p) => sum + p.amount, 0);
+      
+      setBulkPayment({
+        id: 0,
+        transactionId: `BULK-${selectedPayments.length}-ORDERS`,
+        amount: totalAmount,
+        date: new Date().toISOString(),
+        status: 'Pending',
+        serviceType: 'Standard',
+        customerName: `${selectedPayments.length} Orders`
+      });
+      
+      setBulkPaymentDialogOpen(true);
+    }
+  };
+
+  const handleConfirmBulkPayment = (payment: Payment, referenceNumber: string) => {
+    // Handle the bulk payment confirmation
+    // Here you would typically make an API call
+    onMarkSelectedAsPaid();
+    setBulkPaymentDialogOpen(false);
+    setBulkPayment(null);
   };
 
   return (
@@ -129,7 +162,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
             {selectedPayments.length > 0 && (
               <Button 
                 variant="green"
-                onClick={onMarkSelectedAsPaid}
+                onClick={handleOpenBulkPaymentDialog}
                 disabled={selectedPayments.length === 0}
                 className="ml-auto"
               >
@@ -151,6 +184,13 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
           <CompletedPaymentsTable payments={filteredCompletedPayments} formatDate={formatDate} />
         </TabsContent>
       </Tabs>
+      
+      <PaymentDialog
+        open={bulkPaymentDialogOpen}
+        onOpenChange={setBulkPaymentDialogOpen}
+        payment={bulkPayment}
+        onConfirm={handleConfirmBulkPayment}
+      />
     </div>
   );
 };
