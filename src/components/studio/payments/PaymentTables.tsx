@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -27,6 +28,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
 
 interface PaymentTablesProps {
   activeTab: string;
@@ -50,6 +59,21 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [washTypeSubTab, setWashTypeSubTab] = useState<string>("all");
   const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
+  const [dateRangeDialogOpen, setDateRangeDialogOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: undefined,
+    to: undefined
+  });
+  const [timeRange, setTimeRange] = useState<{
+    from: string;
+    to: string;
+  }>({
+    from: "00:00",
+    to: "23:59"
+  });
 
   // Filter payments by wash type subtab first
   const filterByWashType = (payments: Payment[]) => {
@@ -83,6 +107,19 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
     }
   };
 
+  const handleDateFilterChange = (value: string) => {
+    setDateFilter(value);
+    if (value === "custom") {
+      setDateRangeDialogOpen(true);
+    }
+  };
+
+  const handleApplyDateRange = () => {
+    setDateRangeDialogOpen(false);
+    // Apply the custom date range filter
+    setDateFilter("custom");
+  };
+
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between mb-4">
@@ -93,7 +130,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
           </TabsList>
         </Tabs>
         <div className="flex items-center gap-4">
-          <Select value={dateFilter} onValueChange={setDateFilter}>
+          <Select value={dateFilter} onValueChange={handleDateFilterChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by date" />
             </SelectTrigger>
@@ -102,33 +139,122 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
               <SelectItem value="today">Today</SelectItem>
               <SelectItem value="thisWeek">This Week</SelectItem>
               <SelectItem value="thisMonth">This Month</SelectItem>
-              <SelectItem value="custom">Custom Date</SelectItem>
+              <SelectItem value="custom">Custom Date Range</SelectItem>
             </SelectContent>
           </Select>
           
-          {dateFilter === "custom" && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  {customDate ? (
-                    format(customDate, "PPP")
-                  ) : (
-                    "Pick a date"
-                  )}
-                  <CalendarIcon className="ml-2 h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={customDate}
-                  onSelect={handleCustomDateSelect}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+          {dateFilter === "custom" && !dateRangeDialogOpen && (
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setDateRangeDialogOpen(true)}
+            >
+              <span>
+                {dateRange.from && dateRange.to ? (
+                  `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`
+                ) : (
+                  "Select date range"
+                )}
+              </span>
+              <CalendarIcon className="h-4 w-4" />
+            </Button>
           )}
+
+          {/* Custom Date Range Dialog */}
+          <Dialog open={dateRangeDialogOpen} onOpenChange={setDateRangeDialogOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Select Custom Date Range</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-6 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="font-medium text-sm">Start Date</div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left"
+                        >
+                          {dateRange.from ? (
+                            format(dateRange.from, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateRange.from}
+                          onSelect={(date) => setDateRange((prev) => ({ ...prev, from: date }))}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="font-medium text-sm mt-4">Start Time</div>
+                    <Input
+                      type="time"
+                      value={timeRange.from}
+                      onChange={(e) => setTimeRange(prev => ({ ...prev, from: e.target.value }))}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="font-medium text-sm">End Date</div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left"
+                        >
+                          {dateRange.to ? (
+                            format(dateRange.to, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={dateRange.to}
+                          onSelect={(date) => setDateRange((prev) => ({ ...prev, to: date }))}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="font-medium text-sm mt-4">End Time</div>
+                    <Input
+                      type="time"
+                      value={timeRange.to}
+                      onChange={(e) => setTimeRange(prev => ({ ...prev, to: e.target.value }))}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setDateRangeDialogOpen(false)}
+                  className="mr-2"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleApplyDateRange}
+                  disabled={!dateRange.from || !dateRange.to}
+                >
+                  Apply Range
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
