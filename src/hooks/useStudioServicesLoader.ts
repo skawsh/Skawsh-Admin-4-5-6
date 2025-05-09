@@ -26,55 +26,46 @@ export const useStudioServicesLoader = (studioId: string | undefined) => {
           if (studio) {
             console.log("Found studio:", studio);
             
-            // Check if studioServices exists in the studio object
-            if (studio.studioServices) {
-              console.log("Studio services found:", studio.studioServices);
-              
-              // Ensure each subservice has an active property and clothingItemsStatus
-              const updatedStudioServices = studio.studioServices.map((service: any) => ({
-                ...service,
-                subServices: service.subServices.map((subService: any) => {
-                  // Initialize clothingItemsStatus if it doesn't exist
-                  const clothingItemsStatus = subService.clothingItemsStatus || {};
-                  
-                  // If there are selectedItems but no status for them, initialize all to active
-                  if (subService.selectedItems && subService.selectedItems.length > 0) {
-                    subService.selectedItems.forEach((itemId: string) => {
-                      if (clothingItemsStatus[itemId] === undefined) {
-                        clothingItemsStatus[itemId] = true;
-                      }
-                    });
-                  }
-                  
-                  return {
-                    ...subService,
-                    active: subService.active !== false, // Default to true if not explicitly false
-                    clothingItemsStatus
-                  };
-                })
-              }));
-              
-              setStudioData({
-                studioName: studio.studioName,
-                studioServices: updatedStudioServices
-              });
-            } else {
-              console.log("No studio services found in the studio object");
-              
-              // Check if services data exists but is saved in a different format
-              if (studio.services && Array.isArray(studio.services)) {
-                setStudioData({
-                  studioName: studio.studioName,
-                  studioServices: studio.services
-                });
-              } else {
-                // No services found in any expected format
-                setStudioData({
-                  studioName: studio.studioName,
-                  studioServices: []
-                });
+            // Initialize studioServices if it doesn't exist
+            if (!studio.studioServices) {
+              studio.studioServices = [];
+              // Save the updated studios array back to localStorage
+              const studioIndex = studios.findIndex((s: any) => s.id.toString() === studioId.toString());
+              if (studioIndex !== -1) {
+                studios[studioIndex] = studio;
+                localStorage.setItem('laundryStudios', JSON.stringify(studios));
               }
             }
+            
+            // Ensure each subservice has an active property and clothingItemsStatus
+            const updatedStudioServices = studio.studioServices.map((service: any) => ({
+              ...service,
+              subServices: service.subServices.map((subService: any) => {
+                // Initialize clothingItemsStatus if it doesn't exist
+                const clothingItemsStatus = subService.clothingItemsStatus || {};
+                
+                // If there are selectedItems but no status for them, initialize all to active
+                if (subService.selectedItems && subService.selectedItems.length > 0) {
+                  subService.selectedItems.forEach((itemId: string) => {
+                    if (clothingItemsStatus[itemId] === undefined) {
+                      clothingItemsStatus[itemId] = true;
+                    }
+                  });
+                }
+                
+                return {
+                  ...subService,
+                  active: subService.active !== false, // Default to true if not explicitly false
+                  clothingItemsStatus
+                };
+              })
+            }));
+            
+            setStudioData({
+              studioName: studio.studioName,
+              studioServices: updatedStudioServices
+            });
+            console.log("Loaded studio services:", updatedStudioServices);
           } else {
             console.log("Studio not found with ID:", studioId);
             toast({
@@ -88,12 +79,20 @@ export const useStudioServicesLoader = (studioId: string | undefined) => {
           console.error("Error parsing studio data:", error);
           toast({
             variant: "destructive",
-            title: "Error",
-            description: "Failed to load studio data"
+              title: "Error",
+              description: "Failed to load studio data"
+          });
+          setStudioData({
+            studioName: "Unknown Studio",
+            studioServices: []
           });
         }
       } else {
         console.log("No studios data found in localStorage or ID is missing");
+        setStudioData({
+          studioName: "Unknown Studio",
+          studioServices: []
+        });
       }
       setLoading(false);
     };

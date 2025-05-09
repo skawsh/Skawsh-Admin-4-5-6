@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { StudioService } from '@/types/services';
@@ -11,6 +12,12 @@ export const useStudioServicesManager = (
     studioName: string;
     studioServices: StudioService[];
   } | null>(initialData);
+  
+  useEffect(() => {
+    if (initialData !== null) {
+      setStudioData(initialData);
+    }
+  }, [initialData]);
   
   const { toast } = useToast();
   const { services: allServices, subServices: allSubServices, clothingItems: allClothingItems } = useServicesData();
@@ -265,13 +272,34 @@ export const useStudioServicesManager = (
 
   // Handle actual edit
   const handleSaveEdit = () => {
-    if (!studioData || !studioData.studioServices) return;
+    if (!studioData) {
+      // Initialize studioData if it doesn't exist
+      setStudioData({
+        studioName: "Studio",
+        studioServices: []
+      });
+    }
     
-    const updatedServices = [...studioData.studioServices];
+    const updatedServices = studioData ? [...studioData.studioServices] : [];
     
     switch (editType) {
       case 'service':
-        if (updatedServices[editIndices.serviceIndex]) {
+        if (editIndices.serviceIndex === -1) {
+          // Creating a new service
+          const newService: StudioService = {
+            id: Date.now().toString(),
+            name: editValue,
+            active: true,
+            serviceId: allServices[0]?.id || "service-1", // Default to first available service if any
+            subServices: []
+          };
+          updatedServices.push(newService);
+          toast({
+            title: "Service Created",
+            description: "New service has been created successfully."
+          });
+        } else if (updatedServices[editIndices.serviceIndex]) {
+          // Updating existing service
           updatedServices[editIndices.serviceIndex].name = editValue;
           toast({
             title: "Service Updated",
@@ -281,36 +309,61 @@ export const useStudioServicesManager = (
         break;
         
       case 'subservice':
-        if (updatedServices[editIndices.serviceIndex] && 
-            typeof editIndices.subServiceIndex === 'number') {
-          // We can't directly change the ID reference, but we can update the UI name
-          // This is informational only - the actual change would need to happen in the services data
-          toast({
-            title: "Information",
-            description: "Sub-service names are managed globally in the Services section."
-          });
+        if (updatedServices[editIndices.serviceIndex]) {
+          if (typeof editIndices.subServiceIndex === 'number' && editIndices.subServiceIndex === -1) {
+            // Creating a new subservice
+            const newSubService = {
+              name: allSubServices[0]?.id || "subservice-1", // Default to first available subservice
+              standardPricePerKg: 0,
+              expressPricePerKg: 0,
+              standardPricePerItem: 0,
+              expressPricePerItem: 0,
+              active: true,
+              selectedItems: [],
+              standardItemPrices: {},
+              expressItemPrices: {},
+              clothingItemsStatus: {}
+            };
+            updatedServices[editIndices.serviceIndex].subServices.push(newSubService);
+            toast({
+              title: "Sub-Service Created",
+              description: "New sub-service has been created successfully."
+            });
+          } else if (typeof editIndices.subServiceIndex === 'number') {
+            // For subservices, we're actually selecting from predefined options
+            // rather than editing the name directly
+            const selectedSubService = allSubServices.find(s => s.name === editValue);
+            if (selectedSubService) {
+              updatedServices[editIndices.serviceIndex].subServices[editIndices.subServiceIndex].name = selectedSubService.id;
+              toast({
+                title: "Sub-Service Updated",
+                description: "The sub-service has been updated successfully."
+              });
+            } else {
+              toast({
+                title: "Information",
+                description: "Sub-service names are managed globally in the Services section."
+              });
+            }
+          }
         }
         break;
         
       case 'clothingitem':
-        if (updatedServices[editIndices.serviceIndex] && 
-            typeof editIndices.subServiceIndex === 'number' &&
-            editIndices.itemId) {
-          // We can't directly change the ID reference, but we can update the UI name
-          // This is informational only - the actual change would need to happen in the services data
-          toast({
-            title: "Information",
-            description: "Clothing item names are managed globally in the Services section."
-          });
-        }
+        // Similar to subservices, clothing items are selected from predefined options
+        toast({
+          title: "Information",
+          description: "Clothing item names are managed globally in the Services section."
+        });
         break;
     }
     
-    setStudioData({
-      ...studioData,
+    const newStudioData = {
+      studioName: studioData?.studioName || "Studio",
       studioServices: updatedServices
-    });
+    };
     
+    setStudioData(newStudioData);
     saveUpdatedServicesToLocalStorage(updatedServices);
     setEditDialogOpen(false);
   };

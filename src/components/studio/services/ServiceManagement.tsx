@@ -51,6 +51,8 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
     }));
   };
 
+  console.log("Rendering ServiceManagement with services:", studioServices);
+
   return (
     <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
       <div className="flex justify-between items-center mb-6">
@@ -67,32 +69,38 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
       </div>
 
       <div className="space-y-1">
-        {studioServices.map((service, serviceIndex) => {
-          const isServiceExpanded = expandedServices[service.id] || false;
-          
-          return (
-            <ServiceItem
-              key={service.id}
-              service={service}
-              serviceIndex={serviceIndex}
-              isExpanded={isServiceExpanded}
-              onToggleExpansion={() => toggleServiceExpansion(service.id)}
-              onServiceStatusChange={onServiceStatusChange}
-              onServiceEdit={onServiceEdit}
-              onServiceDelete={onServiceDelete}
-              onSubServiceEdit={onSubServiceEdit}
-              onSubServiceDelete={onSubServiceDelete}
-              onSubServiceStatusChange={onSubServiceStatusChange}
-              onClothingItemStatusChange={onClothingItemStatusChange}
-              onClothingItemEdit={onClothingItemEdit}
-              onClothingItemDelete={onClothingItemDelete}
-              onEditPrices={onEditPrices}
-              onAddItem={onAddItem}
-              expandedSubServices={expandedSubServices}
-              toggleSubServiceExpansion={toggleSubServiceExpansion}
-            />
-          );
-        })}
+        {studioServices && studioServices.length > 0 ? (
+          studioServices.map((service, serviceIndex) => {
+            const isServiceExpanded = expandedServices[service.id] || false;
+            
+            return (
+              <ServiceItem
+                key={service.id || serviceIndex}
+                service={service}
+                serviceIndex={serviceIndex}
+                isExpanded={isServiceExpanded}
+                onToggleExpansion={() => toggleServiceExpansion(service.id)}
+                onServiceStatusChange={onServiceStatusChange}
+                onServiceEdit={onServiceEdit}
+                onServiceDelete={onServiceDelete}
+                onSubServiceEdit={onSubServiceEdit}
+                onSubServiceDelete={onSubServiceDelete}
+                onSubServiceStatusChange={onSubServiceStatusChange}
+                onClothingItemStatusChange={onClothingItemStatusChange}
+                onClothingItemEdit={onClothingItemEdit}
+                onClothingItemDelete={onClothingItemDelete}
+                onEditPrices={onEditPrices}
+                onAddItem={onAddItem}
+                expandedSubServices={expandedSubServices}
+                toggleSubServiceExpansion={toggleSubServiceExpansion}
+              />
+            );
+          })
+        ) : (
+          <div className="text-center p-8 text-gray-500">
+            No services added yet. Click "Add Service" to create one.
+          </div>
+        )}
       </div>
     </div>
   );

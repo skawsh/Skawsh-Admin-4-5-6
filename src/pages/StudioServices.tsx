@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useStudioServicesLoader } from '@/hooks/useStudioServicesLoader';
@@ -14,6 +13,26 @@ import AddItemDialog from '@/components/studio/services/AddItemDialog';
 
 const StudioServices: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  
+  // Initialize an empty studioServices array in localStorage if it doesn't exist
+  useEffect(() => {
+    if (id) {
+      const savedStudios = localStorage.getItem('laundryStudios');
+      if (savedStudios) {
+        try {
+          const studios = JSON.parse(savedStudios);
+          const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
+          
+          if (studioIndex !== -1 && !studios[studioIndex].studioServices) {
+            studios[studioIndex].studioServices = [];
+            localStorage.setItem('laundryStudios', JSON.stringify(studios));
+          }
+        } catch (error) {
+          console.error("Error initializing studio services:", error);
+        }
+      }
+    }
+  }, [id]);
   
   // Load studio services
   const { studioData, setStudioData, loading } = useStudioServicesLoader(id);
@@ -193,6 +212,11 @@ const StudioServices: React.FC = () => {
     setAddItemSubServiceIndex(null);
   };
 
+  // Debug logging
+  console.log("StudioServices render - ID:", id);
+  console.log("StudioData:", studioData);
+  console.log("Loading:", loading);
+
   return (
     <Layout activeSection="studios">
       <div className="space-y-6">
@@ -206,39 +230,47 @@ const StudioServices: React.FC = () => {
         {/* Content */}
         {loading ? (
           <div className="bg-white p-8 rounded-lg border border-gray-100 shadow-sm flex justify-center items-center min-h-[300px]">
-            Loading...
+            <div className="animate-pulse">Loading services...</div>
           </div>
-        ) : studioData && studioData.studioServices && studioData.studioServices.length > 0 ? (
-          <ServiceManagement
-            studioServices={studioData.studioServices}
-            onServiceStatusChange={handleServiceStatusChange}
-            onSubServiceStatusChange={handleSubServiceStatusChange}
-            onClothingItemStatusChange={handleClothingItemStatusChange}
-            onServiceEdit={handleEditService}
-            onServiceDelete={handleDeleteService}
-            onSubServiceEdit={handleEditSubService}
-            onSubServiceDelete={handleDeleteSubService}
-            onClothingItemEdit={handleEditClothingItem}
-            onClothingItemDelete={handleDeleteClothingItem}
-            onEditPrices={handleEditPrices}
-            onAddItem={handleAddItem}
-          />
+        ) : studioData ? (
+          studioData.studioServices && studioData.studioServices.length > 0 ? (
+            <ServiceManagement
+              studioServices={studioData.studioServices}
+              onServiceStatusChange={handleServiceStatusChange}
+              onSubServiceStatusChange={handleSubServiceStatusChange}
+              onClothingItemStatusChange={handleClothingItemStatusChange}
+              onServiceEdit={handleEditService}
+              onServiceDelete={handleDeleteService}
+              onSubServiceEdit={handleEditSubService}
+              onSubServiceDelete={handleDeleteSubService}
+              onClothingItemEdit={handleEditClothingItem}
+              onClothingItemDelete={handleDeleteClothingItem}
+              onEditPrices={handleEditPrices}
+              onAddItem={handleAddItem}
+            />
+          ) : (
+            <EmptyServicesState />
+          )
         ) : (
-          <EmptyServicesState />
+          <div className="bg-white p-8 rounded-lg border border-gray-100 shadow-sm flex justify-center items-center min-h-[300px]">
+            <div className="text-center text-gray-600">
+              Error loading studio data. Please try again.
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Edit Dialog */}
+      {/* Dialogs */}
       <EditServiceDialog
         isOpen={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        title={getEditDialogTitle()}
+        title={editType === 'subservice' ? 'Edit Sub-service' : 
+               editType === 'clothingitem' ? 'Edit Clothing Item' : 'Edit Service'}
         value={editValue}
         onChange={setEditValue}
         onSave={handleSaveEdit}
       />
 
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog
         isOpen={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
@@ -252,7 +284,46 @@ const StudioServices: React.FC = () => {
           isOpen={priceDialogOpen}
           onOpenChange={setPriceDialogOpen}
           priceData={editingPriceData.priceData}
-          onSave={handleSavePrices}
+          onSave={(priceData) => {
+            if (!editingPriceData || !studioData || !studioData.studioServices) return;
+            
+            const { serviceIndex, subServiceIndex } = editingPriceData;
+            const updatedServices = [...studioData.studioServices];
+            const subService = updatedServices[serviceIndex].subServices[subServiceIndex];
+            
+            // Update the subservice with new price data
+            updatedServices[serviceIndex].subServices[subServiceIndex] = {
+              ...subService,
+              standardPricePerKg: priceData.standardPricePerKg,
+              expressPricePerKg: priceData.expressPricePerKg,
+              standardPricePerItem: priceData.standardPricePerItem,
+              expressPricePerItem: priceData.expressPricePerItem,
+            };
+            
+            setStudioData({
+              ...studioData,
+              studioServices: updatedServices
+            });
+            
+            // Save to localStorage
+            const savedStudios = localStorage.getItem('laundryStudios');
+            if (savedStudios && id) {
+              try {
+                const studios = JSON.parse(savedStudios);
+                const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
+                
+                if (studioIndex !== -1) {
+                  studios[studioIndex].studioServices = updatedServices;
+                  localStorage.setItem('laundryStudios', JSON.stringify(studios));
+                }
+              } catch (error) {
+                console.error("Error saving price data:", error);
+              }
+            }
+            
+            setPriceDialogOpen(false);
+            setEditingPriceData(null);
+          }}
         />
       )}
       
@@ -260,7 +331,64 @@ const StudioServices: React.FC = () => {
       <AddItemDialog
         isOpen={addItemDialogOpen}
         onOpenChange={setAddItemDialogOpen}
-        onSave={handleSaveNewItem}
+        onSave={(newItem) => {
+          if (addItemServiceIndex === null || addItemSubServiceIndex === null || !studioData) return;
+          
+          const updatedServices = [...studioData.studioServices];
+          const subService = updatedServices[addItemServiceIndex].subServices[addItemSubServiceIndex];
+          
+          // Make sure selectedItems array exists
+          if (!subService.selectedItems) {
+            subService.selectedItems = [];
+          }
+          
+          // Make sure item prices objects exist
+          if (!subService.standardItemPrices) {
+            subService.standardItemPrices = {};
+          }
+          
+          if (!subService.expressItemPrices) {
+            subService.expressItemPrices = {};
+          }
+          
+          // Add the new item
+          subService.selectedItems.push(newItem.id);
+          subService.standardItemPrices[newItem.id] = newItem.standardPrice;
+          subService.expressItemPrices[newItem.id] = newItem.expressPrice;
+          
+          // Initialize item status to active
+          if (!subService.clothingItemsStatus) {
+            subService.clothingItemsStatus = {};
+          }
+          subService.clothingItemsStatus[newItem.id] = true;
+          
+          // Update state
+          setStudioData({
+            ...studioData,
+            studioServices: updatedServices
+          });
+          
+          // Save to localStorage
+          const savedStudios = localStorage.getItem('laundryStudios');
+          if (savedStudios && id) {
+            try {
+              const studios = JSON.parse(savedStudios);
+              const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
+              
+              if (studioIndex !== -1) {
+                studios[studioIndex].studioServices = updatedServices;
+                localStorage.setItem('laundryStudios', JSON.stringify(studios));
+              }
+            } catch (error) {
+              console.error("Error saving new item:", error);
+            }
+          }
+          
+          // Close dialog
+          setAddItemDialogOpen(false);
+          setAddItemServiceIndex(null);
+          setAddItemSubServiceIndex(null);
+        }}
       />
     </Layout>
   );
