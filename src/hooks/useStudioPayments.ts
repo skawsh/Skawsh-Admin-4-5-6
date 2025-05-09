@@ -43,31 +43,31 @@ export const useStudioPayments = (studioId: string | undefined) => {
           const studio = studios.find((s: any) => s.id === Number(studioId));
           
           if (studio) {
-            // Mock payment data
+            // Mock payment data with updated order IDs and delivered dates
             const mockPayments: Payment[] = [
               {
                 id: 1,
-                transactionId: 'TXN20240501001',
+                transactionId: 'Ord-1001',
                 amount: 1250,
                 date: '2024-05-01T10:30:00',
                 status: 'Completed',
                 serviceType: 'Standard',
                 customerName: 'John Doe',
-                deliveredDate: '2024-05-02T14:30:00'
+                deliveredDate: '2024-05-12T14:30:00'
               },
               {
                 id: 2,
-                transactionId: 'TXN20240505002',
+                transactionId: 'Ord-1002',
                 amount: 980,
                 date: '2024-05-05T14:15:00',
                 status: 'Completed',
                 serviceType: 'Express',
                 customerName: 'Jane Smith',
-                deliveredDate: '2024-05-05T18:45:00'
+                deliveredDate: '2024-05-11T18:45:00'
               },
               {
                 id: 3,
-                transactionId: 'TXN20240508003',
+                transactionId: 'Ord-1003',
                 amount: 1450,
                 date: '2024-05-08T09:45:00',
                 status: 'Pending',
@@ -76,7 +76,7 @@ export const useStudioPayments = (studioId: string | undefined) => {
               },
               {
                 id: 4,
-                transactionId: 'TXN20240509004',
+                transactionId: 'Ord-1004',
                 amount: 875,
                 date: '2024-05-09T16:20:00',
                 status: 'Pending',
