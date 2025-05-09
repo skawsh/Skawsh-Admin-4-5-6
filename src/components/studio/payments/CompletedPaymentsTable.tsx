@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -68,7 +67,7 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
 
   return (
     <div>
-      {selectedPayments.length > 1 && (
+      {selectedPayments.length > 0 && (
         <div className="flex justify-end mb-4">
           <Button 
             variant="blue" 
