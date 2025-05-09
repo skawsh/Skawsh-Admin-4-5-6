@@ -15,6 +15,7 @@ const StudioPayments: React.FC = () => {
   const { studioInfo, loading, activeTab, setActiveTab, formatDate } = useStudioPayments(id);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const [paidPaymentIds, setPaidPaymentIds] = useState<number[]>([]);
   const { toast } = useToast();
 
   const filteredPayments = useMemo(() => {
@@ -32,14 +33,19 @@ const StudioPayments: React.FC = () => {
       );
     };
     
-    const pendingPayments = studioInfo.payments.filter(p => p.status === 'Pending');
-    const completedPayments = studioInfo.payments.filter(p => p.status === 'Completed');
+    // Update to take into account paidPaymentIds
+    const pendingPayments = studioInfo.payments.filter(p => 
+      p.status === 'Pending' && !paidPaymentIds.includes(p.id)
+    );
+    const completedPayments = studioInfo.payments.filter(p => 
+      p.status === 'Completed' || paidPaymentIds.includes(p.id)
+    );
     
     return {
       pending: filterPayments(pendingPayments),
       completed: filterPayments(completedPayments)
     };
-  }, [studioInfo, searchTerm]);
+  }, [studioInfo, searchTerm, paidPaymentIds]);
 
   const handleMarkSelectedAsPaid = () => {
     if (selectedPayments.length === 0) return;
@@ -49,9 +55,27 @@ const StudioPayments: React.FC = () => {
       description: `${selectedPayments.length} payments have been marked as paid successfully.`,
     });
     
-    // In a real application, this is where you would update the payment status in the database
-    // For this demo, we just clear the selection
+    // Update the paidPaymentIds state to move payments to the "completed" list
+    setPaidPaymentIds(prev => [...prev, ...selectedPayments]);
+    
+    // Clear the selection
     setSelectedPayments([]);
+    
+    // Switch to the history tab
+    setActiveTab('history');
+  };
+
+  const handleMarkAsPaid = (paymentId: number) => {
+    // Add the payment ID to the paid list
+    setPaidPaymentIds(prev => [...prev, paymentId]);
+    
+    // If this payment was selected, remove it from the selection
+    if (selectedPayments.includes(paymentId)) {
+      setSelectedPayments(prev => prev.filter(id => id !== paymentId));
+    }
+    
+    // Switch to the history tab
+    setActiveTab('history');
   };
 
   if (loading) {
@@ -80,6 +104,7 @@ const StudioPayments: React.FC = () => {
           selectedPayments={selectedPayments}
           setSelectedPayments={setSelectedPayments}
           onMarkSelectedAsPaid={handleMarkSelectedAsPaid}
+          onMarkAsPaid={handleMarkAsPaid}
         />
       </div>
     </Layout>

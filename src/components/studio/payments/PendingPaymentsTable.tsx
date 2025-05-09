@@ -28,6 +28,7 @@ interface PendingPaymentsTableProps {
   selectedPayments: number[];
   setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;
   onSwitchToHistoryTab?: () => void;
+  onMarkAsPaid: (paymentId: number) => void;
 }
 
 const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
@@ -35,7 +36,8 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   formatDate,
   selectedPayments,
   setSelectedPayments,
-  onSwitchToHistoryTab
+  onSwitchToHistoryTab,
+  onMarkAsPaid
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -74,15 +76,8 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
       description: `Payment for ${payment.transactionId} has been recorded with reference: ${referenceNumber || 'N/A'}`,
     });
     
-    // Remove from selected payments if it was selected
-    if (selectedPayments.includes(payment.id)) {
-      setSelectedPayments(selectedPayments.filter(id => id !== payment.id));
-    }
-
-    // Switch to the payment history tab
-    if (onSwitchToHistoryTab) {
-      onSwitchToHistoryTab();
-    }
+    // Call the onMarkAsPaid function to move this payment to completed
+    onMarkAsPaid(payment.id);
   };
 
   return (

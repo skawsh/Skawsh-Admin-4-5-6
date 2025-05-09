@@ -20,6 +20,7 @@ interface PaymentTablesProps {
   selectedPayments: number[];
   setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;
   onMarkSelectedAsPaid: () => void;
+  onMarkAsPaid: (paymentId: number) => void;
 }
 
 const PaymentTables: React.FC<PaymentTablesProps> = ({
@@ -32,7 +33,8 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   onSearchChange,
   selectedPayments,
   setSelectedPayments,
-  onMarkSelectedAsPaid
+  onMarkSelectedAsPaid,
+  onMarkAsPaid
 }) => {
   // Use the custom hook for date range state
   const dateRangeState = useDateRangeState();
@@ -91,6 +93,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
             setSelectedPayments={setSelectedPayments}
             onMarkSelectedAsPaid={onMarkSelectedAsPaid}
             onSwitchToHistoryTab={switchToHistoryTab}
+            onMarkAsPaid={onMarkAsPaid}
           />
         </TabsContent>
         

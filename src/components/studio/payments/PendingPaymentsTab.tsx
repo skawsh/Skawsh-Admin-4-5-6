@@ -14,6 +14,7 @@ interface PendingPaymentsTabProps {
   setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;
   onMarkSelectedAsPaid: () => void;
   onSwitchToHistoryTab?: () => void;
+  onMarkAsPaid: (paymentId: number) => void;
 }
 
 const PendingPaymentsTab: React.FC<PendingPaymentsTabProps> = ({
@@ -24,7 +25,8 @@ const PendingPaymentsTab: React.FC<PendingPaymentsTabProps> = ({
   selectedPayments,
   setSelectedPayments,
   onMarkSelectedAsPaid,
-  onSwitchToHistoryTab
+  onSwitchToHistoryTab,
+  onMarkAsPaid
 }) => {
   return (
     <>
@@ -45,6 +47,7 @@ const PendingPaymentsTab: React.FC<PendingPaymentsTabProps> = ({
         selectedPayments={selectedPayments}
         setSelectedPayments={setSelectedPayments}
         onSwitchToHistoryTab={onSwitchToHistoryTab}
+        onMarkAsPaid={onMarkAsPaid}
       />
     </>
   );
