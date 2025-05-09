@@ -10,6 +10,7 @@ import AddStudio from "./pages/AddStudio";
 import StudioDetails from "./pages/StudioDetails";
 import StudioServices from "./pages/StudioServices";
 import StudioRatings from "./pages/StudioRatings";
+import StudioPayments from "./pages/StudioPayments";
 import Services from "./pages/Services";
 import Drivers from "./pages/Drivers";
 import Orders from "./pages/Orders";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/studios/:id" element={<StudioDetails />} />
           <Route path="/studios/:id/services" element={<StudioServices />} />
           <Route path="/studios/:id/ratings" element={<StudioRatings />} />
+          <Route path="/studios/:id/payments" element={<StudioPayments />} />
           <Route path="/studios/onboard-requests" element={<OnboardRequests />} />
           <Route path="/services" element={<Services />} />
           <Route path="/drivers" element={<Drivers />} />

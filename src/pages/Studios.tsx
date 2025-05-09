@@ -207,10 +207,7 @@ const Studios: React.FC = () => {
   };
 
   const handlePaymentsClick = (studio: Studio) => {
-    toast({
-      title: "Payments",
-      description: `Viewing payments for ${studio.studioName}`,
-    });
+    navigate(`/studios/${studio.id}/payments`);
   };
 
   const handleViewEditStudioClick = (studio: Studio) => {
@@ -423,4 +420,3 @@ const Studios: React.FC = () => {
 };
 
 export default Studios;
-
