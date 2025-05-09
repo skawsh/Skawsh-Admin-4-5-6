@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -11,7 +12,14 @@ import {
 import { Payment } from '@/hooks/useStudioPayments';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PendingPaymentsTableProps {
   payments: Payment[];
@@ -23,6 +31,8 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   formatDate
 }) => {
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -38,6 +48,18 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
     } else {
       setSelectedPayments(selectedPayments.filter(id => id !== paymentId));
     }
+  };
+
+  const handleViewOrderDetails = (payment: Payment) => {
+    navigate(`/orders/${payment.transactionId}`);
+  };
+
+  const handleMarkAsPaid = (payment: Payment) => {
+    // In a real application, this would make an API call to update the payment status
+    toast({
+      title: "Payment Marked as Paid",
+      description: `Payment ${payment.transactionId} has been marked as paid.`,
+    });
   };
 
   return (
@@ -89,13 +111,22 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
                 <TableCell>{payment.deliveredDate ? formatDate(payment.deliveredDate) : "Pending"}</TableCell>
                 <TableCell className="text-right font-medium">{payment.amount.toFixed(2)}</TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-end space-x-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Trash className="h-4 w-4" />
-                    </Button>
+                  <div className="flex items-center justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleViewOrderDetails(payment)}>
+                          Order Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleMarkAsPaid(payment)}>
+                          Mark as Paid
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>

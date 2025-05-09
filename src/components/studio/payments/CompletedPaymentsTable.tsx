@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -11,7 +12,13 @@ import {
 import { Payment } from '@/hooks/useStudioPayments';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CompletedPaymentsTableProps {
   payments: Payment[];
@@ -23,6 +30,7 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
   formatDate
 }) => {
   const [selectedPayments, setSelectedPayments] = useState<number[]>([]);
+  const navigate = useNavigate();
   
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -38,6 +46,10 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
     } else {
       setSelectedPayments(selectedPayments.filter(id => id !== paymentId));
     }
+  };
+
+  const handleViewOrderDetails = (payment: Payment) => {
+    navigate(`/orders/${payment.transactionId}`);
   };
 
   return (
@@ -95,13 +107,19 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
                 </TableCell>
                 <TableCell className="text-right font-medium">{payment.amount.toFixed(2)}</TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-end space-x-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Trash className="h-4 w-4" />
-                    </Button>
+                  <div className="flex items-center justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleViewOrderDetails(payment)}>
+                          Order Details
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>
