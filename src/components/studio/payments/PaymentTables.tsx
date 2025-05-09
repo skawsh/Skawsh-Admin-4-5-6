@@ -18,6 +18,15 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface PaymentTablesProps {
   activeTab: string;
@@ -40,6 +49,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
 }) => {
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [washTypeSubTab, setWashTypeSubTab] = useState<string>("all");
+  const [customDate, setCustomDate] = useState<Date | undefined>(undefined);
 
   // Filter payments by wash type subtab first
   const filterByWashType = (payments: Payment[]) => {
@@ -66,6 +76,13 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
     return true;
   });
 
+  const handleCustomDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setCustomDate(date);
+      setDateFilter("custom");
+    }
+  };
+
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between mb-4">
@@ -85,8 +102,33 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
               <SelectItem value="today">Today</SelectItem>
               <SelectItem value="thisWeek">This Week</SelectItem>
               <SelectItem value="thisMonth">This Month</SelectItem>
+              <SelectItem value="custom">Custom Date</SelectItem>
             </SelectContent>
           </Select>
+          
+          {dateFilter === "custom" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  {customDate ? (
+                    format(customDate, "PPP")
+                  ) : (
+                    "Pick a date"
+                  )}
+                  <CalendarIcon className="ml-2 h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={customDate}
+                  onSelect={handleCustomDateSelect}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          )}
           
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
