@@ -156,7 +156,7 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
 
       {/* Export handleMarkSelectedAsPaid function and selectedPayments state to be used by the parent component */}
       <Button 
-        variant="primary" 
+        variant="green" 
         onClick={handleMarkSelectedAsPaid}
         disabled={selectedPayments.length === 0}
         className="hidden"

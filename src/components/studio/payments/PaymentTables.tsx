@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Payment } from '@/hooks/useStudioPayments';
@@ -15,6 +16,9 @@ interface PaymentTablesProps {
   formatDate: (dateString: string) => string;
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  selectedPayments: number[];  // Added this prop
+  setSelectedPayments: React.Dispatch<React.SetStateAction<number[]>>;  // Added this prop
+  onMarkSelectedAsPaid: () => void;  // This was already here
 }
 
 const PaymentTables: React.FC<PaymentTablesProps> = ({
@@ -24,7 +28,10 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   completedPayments,
   formatDate,
   searchTerm,
-  onSearchChange
+  onSearchChange,
+  selectedPayments,
+  setSelectedPayments,
+  onMarkSelectedAsPaid
 }) => {
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [washTypeSubTab, setWashTypeSubTab] = useState<string>("all");
@@ -100,6 +107,9 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
           setDateRangeDialogOpen={setDateRangeDialogOpen}
           searchTerm={searchTerm}
           onSearchChange={onSearchChange}
+          showMarkAsPaidButton={activeTab === 'pending' && selectedPayments.length > 0}
+          onMarkAsPaid={onMarkSelectedAsPaid}
+          markAsPaidDisabled={selectedPayments.length === 0}
         />
         
         <DateRangeDialog 

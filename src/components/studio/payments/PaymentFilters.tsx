@@ -87,8 +87,7 @@ const PaymentFilters: React.FC<PaymentFiltersProps> = ({
 
       {showMarkAsPaidButton && (
         <Button 
-          variant="primary"
-          className="bg-green-400 hover:bg-green-500 text-white"
+          variant="green"
           onClick={onMarkAsPaid}
           disabled={markAsPaidDisabled}
         >
