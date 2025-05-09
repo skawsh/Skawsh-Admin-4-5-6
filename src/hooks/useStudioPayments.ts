@@ -10,6 +10,8 @@ export interface Payment {
   date: string;
   status: 'Pending' | 'Completed' | 'Failed';
   serviceType: 'Standard' | 'Express';
+  customerName?: string;
+  deliveredDate?: string;
 }
 
 export interface StudioPaymentInfo {
@@ -49,7 +51,9 @@ export const useStudioPayments = (studioId: string | undefined) => {
                 amount: 1250,
                 date: '2024-05-01T10:30:00',
                 status: 'Completed',
-                serviceType: 'Standard'
+                serviceType: 'Standard',
+                customerName: 'John Doe',
+                deliveredDate: '2024-05-02T14:30:00'
               },
               {
                 id: 2,
@@ -57,7 +61,9 @@ export const useStudioPayments = (studioId: string | undefined) => {
                 amount: 980,
                 date: '2024-05-05T14:15:00',
                 status: 'Completed',
-                serviceType: 'Express'
+                serviceType: 'Express',
+                customerName: 'Jane Smith',
+                deliveredDate: '2024-05-05T18:45:00'
               },
               {
                 id: 3,
@@ -65,7 +71,8 @@ export const useStudioPayments = (studioId: string | undefined) => {
                 amount: 1450,
                 date: '2024-05-08T09:45:00',
                 status: 'Pending',
-                serviceType: 'Standard'
+                serviceType: 'Standard',
+                customerName: 'Robert Johnson'
               },
               {
                 id: 4,
@@ -73,7 +80,8 @@ export const useStudioPayments = (studioId: string | undefined) => {
                 amount: 875,
                 date: '2024-05-09T16:20:00',
                 status: 'Pending',
-                serviceType: 'Express'
+                serviceType: 'Express',
+                customerName: 'Emily Williams'
               }
             ];
             
