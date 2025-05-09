@@ -47,8 +47,8 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
               <TableHead>CUSTOMER NAME</TableHead>
               <TableHead>ORDERED DATE</TableHead>
               <TableHead>WASH TYPE</TableHead>
-              <TableHead>DELIVERED DATE</TableHead>
-              <TableHead>STATUS</TableHead>
+              <TableHead>PAYMENT DATE</TableHead>
+              <TableHead>REFERENCE NO</TableHead>
               <TableHead className="text-right">AMOUNT (₹)</TableHead>
               <TableHead className="w-[100px]">ACTIONS</TableHead>
             </TableRow>
