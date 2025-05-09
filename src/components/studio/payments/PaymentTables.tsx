@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -39,16 +38,32 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   searchTerm,
   onSearchChange
 }) => {
-  const [washTypeFilter, setWashTypeFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("all");
+  const [washTypeSubTab, setWashTypeSubTab] = useState<string>("all");
 
-  const filteredPendingPayments = pendingPayments.filter(payment => {
-    if (washTypeFilter === "all") return true;
-    return payment.serviceType.toLowerCase() === washTypeFilter.toLowerCase();
+  // Filter payments by wash type subtab first
+  const filterByWashType = (payments: Payment[]) => {
+    if (washTypeSubTab === "all") return payments;
+    return payments.filter(payment => 
+      payment.serviceType.toLowerCase() === washTypeSubTab.toLowerCase().replace(" wash", "")
+    );
+  };
+
+  // Then filter by date range
+  const filteredPendingPayments = filterByWashType(pendingPayments).filter(payment => {
+    if (dateFilter === "all") return true;
+    
+    // Here you would implement date-based filtering logic
+    // For now we'll keep it simple
+    return true;
   });
 
   const filteredCompletedPayments = completedPayments.filter(payment => {
-    if (washTypeFilter === "all") return true;
-    return payment.serviceType.toLowerCase() === washTypeFilter.toLowerCase();
+    if (dateFilter === "all") return true;
+    
+    // Here you would implement date-based filtering logic
+    // For now we'll keep it simple
+    return true;
   });
 
   return (
@@ -61,14 +76,15 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
           </TabsList>
         </Tabs>
         <div className="flex items-center gap-4">
-          <Select value={washTypeFilter} onValueChange={setWashTypeFilter}>
+          <Select value={dateFilter} onValueChange={setDateFilter}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by wash type" />
+              <SelectValue placeholder="Filter by date" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Wash Types</SelectItem>
-              <SelectItem value="standard">Standard Wash</SelectItem>
-              <SelectItem value="express">Express Wash</SelectItem>
+              <SelectItem value="all">All Dates</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="thisWeek">This Week</SelectItem>
+              <SelectItem value="thisMonth">This Month</SelectItem>
             </SelectContent>
           </Select>
           
@@ -87,6 +103,14 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-0">
         <TabsContent value="pending" className="mt-0">
+          <Tabs defaultValue={washTypeSubTab} onValueChange={setWashTypeSubTab} className="mt-4 mb-6">
+            <TabsList>
+              <TabsTrigger value="all">All Wash Types</TabsTrigger>
+              <TabsTrigger value="standard">Standard Wash Type</TabsTrigger>
+              <TabsTrigger value="express">Express Wash Type</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
           <div className="rounded-md border">
             <Table>
               <TableHeader>
