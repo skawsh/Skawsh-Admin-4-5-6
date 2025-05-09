@@ -73,7 +73,7 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
                   <TableCell>{payment.deliveredDate ? formatDate(payment.deliveredDate) : "N/A"}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 font-medium text-xs">
-                      {payment.status}
+                      UTR12345678
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-medium">{payment.amount.toFixed(2)}</TableCell>
