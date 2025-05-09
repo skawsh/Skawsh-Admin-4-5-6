@@ -32,11 +32,11 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
   return (
     <div className="border rounded-lg overflow-hidden">
       {/* Table Header */}
-      <div className="grid grid-cols-4 bg-gray-50 p-2 text-sm font-medium text-gray-600">
-        <div className="pl-2">Name</div>
-        <div className="text-center">Standard Price</div>
-        <div className="text-center">Express Price</div>
-        <div className="text-right pr-2">Status</div>
+      <div className="grid grid-cols-4 bg-gray-50 p-3">
+        <div className="font-medium">Name</div>
+        <div className="text-center font-medium">Standard Price</div>
+        <div className="text-center font-medium">Express Price</div>
+        <div className="text-right font-medium">Status</div>
       </div>
       
       {/* Table Body */}
@@ -47,9 +47,9 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
           const expressPrice = subService.expressItemPrices?.[itemId] || '0';
           
           return (
-            <div key={itemId} className="grid grid-cols-4 p-2 border-t items-center text-sm">
-              <div className="pl-2 flex items-center gap-2">
-                <span className="font-medium">{getClothingItemName(itemId)}</span>
+            <div key={itemId} className="grid grid-cols-4 p-3 border-t items-center">
+              <div className="flex items-center gap-2">
+                <span>{getClothingItemName(itemId)}</span>
                 <Button 
                   variant="ghost" 
                   size="icon"
@@ -61,14 +61,14 @@ const ClothingItemTable: React.FC<ClothingItemTableProps> = ({
               </div>
               <div className="text-center">₹{standardPrice}</div>
               <div className="text-center">₹{expressPrice}</div>
-              <div className="flex items-center justify-end gap-2 pr-2">
+              <div className="flex items-center justify-end gap-2">
                 <span className="text-sm text-gray-600">Active</span>
                 <Switch 
                   checked={isItemActive}
                   onCheckedChange={(checked) => 
                     onClothingItemStatusChange(serviceIndex, subServiceIndex, itemId, checked)
                   } 
-                  className="scale-90"
+                  className="scale-100"
                 />
                 <Button 
                   variant="ghost" 

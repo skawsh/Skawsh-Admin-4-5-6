@@ -53,20 +53,20 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
 
   return (
     <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Service Management</h1>
-          <p className="text-gray-600">Manage your services, subservices, and item details</p>
+          <p className="text-gray-600 mt-1">Manage your services, subservices, and item details</p>
         </div>
         <Button 
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1 px-4"
           onClick={() => onServiceEdit(-1)} // -1 indicates new service
         >
           <Plus size={18} /> Add Service
         </Button>
       </div>
 
-      <div className="space-y-4 mt-6">
+      <div className="space-y-1">
         {studioServices.map((service, serviceIndex) => {
           const isServiceExpanded = expandedServices[service.id] || false;
           
