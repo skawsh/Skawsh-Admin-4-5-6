@@ -35,6 +35,7 @@ const PendingPaymentsTab: React.FC<PendingPaymentsTabProps> = ({
           selectedPayments={selectedPayments}
           pendingPayments={pendingPayments}
           onMarkSelectedAsPaid={onMarkSelectedAsPaid}
+          onSwitchToHistoryTab={onSwitchToHistoryTab}
         />
       </div>
       

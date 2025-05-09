@@ -9,12 +9,14 @@ interface BulkPaymentHandlerProps {
   selectedPayments: number[];
   pendingPayments: Payment[];
   onMarkSelectedAsPaid: () => void;
+  onSwitchToHistoryTab?: () => void;
 }
 
 const BulkPaymentHandler: React.FC<BulkPaymentHandlerProps> = ({
   selectedPayments,
   pendingPayments,
   onMarkSelectedAsPaid,
+  onSwitchToHistoryTab,
 }) => {
   const [bulkPaymentDialogOpen, setBulkPaymentDialogOpen] = useState(false);
   const [bulkPayment, setBulkPayment] = useState<Payment | null>(null);
@@ -49,6 +51,11 @@ const BulkPaymentHandler: React.FC<BulkPaymentHandlerProps> = ({
     setBulkPaymentDialogOpen(false);
     setBulkPayment(null);
     setSelectedPaymentItems([]);
+    
+    // Switch to the payment history tab after recording the bulk payment
+    if (onSwitchToHistoryTab) {
+      onSwitchToHistoryTab();
+    }
   };
 
   if (selectedPayments.length === 0) {
