@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Table,
@@ -66,16 +66,14 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
     setSelectedPayments([]);
   };
 
-  // Debug to check if selected payments array is populated
-  console.log("Selected payments:", selectedPayments);
-
   return (
-    <div className="space-y-4">
-      {/* Action button area - Always render but conditionally show */}
-      <div className={`flex justify-end ${selectedPayments.length === 0 ? 'invisible' : 'visible'}`}>
+    <div className="space-y-6">
+      {/* Action button area - Always visible but conditionally enabled */}
+      <div className="flex justify-end mb-2">
         <Button 
           variant="blue" 
           onClick={handleMarkSelectedAsPaid}
+          disabled={selectedPayments.length === 0}
           className="flex items-center gap-2"
         >
           <CheckSquare className="h-4 w-4" />
