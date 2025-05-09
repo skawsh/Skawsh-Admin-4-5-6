@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -71,7 +72,8 @@ export const useStudioPayments = (studioId: string | undefined) => {
                 date: '2024-05-08T09:45:00',
                 status: 'Pending',
                 serviceType: 'Standard',
-                customerName: 'Robert Johnson'
+                customerName: 'Robert Johnson',
+                deliveredDate: '2024-05-11T14:30:00'
               },
               {
                 id: 4,
@@ -80,7 +82,8 @@ export const useStudioPayments = (studioId: string | undefined) => {
                 date: '2024-05-09T16:20:00',
                 status: 'Pending',
                 serviceType: 'Express',
-                customerName: 'Emily Williams'
+                customerName: 'Emily Williams',
+                deliveredDate: '2024-05-11T16:45:00'
               }
             ];
             
@@ -161,3 +164,4 @@ export const useStudioPayments = (studioId: string | undefined) => {
     formatDate
   };
 };
+
