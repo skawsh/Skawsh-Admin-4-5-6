@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { StudioService } from '@/types/services';
 import { Button } from '@/components/ui/button';
@@ -36,13 +35,6 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
 }) => {
   const [expandedServices, setExpandedServices] = useState<{[key: string]: boolean}>({});
   const [expandedSubServices, setExpandedSubServices] = useState<{[key: string]: boolean}>({});
-  
-  const defaultServices = [
-    { id: "service-1", name: "Core Laundry Services" },
-    { id: "service-2", name: "Dry Cleaning" },
-    { id: "service-3", name: "Specialized Laundry Services" },
-    { id: "service-4", name: "Shoe Cleaning" },
-  ];
 
   const toggleServiceExpansion = (serviceId: string) => {
     setExpandedServices(prev => ({
@@ -58,10 +50,6 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
     }));
   };
 
-  const handleAddService = () => {
-    onServiceEdit(-1);
-  };
-
   return (
     <div className="bg-white rounded-lg border border-gray-100 p-6">
       <div className="flex justify-between items-center mb-6">
@@ -71,7 +59,7 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
         </div>
         <Button 
           className="flex items-center gap-1 px-5 bg-blue-600 hover:bg-blue-700 text-white" 
-          onClick={handleAddService}
+          onClick={() => onServiceEdit(-1)}
         >
           <Plus size={18} /> Add Service
         </Button>
@@ -111,18 +99,13 @@ const ServiceManagement: React.FC<ServiceManagementProps> = ({
           <WashingMachine size={48} className="text-gray-400 mb-3" />
           <p className="text-gray-700 text-lg font-medium mb-1">No services added yet</p>
           <p className="text-gray-500 mb-4">Click "Add Service" to create your first laundry service</p>
-          <div className="space-y-3 w-full max-w-md">
-            {defaultServices.map((service, index) => (
-              <Button 
-                key={service.id}
-                onClick={() => onServiceEdit(-1)}
-                variant="outline"
-                className="flex items-center justify-center gap-2 w-full py-3"
-              >
-                <Plus size={16} /> {service.name}
-              </Button>
-            ))}
-          </div>
+          <Button 
+            onClick={() => onServiceEdit(-1)}
+            variant="default"
+            className="flex items-center gap-1"
+          >
+            <Plus size={16} /> Add Service
+          </Button>
         </div>
       )}
     </div>
