@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Payment } from '@/hooks/useStudioPayments';
@@ -38,6 +37,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
 }) => {
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [washTypeSubTab, setWashTypeSubTab] = useState<string>("all");
+  const [historyWashTypeSubTab, setHistoryWashTypeSubTab] = useState<string>("all");
   const [dateRangeDialogOpen, setDateRangeDialogOpen] = useState(false);
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
@@ -58,15 +58,15 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
   const [selectedPaymentItems, setSelectedPaymentItems] = useState<Payment[]>([]);
 
   // Filter payments by wash type subtab first
-  const filterByWashType = (payments: Payment[]) => {
-    if (washTypeSubTab === "all") return payments;
+  const filterByWashType = (payments: Payment[], tabValue: string) => {
+    if (tabValue === "all") return payments;
     return payments.filter(payment => 
-      payment.serviceType.toLowerCase() === washTypeSubTab.toLowerCase().replace(" wash", "")
+      payment.serviceType.toLowerCase() === tabValue.toLowerCase().replace(" wash", "")
     );
   };
 
   // Then filter by date range
-  const filteredPendingPayments = filterByWashType(pendingPayments).filter(payment => {
+  const filteredPendingPayments = filterByWashType(pendingPayments, washTypeSubTab).filter(payment => {
     if (dateFilter === "all") return true;
     
     // Here you would implement date-based filtering logic
@@ -74,7 +74,7 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
     return true;
   });
 
-  const filteredCompletedPayments = completedPayments.filter(payment => {
+  const filteredCompletedPayments = filterByWashType(completedPayments, historyWashTypeSubTab).filter(payment => {
     if (dateFilter === "all") return true;
     
     // Here you would implement date-based filtering logic
@@ -186,6 +186,9 @@ const PaymentTables: React.FC<PaymentTablesProps> = ({
         </TabsContent>
         
         <TabsContent value="history" className="mt-0">
+          <div className="flex items-center justify-between mb-6">
+            <WashTypeSubTabs value={historyWashTypeSubTab} onChange={setHistoryWashTypeSubTab} />
+          </div>
           <CompletedPaymentsTable payments={filteredCompletedPayments} formatDate={formatDate} />
         </TabsContent>
       </Tabs>
