@@ -1,17 +1,22 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Plus, WashingMachine } from 'lucide-react';
 
 const EmptyServicesState: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const { toast } = useToast();
-  
-  const handleAddService = () => {
-    // Create a basic service structure if none exists
+  const { id } = useParams<{ id: string }>();
+
+  const defaultServices = [
+    { id: "service-1", name: "Core Laundry Services" },
+    { id: "service-2", name: "Dry Cleaning" },
+    { id: "service-3", name: "Specialized Laundry Services" },
+    { id: "service-4", name: "Shoe Cleaning" },
+  ];
+
+  const handleAddService = (serviceId: string, serviceName: string) => {
+    // Create a new service with the specified name
     const savedStudios = localStorage.getItem('laundryStudios');
     if (savedStudios && id) {
       try {
@@ -19,67 +24,49 @@ const EmptyServicesState: React.FC = () => {
         const studioIndex = studios.findIndex((s: any) => s.id.toString() === id.toString());
         
         if (studioIndex !== -1) {
-          // Initialize empty services array if it doesn't exist
           if (!studios[studioIndex].studioServices) {
             studios[studioIndex].studioServices = [];
           }
           
-          // Create a default service to get started
-          const defaultService = {
-            id: Date.now().toString(),
-            name: "Laundry Service",
+          const newService = {
+            id: serviceId,
+            name: serviceName,
             active: true,
-            serviceId: "laundry-service",
-            subServices: [
-              {
-                name: "wash-fold", // Assuming this is the ID of a subservice
-                standardPricePerKg: 80,
-                expressPricePerKg: 120,
-                active: true,
-                selectedItems: [],
-                standardItemPrices: {},
-                expressItemPrices: {},
-                clothingItemsStatus: {}
-              }
-            ]
+            serviceId: serviceId,
+            subServices: []
           };
           
-          studios[studioIndex].studioServices.push(defaultService);
+          studios[studioIndex].studioServices.push(newService);
           localStorage.setItem('laundryStudios', JSON.stringify(studios));
           
-          toast({
-            title: "Service Created",
-            description: "Added a default service to get you started."
-          });
-          
-          // Force reload the current page to show the service management UI
+          // Refresh the page to show the new service
           window.location.reload();
         }
       } catch (error) {
-        console.error("Error initializing services:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to initialize services."
-        });
+        console.error("Error adding service:", error);
       }
     }
   };
-  
+
   return (
-    <div className="bg-white p-8 rounded-lg border border-gray-100 shadow-sm flex justify-center items-center min-h-[300px]">
-      <div className="text-center">
-        <h3 className="text-lg font-medium mb-2">No Services Added</h3>
-        <p className="text-gray-500 mb-4">
-          This studio doesn't have any services configured yet.
-        </p>
-        <Button 
-          onClick={handleAddService}
-          className="mt-2"
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Services
-        </Button>
+    <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-8 text-center">
+      <div className="max-w-md mx-auto flex flex-col items-center">
+        <WashingMachine size={64} className="text-gray-400 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">No Services Added Yet</h2>
+        <p className="text-gray-600 mb-8">Start by adding services to this laundry studio</p>
+        
+        <div className="space-y-3 w-full">
+          {defaultServices.map((service) => (
+            <Button 
+              key={service.id}
+              onClick={() => handleAddService(service.id, service.name)}
+              variant="outline"
+              className="flex items-center justify-center gap-2 w-full py-3"
+            >
+              <Plus size={16} /> {service.name}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );
