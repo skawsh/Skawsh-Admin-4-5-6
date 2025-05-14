@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -157,16 +156,9 @@ export const useStudios = () => {
   };
 
   const handleDeleteStudio = (studio: Studio) => {
-    if (window.confirm(`Are you sure you want to delete ${studio.studioName}?`)) {
-      const updatedStudios = studiosData.filter(s => s.id !== studio.id);
-      setStudiosData(updatedStudios);
-      localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
-      
-      toast({
-        title: "Studio Deleted",
-        description: `${studio.studioName} has been deleted`,
-      });
-    }
+    const updatedStudios = studiosData.filter(s => s.id !== studio.id);
+    setStudiosData(updatedStudios);
+    localStorage.setItem('laundryStudios', JSON.stringify(updatedStudios));
   };
 
   const totalStudios = studiosData.length;
