@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import OrderDetailsDialog from './OrderDetailsDialog';
 
 interface CompletedPaymentsTableProps {
   payments: Payment[];
@@ -31,9 +32,12 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [orderDetailsDialogOpen, setOrderDetailsDialogOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   
   const handleViewOrderDetails = (payment: Payment) => {
-    navigate(`/orders/${payment.transactionId}`);
+    setSelectedPayment(payment);
+    setOrderDetailsDialogOpen(true);
   };
 
   return (
@@ -107,6 +111,14 @@ const CompletedPaymentsTable: React.FC<CompletedPaymentsTableProps> = ({
           </TableBody>
         </Table>
       </div>
+
+      {selectedPayment && (
+        <OrderDetailsDialog 
+          open={orderDetailsDialogOpen}
+          onOpenChange={setOrderDetailsDialogOpen}
+          orderId={selectedPayment.transactionId}
+        />
+      )}
     </div>
   );
 };

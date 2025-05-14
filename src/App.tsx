@@ -17,6 +17,7 @@ import Users from "./pages/Users";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 import OnboardRequests from "./pages/OnboardRequests";
+import OrderDetails from "./pages/OrderDetails";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/studios/onboard-requests" element={<OnboardRequests />} />
           <Route path="/services" element={<Services />} />
           <Route path="/revenue" element={<Revenue />} />
+          <Route path="/orders/:orderId/details" element={<OrderDetails />} />
           <Route path="/users" element={<Users />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="*" element={<NotFound />} />

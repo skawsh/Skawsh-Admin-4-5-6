@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import PaymentDialog from './PaymentDialog';
+import OrderDetailsDialog from './OrderDetailsDialog';
 
 interface PendingPaymentsTableProps {
   payments: Payment[];
@@ -43,6 +44,7 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   const { toast } = useToast();
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [orderDetailsDialogOpen, setOrderDetailsDialogOpen] = useState(false);
   
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -61,7 +63,8 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
   };
 
   const handleViewOrderDetails = (payment: Payment) => {
-    navigate(`/orders/${payment.transactionId}`);
+    setSelectedPayment(payment);
+    setOrderDetailsDialogOpen(true);
   };
 
   const handleOpenPaymentDialog = (payment: Payment) => {
@@ -172,6 +175,14 @@ const PendingPaymentsTable: React.FC<PendingPaymentsTableProps> = ({
         payment={selectedPayment}
         onConfirm={handleConfirmPayment}
       />
+
+      {selectedPayment && (
+        <OrderDetailsDialog 
+          open={orderDetailsDialogOpen}
+          onOpenChange={setOrderDetailsDialogOpen}
+          orderId={selectedPayment.transactionId}
+        />
+      )}
     </>
   );
 };
