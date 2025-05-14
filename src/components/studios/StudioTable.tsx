@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 import DeleteStudioDialog from './DeleteStudioDialog';
 import DeleteSuccessDialog from './DeleteSuccessDialog';
+import RedirectServiceDialog from './RedirectServiceDialog';
 
 interface Studio {
   id: number;
@@ -57,6 +58,7 @@ const StudioTable: React.FC<StudioTableProps> = ({
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [studioToDelete, setStudioToDelete] = useState<Studio | null>(null);
   const [deletedStudio, setDeletedStudio] = useState<Studio | null>(null);
+  const [redirectDialogOpen, setRedirectDialogOpen] = useState(false);
 
   const handlePaymentsClick = (studio: Studio) => {
     navigate(`/studios/${studio.id}/payments`);
@@ -67,7 +69,7 @@ const StudioTable: React.FC<StudioTableProps> = ({
   };
 
   const handleViewEditServicesClick = (studio: Studio) => {
-    navigate(`/studios/${studio.id}/services`);
+    setRedirectDialogOpen(true);
   };
 
   const handleViewAnalyticsClick = (studio: Studio) => {
@@ -251,8 +253,15 @@ const StudioTable: React.FC<StudioTableProps> = ({
           studioName={deletedStudio.studioName}
         />
       )}
+
+      {/* Redirect to vendor panel dialog */}
+      <RedirectServiceDialog
+        isOpen={redirectDialogOpen}
+        onClose={() => setRedirectDialogOpen(false)}
+      />
     </>
   );
 };
 
 export default StudioTable;
+
