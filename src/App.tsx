@@ -12,13 +12,8 @@ import StudioServices from "./pages/StudioServices";
 import StudioRatings from "./pages/StudioRatings";
 import StudioPayments from "./pages/StudioPayments";
 import Services from "./pages/Services";
-import Drivers from "./pages/Drivers";
-import Orders from "./pages/Orders";
-import OrderDetails from "./pages/OrderDetails";
-import Analytics from "./pages/Analytics";
 import Revenue from "./pages/Revenue";
 import Users from "./pages/Users";
-import Settings from "./pages/Settings";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 import OnboardRequests from "./pages/OnboardRequests";
@@ -41,14 +36,9 @@ const App = () => (
           <Route path="/studios/:id/payments" element={<StudioPayments />} />
           <Route path="/studios/onboard-requests" element={<OnboardRequests />} />
           <Route path="/services" element={<Services />} />
-          <Route path="/drivers" element={<Drivers />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:orderId/details" element={<OrderDetails />} />
-          <Route path="/analytics" element={<Analytics />} />
           <Route path="/revenue" element={<Revenue />} />
           <Route path="/users" element={<Users />} />
           <Route path="/feedback" element={<Feedback />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

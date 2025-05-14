@@ -5,12 +5,9 @@ import {
   LayoutDashboard, 
   Building, 
   Package, 
-  Car, 
-  ClipboardList, 
   BarChart2, 
   IndianRupee, 
   Users, 
-  Settings, 
   ChevronLeft,
   ChevronRight,
   MessageSquare
@@ -32,13 +29,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection }) => {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Studios', icon: Building, path: '/studios' },
     { name: 'Services', icon: Package, path: '/services' },
-    { name: 'Drivers', icon: Car, path: '/drivers' },
-    { name: 'Orders', icon: ClipboardList, path: '/orders' },
-    { name: 'Analytics', icon: BarChart2, path: '/analytics' },
     { name: 'Revenue', icon: IndianRupee, path: '/revenue' },
     { name: 'Users', icon: Users, path: '/users' },
     { name: 'Feedback', icon: MessageSquare, path: '/feedback' },
-    { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   return (
