@@ -1,15 +1,20 @@
 
 import React from 'react';
 import Layout from '../components/layout/Layout';
-import { Plus, Search, Download, Users as UsersIcon, Activity, Trash } from 'lucide-react';
+import { Search, Download, Users as UsersIcon, Activity, Trash, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useUsers } from '@/hooks/useUsers';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const Users: React.FC = () => {
-  const { users, loading, searchTerm, setSearchTerm, userStats } = useUsers();
+  const { users, loading, searchTerm, setSearchTerm, userStats, dateRange, setDateRange } = useUsers();
 
   // Stat cards for user metrics
   const StatCard = ({ icon: Icon, value, label, color }: { 
@@ -39,10 +44,56 @@ const Users: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-800">Users</h1>
             <p className="text-gray-600 mt-1">Manage staff and customer accounts</p>
           </div>
-          <button className="flex items-center gap-2 bg-laundry-blue hover:bg-laundry-blue-dark text-white font-medium py-2 px-4 rounded-md transition-colors">
-            <Plus size={18} />
-            <span>Add User</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Calendar size={16} />
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        <span>
+                          {format(dateRange.from, "MMM d, yyyy")} - {format(dateRange.to, "MMM d, yyyy")}
+                        </span>
+                      ) : (
+                        format(dateRange.from, "MMM d, yyyy")
+                      )
+                    ) : (
+                      <span>Select date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <div className="p-3">
+                    <CalendarComponent
+                      mode="range"
+                      selected={{
+                        from: dateRange.from,
+                        to: dateRange.to,
+                      }}
+                      onSelect={(range) => {
+                        setDateRange({
+                          from: range?.from,
+                          to: range?.to,
+                        });
+                      }}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                    {(dateRange.from || dateRange.to) && (
+                      <Button
+                        variant="ghost"
+                        className="mt-2"
+                        onClick={() => setDateRange({ from: undefined, to: undefined })}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}

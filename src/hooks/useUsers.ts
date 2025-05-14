@@ -19,6 +19,13 @@ export const useUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to: Date | undefined;
+  }>({
+    from: undefined,
+    to: undefined,
+  });
 
   // Mock user data
   const mockUsers: User[] = [
@@ -114,12 +121,32 @@ export const useUsers = () => {
     fetchUsers();
   }, [toast]);
 
-  const filteredUsers = users.filter(user => 
+  // Filter users by search term
+  const filteredBySearch = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.mobile.includes(searchTerm) ||
     user.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Filter users by date range
+  const filteredUsers = filteredBySearch.filter(user => {
+    if (!dateRange.from && !dateRange.to) {
+      return true;
+    }
+    
+    const userDate = new Date(user.lastOrderDate);
+    
+    if (dateRange.from && dateRange.to) {
+      return userDate >= dateRange.from && userDate <= dateRange.to;
+    } else if (dateRange.from) {
+      return userDate >= dateRange.from;
+    } else if (dateRange.to) {
+      return userDate <= dateRange.to;
+    }
+    
+    return true;
+  });
 
   // User statistics for tiles
   const userStats = {
@@ -134,6 +161,8 @@ export const useUsers = () => {
     loading,
     searchTerm,
     setSearchTerm,
-    userStats
+    userStats,
+    dateRange,
+    setDateRange
   };
 };
